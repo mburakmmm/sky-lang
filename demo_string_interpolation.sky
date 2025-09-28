@@ -1,0 +1,17 @@
+# String Interpolation Test
+print("🔤 String Interpolation Test Başlıyor...")
+
+# Dart-style string interpolation
+var name = "Sky"
+var age = 25
+print("Merhaba $name, yaşın $age")
+
+# F-string style interpolation
+var message = f"Merhaba {name}, yaşın {age}"
+print(message)
+
+# Complex interpolation
+var result = f"Sonuç: {age * 2}"
+print(result)
+
+print("✅ String Interpolation Test Bitti")

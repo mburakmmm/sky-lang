@@ -1,0 +1,10 @@
+function sayi_analizi(sayi: int)
+    string sonuc = ""
+    if sayi > 0:
+        sonuc = sonuc + "Pozitif"
+    else:
+        sonuc = sonuc + "Negatif"
+    
+    return sonuc
+
+print("5: " + sayi_analizi(5))

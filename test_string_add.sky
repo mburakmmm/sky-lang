@@ -1,0 +1,4 @@
+# String add test
+string sonuç = ""
+sonuç = sonuç + "Pozitif "
+print(sonuç)

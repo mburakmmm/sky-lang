@@ -1,0 +1,63 @@
+{
+  "name": "sky-syntax",
+  "displayName": "Sky Syntax",
+  "description": "Syntax highlighting for Sky programming language",
+  "version": "0.1.0",
+  "publisher": "sky-lang",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets"
+  ],
+  "keywords": [
+    "sky",
+    "programming language",
+    "syntax highlighting",
+    "indented syntax",
+    "async",
+    "coroutines"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "sky",
+        "aliases": [
+          "Sky",
+          "sky"
+        ],
+        "extensions": [
+          ".sky"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "sky",
+        "scopeName": "source.sky",
+        "path": "./sky.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "sky",
+        "path": "./snippets.json"
+      }
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sky-lang/sky.git"
+  },
+  "homepage": "https://github.com/sky-lang/sky",
+  "bugs": {
+    "url": "https://github.com/sky-lang/sky/issues"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Sky Language Team",
+    "email": "dev@sky-lang.org"
+  }
+}

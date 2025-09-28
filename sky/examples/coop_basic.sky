@@ -1,0 +1,217 @@
+# Sky Coroutine (Coop/Yield) Örneği
+# İşbirlikçi çoklu görev ve coroutine'ler
+
+# Basit counter coroutine
+coop function say(n: int)
+  int i = 0
+  while i < n
+    yield i
+    i = i + 1
+  return n
+
+# Fibonacci generator coroutine
+coop function fibonacci(n: int)
+  int a = 0
+  int b = 1
+  int i = 0
+  while i < n
+    yield a
+    int temp = a + b
+    a = b
+    b = temp
+    i = i + 1
+  return n
+
+# Ping-Pong coroutine
+coop function ping(n: int)
+  int i = 0
+  while i < n
+    yield "ping " + i
+    i = i + 1
+  return "ping done"
+
+coop function pong(n: int)
+  int i = 0
+  while i < n
+    yield "pong " + i
+    i = i + 1
+  return "pong done"
+
+# Coroutine ile dosya okuma simülasyonu
+coop function dosya_oku(dosya_adı: string)
+  print("Dosya açılıyor: " + dosya_adı)
+  yield "Dosya açıldı"
+  
+  int satır_no = 1
+  while satır_no <= 5
+    yield "Satır " + satır_no + " okundu"
+    satır_no = satır_no + 1
+  
+  print("Dosya kapatılıyor: " + dosya_adı)
+  return "Dosya okuma tamamlandı"
+
+# Coroutine ile network isteği simülasyonu
+coop function network_istek(url: string)
+  print("Bağlantı kuruluyor: " + url)
+  yield "Bağlantı kuruldu"
+  
+  print("Veri gönderiliyor")
+  yield "Veri gönderildi"
+  
+  print("Yanıt bekleniyor")
+  yield "Yanıt alındı"
+  
+  print("Veri işleniyor")
+  yield "Veri işlendi"
+  
+  return "İstek tamamlandı"
+
+# Coroutine ile progress bar simülasyonu
+coop function progress_bar(toplam: int)
+  int mevcut = 0
+  while mevcut < toplam
+    float yüzde = (mevcut * 100.0) / toplam
+    yield "Progress: " + yüzde + "% (" + mevcut + "/" + toplam + ")"
+    mevcut = mevcut + 1
+  return "Progress tamamlandı"
+
+# Ana program
+print("=== Sky Coroutine (Coop/Yield) Örnekleri ===")
+
+# Basit counter testi
+print("--- Basit Counter ---")
+var counter = say(5)
+print("Counter oluşturuldu")
+
+while not counter.is_done()
+  var değer = counter.resume()
+  print("Counter değeri: " + değer)
+
+print("Counter durumu: " + counter.status())
+print("Counter tamamlandı mı: " + counter.is_done())
+
+# Fibonacci testi
+print("--- Fibonacci Generator ---")
+var fib = fibonacci(10)
+print("Fibonacci generator oluşturuldu")
+
+int sayı = 0
+while not fib.is_done()
+  var değer = fib.resume()
+  print("Fibonacci[" + sayı + "] = " + değer)
+  sayı = sayı + 1
+
+# Ping-Pong testi
+print("--- Ping-Pong ---")
+var ping_c = ping(3)
+var pong_c = pong(3)
+
+print("Ping-Pong coroutine'leri oluşturuldu")
+
+while not ping_c.is_done() or not pong_c.is_done()
+  if not ping_c.is_done()
+    var ping_değer = ping_c.resume()
+    print(ping_değer)
+  
+  if not pong_c.is_done()
+    var pong_değer = pong_c.resume()
+    print(pong_değer)
+
+# Dosya okuma testi
+print("--- Dosya Okuma Simülasyonu ---")
+var dosya_c = dosya_oku("test.txt")
+
+while not dosya_c.is_done()
+  var durum = dosya_c.resume()
+  print(dosya_c)
+
+# Network isteği testi
+print("--- Network İsteği Simülasyonu ---")
+var network_c = network_istek("https://example.com")
+
+while not network_c.is_done()
+  var durum = network_c.resume()
+  print(network_c)
+
+# Progress bar testi
+print("--- Progress Bar ---")
+var progress_c = progress_bar(10)
+
+while not progress_c.is_done()
+  var durum = progress_c.resume()
+  print(durum)
+
+# Çoklu coroutine testi
+print("--- Çoklu Coroutine ---")
+var c1 = say(3)
+var c2 = fibonacci(5)
+var c3 = ping(2)
+
+list coroutine_listesi = [c1, c2, c3]
+int aktif_coroutine = 3
+
+while aktif_coroutine > 0
+  for coroutine in coroutine_listesi
+    if not coroutine.is_done()
+      var değer = coroutine.resume()
+      print("Coroutine değeri: " + değer)
+    else
+      aktif_coroutine = aktif_coroutine - 1
+
+# Coroutine hata testi
+print("--- Coroutine Hata Testi ---")
+coop function hata_ver()
+  yield 1
+  yield 2
+  int x = 1 / 0  # Runtime error
+  yield 3
+
+var hata_c = hata_ver()
+print("Hata coroutine'i oluşturuldu")
+
+try
+  var değer1 = hata_c.resume()
+  print("Değer 1: " + değer1)
+  
+  var değer2 = hata_c.resume()
+  print("Değer 2: " + değer2)
+  
+  var değer3 = hata_c.resume()  # Hata burada oluşacak
+  print("Değer 3: " + değer3)
+except RuntimeError as e
+  print("Yakalanan hata: " + e.message)
+  print("Coroutine durumu: " + hata_c.status())
+
+# Done coroutine resume testi
+print("--- Done Coroutine Resume Testi ---")
+var done_c = say(2)
+var değer1 = done_c.resume()
+print("Değer 1: " + değer1)
+var değer2 = done_c.resume()
+print("Değer 2: " + değer2)
+
+try
+  var değer3 = done_c.resume()  # E2001 hatası
+  print("Değer 3: " + değer3)
+except RuntimeError as e
+  print("Yakalanan hata: " + e.message)
+
+# Coroutine composition
+print("--- Coroutine Composition ---")
+coop function birleştir(c1: Coroutine, c2: Coroutine)
+  while not c1.is_done() or not c2.is_done()
+    if not c1.is_done()
+      yield c1.resume()
+    if not c2.is_done()
+      yield c2.resume()
+  return "Her ikisi de tamamlandı"
+
+var comp_c1 = say(3)
+var comp_c2 = ping(2)
+var birleşik_c = birleştir(comp_c1, comp_c2)
+
+while not birleşik_c.is_done()
+  var değer = birleşik_c.resume()
+  print("Birleşik değer: " + değer)
+
+print("=== Coroutine Örnekleri Tamamlandı ===")

@@ -1,0 +1,7 @@
+# Simple Async Test
+print("🚀 Simple Async Test Başlıyor...")
+
+async function test()
+  return "Async çalışıyor!"
+
+print("✅ Async function tanımlandı")

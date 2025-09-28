@@ -1,0 +1,12 @@
+# Import Usage Test
+print("📦 Import Usage Test Başlıyor...")
+
+# Import syntax test
+import math
+print("🔍 math modülü import edildi!")
+
+# Math modülünü kullan
+var result = math.sqrt(16)
+print("📊 math.sqrt(16) = " + result)
+
+print("✅ Import Usage Test Bitti")

@@ -1,0 +1,5 @@
+# Simple string concatenation test
+string a = "Hello"
+string b = "World"
+string c = a + b
+print(c)

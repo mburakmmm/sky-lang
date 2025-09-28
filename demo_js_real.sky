@@ -1,0 +1,13 @@
+# JavaScript Bridge Real Test
+print("🟨 JavaScript Bridge Real Test Başlıyor...")
+
+# JS bridge fonksiyonunu çağır - gerçek çağrı  
+var js_func = js_eval("(x) => x * 2")
+print("🔍 JavaScript fonksiyonu oluşturuldu!")
+
+# JavaScript fonksiyonunu çağır
+var result = js_func(21)
+print("📊 JavaScript sonucu: " + result)
+
+print("✅ JS bridge real test tamamlandı")
+print("🏁 JavaScript Bridge Real Test Bitti")

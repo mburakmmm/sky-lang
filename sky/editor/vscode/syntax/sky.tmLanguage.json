@@ -1,0 +1,223 @@
+{
+  "name": "Sky",
+  "scopeName": "source.sky",
+  "fileTypes": ["sky"],
+  "patterns": [
+    {
+      "include": "#comment"
+    },
+    {
+      "include": "#string"
+    },
+    {
+      "include": "#number"
+    },
+    {
+      "include": "#keyword"
+    },
+    {
+      "include": "#type"
+    },
+    {
+      "include": "#function"
+    },
+    {
+      "include": "#identifier"
+    },
+    {
+      "include": "#operator"
+    },
+    {
+      "include": "#punctuation"
+    }
+  ],
+  "repository": {
+    "comment": {
+      "patterns": [
+        {
+          "name": "comment.line.number-sign.sky",
+          "begin": "#",
+          "end": "$",
+          "patterns": [
+            {
+              "name": "keyword.other.todo.sky",
+              "match": "\\b(TODO|FIXME|NOTE|HACK|XXX)\\b"
+            }
+          ]
+        }
+      ]
+    },
+    "string": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.sky",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "constant.character.escape.sky",
+              "match": "\\\\."
+            },
+            {
+              "name": "variable.interpolation.sky",
+              "match": "\\$[\\p{L}_][\\p{L}\\p{M}\\p{N}_]*"
+            },
+            {
+              "name": "punctuation.section.interpolation.begin.sky",
+              "match": "\\$\\{"
+            },
+            {
+              "name": "punctuation.section.interpolation.end.sky",
+              "match": "\\}"
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.single.sky",
+          "begin": "'",
+          "end": "'",
+          "patterns": [
+            {
+              "name": "constant.character.escape.sky",
+              "match": "\\\\."
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.double.f-string.sky",
+          "begin": "\\bf(?=\")",
+          "beginCaptures": {
+            "0": {
+              "name": "storage.type.string.sky"
+            }
+          },
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "constant.character.escape.sky",
+              "match": "\\\\."
+            },
+            {
+              "name": "constant.character.escape.sky",
+              "match": "\\{\\{|\\}\\}"
+            },
+            {
+              "name": "meta.interpolation.sky",
+              "begin": "\\{",
+              "end": "\\}",
+              "patterns": [
+                {
+                  "include": "$self"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "number": {
+      "patterns": [
+        {
+          "name": "constant.numeric.integer.sky",
+          "match": "\\b(0|[1-9][0-9]*)\\b"
+        },
+        {
+          "name": "constant.numeric.float.sky",
+          "match": "\\b[0-9]+\\.[0-9]+\\b"
+        }
+      ]
+    },
+    "keyword": {
+      "patterns": [
+        {
+          "name": "keyword.control.sky",
+          "match": "\\b(if|elif|else|for|while|break|continue|return|yield|await)\\b"
+        },
+        {
+          "name": "keyword.other.sky",
+          "match": "\\b(var|function|async|coop|import|true|false|null)\\b"
+        }
+      ]
+    },
+    "type": {
+      "patterns": [
+        {
+          "name": "storage.type.sky",
+          "match": "\\b(int|float|bool|string|list|map)\\b"
+        }
+      ]
+    },
+    "function": {
+      "patterns": [
+        {
+          "name": "entity.name.function.sky",
+          "match": "\\b[a-zA-Z_][a-zA-Z0-9_çğıöşüÇĞIÖŞÜ]*\\s*(?=\\()"
+        },
+        {
+          "name": "keyword.other.function.sky",
+          "match": "\\b(function|async\\s+function|coop\\s+function)\\b"
+        }
+      ]
+    },
+    "identifier": {
+      "patterns": [
+        {
+          "name": "variable.other.sky",
+          "match": "\\b[a-zA-Z_][a-zA-Z0-9_çğıöşüÇĞIÖŞÜ]*\\b"
+        }
+      ]
+    },
+    "operator": {
+      "patterns": [
+        {
+          "name": "keyword.operator.arithmetic.sky",
+          "match": "\\+|-|\\*|/|%"
+        },
+        {
+          "name": "keyword.operator.comparison.sky",
+          "match": "==|!=|<|<=|>|>="
+        },
+        {
+          "name": "keyword.operator.logical.sky",
+          "match": "\\b(and|or)\\b"
+        },
+        {
+          "name": "keyword.operator.assignment.sky",
+          "match": "="
+        },
+        {
+          "name": "keyword.operator.unary.sky",
+          "match": "!|-"
+        }
+      ]
+    },
+    "punctuation": {
+      "patterns": [
+        {
+          "name": "punctuation.separator.comma.sky",
+          "match": ","
+        },
+        {
+          "name": "punctuation.separator.colon.sky",
+          "match": ":"
+        },
+        {
+          "name": "punctuation.separator.semicolon.sky",
+          "match": ";"
+        },
+        {
+          "name": "punctuation.parenthesis.sky",
+          "match": "\\(|\\)"
+        },
+        {
+          "name": "punctuation.bracket.sky",
+          "match": "\\[|\\]"
+        },
+        {
+          "name": "punctuation.brace.sky",
+          "match": "\\{|\\}"
+        }
+      ]
+    }
+  ]
+}

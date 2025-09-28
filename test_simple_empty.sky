@@ -1,0 +1,6 @@
+# Simple empty function test
+function test()
+    pass
+
+test()
+print("Simple empty function çalıştı")

@@ -1,0 +1,219 @@
+# Sky Python Bridge Örneği
+# Python kütüphanelerini Sky'dan kullanma
+
+# Python modüllerini import et
+var math = python.import("math")
+var os = python.import("os")
+var json = python.import("json")
+var datetime = python.import("datetime")
+
+print("=== Sky Python Bridge Örnekleri ===")
+
+# Matematik işlemleri
+print("--- Matematik İşlemleri ---")
+float pi = math.pi
+float e = math.e
+float kök = math.sqrt(25)
+float kuvvet = math.pow(2, 8)
+float sin = math.sin(math.pi / 2)
+float cos = math.cos(0)
+float tan = math.tan(math.pi / 4)
+
+print("Pi: " + pi)
+print("E: " + e)
+print("Kök(25): " + kök)
+print("2^8: " + kuvvet)
+print("Sin(π/2): " + sin)
+print("Cos(0): " + cos)
+print("Tan(π/4): " + tan)
+
+# Logaritma işlemleri
+float log = math.log(10)
+float log10 = math.log10(100)
+float log2 = math.log2(8)
+float exp = math.exp(1)
+
+print("Ln(10): " + log)
+print("Log10(100): " + log10)
+print("Log2(8): " + log2)
+print("Exp(1): " + exp)
+
+# Dosya sistemi işlemleri
+print("--- Dosya Sistemi İşlemleri ---")
+string cwd = os.getcwd()
+print("Mevcut dizin: " + cwd)
+
+list dosyalar = os.listdir(".")
+print("Dizin içeriği: " + dosyalar)
+
+bool var_mı = os.path.exists("test.txt")
+print("test.txt var mı: " + var_mı)
+
+# Environment variables
+string home = os.environ.get("HOME")
+string path = os.environ.get("PATH")
+print("HOME: " + home)
+print("PATH: " + path)
+
+# JSON işlemleri
+print("--- JSON İşlemleri ---")
+string json_str = '{"ad": "Sky", "versiyon": 1, "özellikler": ["async", "coop"]}'
+map obj = json.loads(json_str)
+print("JSON objesi: " + obj)
+
+# Sky'dan JSON'a
+map data = {"ad": "Sky", "versiyon": 1, "özellikler": ["async", "coop", "bridges"]}
+string json_result = json.dumps(data)
+print("JSON string: " + json_result)
+
+# Tarih ve zaman
+print("--- Tarih ve Zaman ---")
+var now = datetime.datetime.now()
+string tarih = now.strftime("%Y-%m-%d %H:%M:%S")
+print("Şu anki tarih: " + tarih)
+
+var today = datetime.date.today()
+string bugün = today.strftime("%Y-%m-%d")
+print("Bugün: " + bugün)
+
+# Python fonksiyonları
+print("--- Python Fonksiyonları ---")
+var random = python.import("random")
+
+int rastgele = random.randint(1, 100)
+float rastgele_float = random.uniform(0.0, 1.0)
+print("Rastgele sayı (1-100): " + rastgele)
+print("Rastgele float (0-1): " + rastgele_float)
+
+# Python list işlemleri
+var collections = python.import("collections")
+var Counter = collections.Counter
+
+list sayılar = [1, 2, 2, 3, 3, 3, 4, 4, 4, 4]
+var counter = Counter(sayılar)
+map sayım = counter
+print("Sayım sonuçları: " + sayım)
+
+# Python string işlemleri
+var re = python.import("re")
+
+string metin = "Sky 123 programlama 456 dili"
+list sayılar = re.findall(r'\d+', metin)
+print("Metindeki sayılar: " + sayılar)
+
+# Python file işlemleri
+print("--- Dosya İşlemleri ---")
+var io = python.import("io")
+
+var buffer = io.StringIO()
+buffer.write("Merhaba Sky!")
+string içerik = buffer.getvalue()
+print("Buffer içeriği: " + içerik)
+
+# Python hata yönetimi
+print("--- Hata Yönetimi ---")
+try
+  float kök = math.sqrt(-1)  # ValueError
+  print("Kök: " + kök)
+except PythonError as e
+  print("Python hatası: " + e.message)
+
+try
+  var nonexistent = python.import("nonexistent_module")
+  print("Modül: " + nonexistent)
+except PythonError as e
+  print("Import hatası: " + e.message)
+
+# Python class kullanımı
+print("--- Python Class Kullanımı ---")
+var decimal = python.import("decimal")
+var Decimal = decimal.Decimal
+
+var d1 = Decimal("10.5")
+var d2 = Decimal("3.2")
+var toplam = d1 + d2
+print("Decimal toplam: " + toplam)
+
+# Python generator
+print("--- Python Generator ---")
+var itertools = python.import("itertools")
+
+var count = itertools.count(1, 2)  # 1'den başla, 2'şer art
+list ilk_5 = list(itertools.islice(count, 5))
+print("İlk 5 tek sayı: " + ilk_5)
+
+# Python lambda ve map
+print("--- Python Lambda ve Map ---")
+var functools = python.import("functools")
+
+list sayılar = [1, 2, 3, 4, 5]
+var kare_al = lambda x: x * x
+list kareler = list(map(kare_al, sayılar))
+print("Kareler: " + kareler)
+
+# Python reduce
+var reduce = functools.reduce
+var topla = lambda x, y: x + y
+int toplam = reduce(topla, sayılar)
+print("Toplam: " + toplam)
+
+# Python filter
+var filtrelenmiş = list(filter(lambda x: x % 2 == 0, sayılar))
+print("Çift sayılar: " + filtrelenmiş)
+
+# Python list comprehension
+print("--- Python List Comprehension ---")
+var comprehension = [x * x for x in range(1, 6)]
+print("Kareler (comprehension): " + comprehension)
+
+var çift_kareler = [x * x for x in range(1, 11) if x % 2 == 0]
+print("Çift sayıların kareleri: " + çift_kareler)
+
+# Python dictionary operations
+print("--- Python Dictionary İşlemleri ---")
+var dict_ops = python.import("collections")
+
+map sözlük = {"a": 1, "b": 2, "c": 3}
+var keys = list(sözlük.keys())
+var values = list(sözlük.values())
+var items = list(sözlük.items())
+
+print("Anahtarlar: " + keys)
+print("Değerler: " + values)
+print("Öğeler: " + items)
+
+# Python set operations
+print("--- Python Set İşlemleri ---")
+var set1 = {1, 2, 3, 4, 5}
+var set2 = {4, 5, 6, 7, 8}
+
+var kesişim = set1 & set2
+var birleşim = set1 | set2
+var fark = set1 - set2
+
+print("Kesişim: " + list(kesişim))
+print("Birleşim: " + list(birleşim))
+print("Fark: " + list(fark))
+
+# Python context manager
+print("--- Python Context Manager ---")
+var tempfile = python.import("tempfile")
+var contextlib = python.import("contextlib")
+
+var temp_file = tempfile.NamedTemporaryFile(mode='w', delete=False)
+temp_file.write("Geçici dosya içeriği")
+temp_file.close()
+
+print("Geçici dosya oluşturuldu: " + temp_file.name)
+
+# Python exception handling
+print("--- Python Exception Handling ---")
+try
+  var result = math.sqrt(-1)
+  print("Sonuç: " + result)
+except PythonError as e
+  print("Hata türü: " + e.type)
+  print("Hata mesajı: " + e.message)
+  print("Hata detayı: " + e.details)
+
+print("=== Python Bridge Örnekleri Tamamlandı ===")

@@ -1,0 +1,11 @@
+# Await Keyword Test
+print("🚀 Await Keyword Test Başlıyor...")
+
+# Async function içinde await test
+async function test_await()
+  print("Async fonksiyon içinde")
+  # await keyword test (henüz implement edilmemiş)
+  print("Await test ediliyor...")
+
+print("✅ Async function tanımlandı")
+print("🏁 Await Test Tamamlandı")

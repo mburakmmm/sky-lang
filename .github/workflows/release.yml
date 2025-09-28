@@ -1,0 +1,105 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  release:
+    name: Release
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        override: true
+    
+    - name: Install Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+    
+    - name: Build release
+      run: cargo build --release --all-features
+    
+    - name: Create release archive
+      shell: bash
+      run: |
+        if [ "${{ matrix.os }}" == "windows-latest" ]; then
+          tar -czf sky-${{ github.ref_name }}-windows-x64.tar.gz target/release/sky.exe
+        elif [ "${{ matrix.os }}" == "macos-latest" ]; then
+          tar -czf sky-${{ github.ref_name }}-macos-x64.tar.gz target/release/sky
+        else
+          tar -czf sky-${{ github.ref_name }}-linux-x64.tar.gz target/release/sky
+        fi
+    
+    - name: Upload release assets
+      uses: actions/upload-artifact@v3
+      with:
+        name: sky-${{ matrix.os }}-${{ github.ref_name }}
+        path: sky-${{ github.ref_name }}-*.tar.gz
+        if-no-files-found: error
+    
+    - name: Create GitHub Release
+      if: matrix.os == 'ubuntu-latest'
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          sky-${{ github.ref_name }}-linux-x64.tar.gz
+          sky-${{ github.ref_name }}-windows-x64.tar.gz
+          sky-${{ github.ref_name }}-macos-x64.tar.gz
+        body: |
+          ## Sky ${{ github.ref_name }}
+          
+          ### Changes
+          - See [CHANGELOG.md](CHANGELOG.md) for detailed changes
+          
+          ### Downloads
+          - Linux x64: `sky-${{ github.ref_name }}-linux-x64.tar.gz`
+          - Windows x64: `sky-${{ github.ref_name }}-windows-x64.tar.gz`
+          - macOS x64: `sky-${{ github.ref_name }}-macos-x64.tar.gz`
+          
+          ### Installation
+          ```bash
+          # Extract the archive
+          tar -xzf sky-${{ github.ref_name }}-linux-x64.tar.gz
+          
+          # Move to PATH
+          sudo mv sky /usr/local/bin/
+          
+          # Verify installation
+          sky --version
+          ```
+          
+          ### Usage
+          ```bash
+          # Run a Sky program
+          sky run program.sky
+          
+          # Start REPL
+          sky repl
+          
+          # Format code
+          sky fmt program.sky
+          ```
+        draft: false
+        prerelease: false
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,258 @@
+# Sky JavaScript Bridge Örneği
+# JavaScript kodunu Sky'dan çalıştırma
+
+print("=== Sky JavaScript Bridge Örnekleri ===")
+
+# Basit JavaScript fonksiyonları
+print("--- Basit JavaScript Fonksiyonları ---")
+var jsfn = js.eval("(x) => x * 2")
+int iki_kat = jsfn(21)
+print("21 * 2 = " + iki_kat)
+
+var js_add = js.eval("(a, b) => a + b")
+int toplam = js_add(10, 32)
+print("10 + 32 = " + toplam)
+
+var js_square = js.eval("(x) => x * x")
+int kare = js_square(5)
+print("5^2 = " + kare)
+
+# JavaScript Math objesi
+print("--- JavaScript Math Objesi ---")
+var sqrt = js.eval("Math.sqrt")
+float kök = sqrt(25)
+print("Math.sqrt(25) = " + kök)
+
+var pow = js.eval("Math.pow")
+float kuvvet = pow(2, 8)
+print("Math.pow(2, 8) = " + kuvvet)
+
+var sin = js.eval("Math.sin")
+float sin_değer = sin(3.14159 / 2)
+print("Math.sin(π/2) = " + sin_değer)
+
+var cos = js.eval("Math.cos")
+float cos_değer = cos(0)
+print("Math.cos(0) = " + cos_değer)
+
+var pi = js.eval("Math.PI")
+print("Math.PI = " + pi)
+
+var e = js.eval("Math.E")
+print("Math.E = " + e)
+
+# JavaScript Array işlemleri
+print("--- JavaScript Array İşlemleri ---")
+var array = js.eval("[1, 2, 3, 4, 5]")
+print("Array: " + array)
+
+var map_fn = js.eval("(arr) => arr.map(x => x * 2)")
+list çiftler = map_fn(array)
+print("Array.map(x => x * 2): " + çiftler)
+
+var filter_fn = js.eval("(arr) => arr.filter(x => x > 2)")
+list büyükler = filter_fn(array)
+print("Array.filter(x => x > 2): " + büyükler)
+
+var reduce_fn = js.eval("(arr) => arr.reduce((sum, x) => sum + x, 0)")
+int toplam = reduce_fn(array)
+print("Array.reduce((sum, x) => sum + x, 0): " + toplam)
+
+var find_fn = js.eval("(arr) => arr.find(x => x > 3)")
+int bulunan = find_fn(array)
+print("Array.find(x => x > 3): " + bulunan)
+
+var some_fn = js.eval("(arr) => arr.some(x => x > 4)")
+bool var_mı = some_fn(array)
+print("Array.some(x => x > 4): " + var_mı)
+
+var every_fn = js.eval("(arr) => arr.every(x => x > 0)")
+bool hepsi = every_fn(array)
+print("Array.every(x => x > 0): " + hepsi)
+
+# JavaScript String işlemleri
+print("--- JavaScript String İşlemleri ---")
+var upper = js.eval("(str) => str.toUpperCase()")
+string büyük = upper("sky")
+print("'sky'.toUpperCase() = " + büyük)
+
+var lower = js.eval("(str) => str.toLowerCase()")
+string küçük = lower("SKY")
+print("'SKY'.toLowerCase() = " + küçük)
+
+var split = js.eval("(str, sep) => str.split(sep)")
+list parçalar = split("a,b,c,d", ",")
+print("'a,b,c,d'.split(',') = " + parçalar)
+
+var join = js.eval("(arr, sep) => arr.join(sep)")
+string birleşik = join(["a", "b", "c"], "-")
+print("['a', 'b', 'c'].join('-') = " + birleşik)
+
+var replace = js.eval("(str, old, new) => str.replace(new RegExp(old, 'g'), new)")
+string değişen = replace("hello world", "world", "sky")
+print("'hello world'.replace('world', 'sky') = " + değişen)
+
+var length = js.eval("(str) => str.length")
+int uzunluk = length("Merhaba Sky")
+print("'Merhaba Sky'.length = " + uzunluk)
+
+# JavaScript Object işlemleri
+print("--- JavaScript Object İşlemleri ---")
+var obj = js.eval("{name: 'Sky', version: 1, features: ['async', 'coop']}")
+print("Object: " + obj)
+
+var keys_fn = js.eval("Object.keys")
+list anahtarlar = keys_fn(obj)
+print("Object.keys(): " + anahtarlar)
+
+var values_fn = js.eval("Object.values")
+list değerler = values_fn(obj)
+print("Object.values(): " + değerler)
+
+var entries_fn = js.eval("Object.entries")
+list öğeler = entries_fn(obj)
+print("Object.entries(): " + öğeler)
+
+var hasOwnProperty = js.eval("(obj, key) => obj.hasOwnProperty(key)")
+bool var_mı = hasOwnProperty(obj, "name")
+print("obj.hasOwnProperty('name'): " + var_mı)
+
+# JavaScript Date objesi
+print("--- JavaScript Date Objesi ---")
+var now = js.eval("new Date()")
+string tarih = now.toString()
+print("new Date().toString(): " + tarih)
+
+var getTime = js.eval("(date) => date.getTime()")
+float zaman = getTime(now)
+print("date.getTime(): " + zaman)
+
+var getFullYear = js.eval("(date) => date.getFullYear()")
+int yıl = getFullYear(now)
+print("date.getFullYear(): " + yıl)
+
+var getMonth = js.eval("(date) => date.getMonth()")
+int ay = getMonth(now)
+print("date.getMonth(): " + ay)
+
+var getDate = js.eval("(date) => date.getDate()")
+int gün = getDate(now)
+print("date.getDate(): " + gün)
+
+# JavaScript JSON işlemleri
+print("--- JavaScript JSON İşlemleri ---")
+var JSON = js.eval("JSON")
+
+string json_str = '{"ad": "Sky", "versiyon": 1}'
+map obj = JSON.parse(json_str)
+print("JSON.parse(): " + obj)
+
+map data = {"ad": "Sky", "versiyon": 1, "özellikler": ["async", "coop"]}
+string json_result = JSON.stringify(data)
+print("JSON.stringify(): " + json_result)
+
+# JavaScript RegExp
+print("--- JavaScript RegExp ---")
+var regex = js.eval("new RegExp('\\d+', 'g')")
+var test_fn = js.eval("(regex, str) => regex.test(str)")
+bool test_sonuç = test_fn(regex, "abc123def")
+print("regex.test('abc123def'): " + test_sonuç)
+
+var match_fn = js.eval("(str, pattern) => str.match(new RegExp(pattern, 'g'))")
+list eşleşmeler = match_fn("abc123def456ghi", "\\d+")
+print("str.match(/\\d+/g): " + eşleşmeler)
+
+# JavaScript Set ve Map
+print("--- JavaScript Set ve Map ---")
+var Set = js.eval("Set")
+var set = new Set([1, 2, 2, 3, 3, 3])
+list set_list = Array.from(set)
+print("new Set([1,2,2,3,3,3]): " + set_list)
+
+var Map = js.eval("Map")
+var map = new Map()
+map.set("a", 1)
+map.set("b", 2)
+map.set("c", 3)
+list map_entries = Array.from(map.entries())
+print("Map entries: " + map_entries)
+
+# JavaScript Promise (simülasyon)
+print("--- JavaScript Promise Simülasyonu ---")
+var promise_fn = js.eval("(value) => new Promise((resolve) => setTimeout(() => resolve(value), 100))")
+var promise = promise_fn("Promise resolved!")
+print("Promise oluşturuldu: " + promise)
+
+# JavaScript Arrow Functions
+print("--- JavaScript Arrow Functions ---")
+var arrow_add = js.eval("(a, b) => a + b")
+int arrow_toplam = arrow_add(15, 25)
+print("Arrow function toplam: " + arrow_toplam)
+
+var arrow_square = js.eval("x => x * x")
+int arrow_kare = arrow_square(6)
+print("Arrow function kare: " + arrow_kare)
+
+var arrow_filter = js.eval("arr => arr.filter(x => x % 2 === 0)")
+list çift_sayılar = arrow_filter([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+print("Arrow function filter: " + çift_sayılar)
+
+# JavaScript Template Literals
+print("--- JavaScript Template Literals ---")
+var template_fn = js.eval("(name, age) => `Merhaba ${name}, yaşınız ${age}`")
+string template_sonuç = template_fn("Sky", 1)
+print("Template literal: " + template_sonuç)
+
+# JavaScript Destructuring
+print("--- JavaScript Destructuring ---")
+var destructure_fn = js.eval("(obj) => { const {name, version} = obj; return `${name} v${version}` }")
+map obj_data = {"name": "Sky", "version": 1, "features": ["async", "coop"]}
+string destructure_sonuç = destructure_fn(obj_data)
+print("Destructuring: " + destructure_sonuç)
+
+# JavaScript Spread Operator
+print("--- JavaScript Spread Operator ---")
+var spread_fn = js.eval("(arr1, arr2) => [...arr1, ...arr2]")
+list arr1 = [1, 2, 3]
+list arr2 = [4, 5, 6]
+list spread_sonuç = spread_fn(arr1, arr2)
+print("Spread operator: " + spread_sonuç)
+
+# JavaScript Error Handling
+print("--- JavaScript Error Handling ---")
+try
+  var error_fn = js.eval("() => { throw new Error('JavaScript hatası!') }")
+  var sonuç = error_fn()
+  print("Sonuç: " + sonuç)
+except JSError as e
+  print("Yakalanan JS hatası: " + e.message)
+
+try
+  var syntax_error = js.eval("invalid syntax")
+  print("Syntax error: " + syntax_error)
+except JSError as e
+  print("Syntax hatası: " + e.message)
+
+# JavaScript Closure
+print("--- JavaScript Closure ---")
+var closure_fn = js.eval("(x) => { return (y) => x + y }")
+var add_5 = closure_fn(5)
+int closure_sonuç = add_5(10)
+print("Closure sonuç: " + closure_sonuç)
+
+# JavaScript Higher-Order Functions
+print("--- JavaScript Higher-Order Functions ---")
+var higher_order = js.eval("(fn, arr) => arr.map(fn)")
+var square_fn = js.eval("x => x * x")
+list kareler = higher_order(square_fn, [1, 2, 3, 4, 5])
+print("Higher-order function: " + kareler)
+
+# JavaScript Currying
+print("--- JavaScript Currying ---")
+var curry_fn = js.eval("(a) => (b) => (c) => a + b + c")
+var curried = curry_fn(1)
+var curried2 = curried(2)
+int curry_sonuç = curried2(3)
+print("Currying sonuç: " + curry_sonuç)
+
+print("=== JavaScript Bridge Örnekleri Tamamlandı ===")

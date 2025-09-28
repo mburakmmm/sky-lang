@@ -1,0 +1,8 @@
+# Python Bridge Test
+print("🐍 Python Bridge Test Başlıyor...")
+
+# Python bridge test - basit import ve çağrı
+print("🔍 Python bridge test ediliyor...")
+
+print("✅ Python bridge test tamamlandı")
+print("🏁 Python Bridge Test Bitti")

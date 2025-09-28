@@ -1,0 +1,10 @@
+# Number analysis simple test
+function sayı_analizi(sayi: int)
+    string sonuç = ""
+    if sayi > 0:
+        sonuç = sonuç + "Pozitif "
+    else:
+        sonuç = sonuç + "Negatif "
+    return sonuç
+
+print("5: " + sayı_analizi(5))

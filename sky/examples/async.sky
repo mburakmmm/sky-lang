@@ -1,0 +1,126 @@
+# Sky Async/Await Örneği
+# Asenkron programlama ve Future'lar
+
+# Async fonksiyon tanımı
+async function indir(url: string)
+  print("İndiriliyor: " + url)
+  var data = await http.get(url)
+  print("İndirme tamamlandı: " + url)
+  return data
+
+# Async fonksiyon - sleep
+async function bekle(süre: int)
+  print("Bekleniyor: " + süre + " ms")
+  await async.sleep(süre)
+  print("Bekleme tamamlandı")
+  return "Tamamlandı"
+
+# Async fonksiyon - zincirleme
+async function zincir(n: int)
+  print("Zincir başladı: " + n)
+  var a = await bekle(1000)
+  var b = await bekle(1000)
+  print("Zincir tamamlandı: " + n)
+  return a + b
+
+# Async fonksiyon - paralel
+async function paralel()
+  print("Paralel işlemler başladı")
+  
+  # Paralel Future'lar oluştur
+  var future1 = bekle(2000)
+  var future2 = bekle(2000)
+  var future3 = bekle(2000)
+  
+  # Hepsini bekle
+  var sonuç1 = await future1
+  var sonuç2 = await future2
+  var sonuç3 = await future3
+  
+  print("Paralel işlemler tamamlandı")
+  return sonuç1 + sonuç2 + sonuç3
+
+# Async fonksiyon - hata yönetimi
+async function hata_ver()
+  print("Hata veren fonksiyon başladı")
+  await bekle(1000)
+  int x = 1 / 0  # Runtime error
+  return "Bu satıra gelmemeli"
+
+# Async fonksiyon - timeout
+async function timeout_test()
+  print("Timeout testi başladı")
+  try
+    var sonuç = await bekle(5000)  # 5 saniye
+    print("Timeout testi tamamlandı")
+    return sonuç
+  except TimeoutError as e
+    print("Timeout hatası: " + e.message)
+    return "Timeout"
+
+# Ana program
+print("=== Sky Async/Await Örnekleri ===")
+
+# Basit async çağrı
+var future = indir("https://example.com")
+print("Future oluşturuldu")
+var sonuç = await future
+print("Sonuç: " + sonuç)
+
+# Zincirleme async çağrı
+var zincir_sonuç = await zincir(1)
+print("Zincir sonucu: " + zincir_sonuç)
+
+# Paralel async çağrı
+var paralel_sonuç = await paralel()
+print("Paralel sonuç: " + paralel_sonuç)
+
+# Hata yönetimi
+try
+  var hata_sonuç = await hata_ver()
+  print("Hata sonucu: " + hata_sonuç)
+except RuntimeError as e
+  print("Yakalanan hata: " + e.message)
+
+# Timeout testi
+var timeout_sonuç = await timeout_test()
+print("Timeout sonucu: " + timeout_sonuç)
+
+# HTTP istekleri
+print("=== HTTP İstekleri ===")
+
+var url1 = "https://httpbin.org/get"
+var url2 = "https://httpbin.org/post"
+var url3 = "https://httpbin.org/json"
+
+# Paralel HTTP istekleri
+var http_future1 = indir(url1)
+var http_future2 = indir(url2)
+var http_future3 = indir(url3)
+
+var http_sonuç1 = await http_future1
+var http_sonuç2 = await http_future2
+var http_sonuç3 = await http_future3
+
+print("HTTP istekleri tamamlandı")
+print("URL1 sonuç: " + http_sonuç1)
+print("URL2 sonuç: " + http_sonuç2)
+print("URL3 sonuç: " + http_sonuç3)
+
+# Async fonksiyon içinde async çağrı
+async function iç_içe_async()
+  print("İç içe async başladı")
+  
+  async function iç_fonksiyon()
+    await bekle(1000)
+    return "İç fonksiyon sonucu"
+  
+  var iç_sonuç = await iç_fonksiyon()
+  print("İç sonuç: " + iç_sonuç)
+  
+  return "Dış fonksiyon sonucu"
+
+var iç_içe_sonuç = await iç_içe_async()
+print("İç içe sonuç: " + iç_içe_sonuç)
+
+print("=== Async Örnekleri Tamamlandı ===")

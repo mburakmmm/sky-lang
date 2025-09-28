@@ -1,0 +1,24 @@
+# HTTP Module Test
+print("🌐 HTTP Module Test Başlıyor...")
+
+# HTTP GET test
+print("📡 Testing HTTP GET...")
+var response = http.get("https://example.com")
+print("✅ HTTP GET completed!")
+
+# HTTP POST test
+print("📡 Testing HTTP POST...")
+var post_response = http.post("https://example.com", {"key": "value"})
+print("✅ HTTP POST completed!")
+
+# HTTP PUT test
+print("📡 Testing HTTP PUT...")
+var put_response = http.put("https://example.com", {"data": "updated"})
+print("✅ HTTP PUT completed!")
+
+# HTTP DELETE test
+print("📡 Testing HTTP DELETE...")
+var delete_response = http.delete("https://example.com")
+print("✅ HTTP DELETE completed!")
+
+print("✅ HTTP Module Test Bitti")

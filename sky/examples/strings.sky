@@ -1,0 +1,234 @@
+# Sky String Interpolation Örnekleri
+# Dart ve Python f-string tarzı interpolation
+
+print("=== Sky String Interpolation Örnekleri ===")
+
+# Temel değişkenler
+string ad = "Sky"
+int yaş = 1
+float pi = 3.14159
+bool aktif = true
+
+print("--- Dart Tarzı Interpolation ---")
+
+# Basit değişken interpolation
+string mesaj1 = "Merhaba $ad"
+print(mesaj1)  # "Merhaba Sky"
+
+# Expression interpolation
+string mesaj2 = "Yaş: ${yaş + 1}"
+print(mesaj2)  # "Yaş: 2"
+
+# Karmaşık ifadeler
+string mesaj3 = "Pi: ${pi * 2}"
+print(mesaj3)  # "Pi: 6.28318"
+
+# Boolean interpolation
+string mesaj4 = "Durum: ${aktif ? "Aktif" : "Pasif"}"
+print(mesaj4)  # "Durum: Aktif"
+
+# String birleştirme
+string mesaj5 = "Merhaba $ad, yaşın $yaş"
+print(mesaj5)  # "Merhaba Sky, yaşın 1"
+
+print("--- Python F-String Tarzı Interpolation ---")
+
+# F-string ile başlar
+string f_mesaj1 = f"Merhaba {ad}"
+print(f_mesaj1)  # "Merhaba Sky"
+
+# Karmaşık ifadeler
+string f_mesaj2 = f"Yaş: {yaş + 1}"
+print(f_mesaj2)  # "Yaş: 2"
+
+# Süslü parantez kaçışı
+string f_mesaj3 = f"{{literal}} {ad}"
+print(f_mesaj3)  # "{literal} Sky"
+
+# Çoklu değişken
+string f_mesaj4 = f"Merhaba {ad}, yaşın {yaş}, pi: {pi}"
+print(f_mesaj4)  # "Merhaba Sky, yaşın 1, pi: 3.14159"
+
+print("--- Liste ve Map Interpolation ---")
+
+# Liste interpolation
+list sayılar = [1, 2, 3, 4, 5]
+string liste_mesaj = "Sayılar: $sayılar"
+print(liste_mesaj)  # "Sayılar: [1, 2, 3, 4, 5]"
+
+# Map interpolation
+map bilgi = {"ad": "Sky", "versiyon": 1, "aktif": true}
+string map_mesaj = "Bilgi: $bilgi"
+print(map_mesaj)  # "Bilgi: {ad: Sky, versiyon: 1, aktif: true}"
+
+# F-string ile liste
+string f_liste = f"Toplam: {sayılar}"
+print(f_liste)  # "Toplam: [1, 2, 3, 4, 5]"
+
+print("--- Fonksiyon ile Interpolation ---")
+
+# Basit fonksiyon
+function selam(isim: string)
+  return "Merhaba " + isim
+
+string fonk_mesaj1 = "Mesaj: ${selam("Sky")}"
+print(fonk_mesaj1)  # "Mesaj: Merhaba Sky"
+
+# F-string ile fonksiyon
+string fonk_mesaj2 = f"Mesaj: {selam("Sky")}"
+print(fonk_mesaj2)  # "Mesaj: Merhaba Sky"
+
+# Matematik fonksiyonu
+function kare(x: int)
+  return x * x
+
+string kare_mesaj = f"5'in karesi: {kare(5)}"
+print(kare_mesaj)  # "5'in karesi: 25"
+
+print("--- Karmaşık Örnekler ---")
+
+# Çoklu interpolation
+int x = 10
+int y = 20
+string karmaşık1 = f"x={x}, y={y}, toplam={x + y}"
+print(karmaşık1)  # "x=10, y=20, toplam=30"
+
+# Dart tarzı karmaşık
+string karmaşık2 = "x=$x, y=$y, toplam=${x + y}"
+print(karmaşık2)  # "x=10, y=20, toplam=30"
+
+# String birleştirme
+string parça1 = "Merhaba"
+string parça2 = "Sky"
+string birleşik = f"{parça1} {parça2}!"
+print(birleşik)  # "Merhaba Sky!"
+
+print("--- Kaçış Kuralları ---")
+
+# Normal string'de dolar kaçışı
+string kaçış1 = "Fiyat: \\$100"
+print(kaçış1)  # "Fiyat: $100"
+
+# F-string'de süslü parantez kaçışı
+string kaçış2 = f"{{literal}} {ad}"
+print(kaçış2)  # "{literal} Sky"
+
+# Normal string'de süslü parantez (düz metin)
+string kaçış3 = "Süslü parantez: {x}"
+print(kaçış3)  # "Süslü parantez: {x}"
+
+print("--- String Modülü Örnekleri ---")
+
+# String modülü
+var string = import("string")
+
+# Stringify
+string stringify_sonuç = string.stringify(42)
+print("Stringify: " + stringify_sonuç)  # "Stringify: 42"
+
+# Concat
+string concat_sonuç = string.concat("a", "b", "c")
+print("Concat: " + concat_sonuç)  # "Concat: abc"
+
+# Length
+int uzunluk = string.length("Merhaba")
+print("Uzunluk: " + uzunluk)  # "Uzunluk: 7"
+
+# Split
+list parçalar = string.split("a,b,c,d", ",")
+print("Split: " + parçalar)  # "Split: [a, b, c, d]"
+
+# Join
+string join_sonuç = string.join(["x", "y", "z"], "-")
+print("Join: " + join_sonuç)  # "Join: x-y-z"
+
+# Upper/Lower
+string büyük = string.upper("sky")
+print("Upper: " + büyük)  # "Upper: SKY"
+
+string küçük = string.lower("SKY")
+print("Lower: " + küçük)  # "Lower: sky"
+
+# Trim
+string trim_sonuç = string.trim("  sky  ")
+print("Trim: '" + trim_sonuç + "'")  # "Trim: 'sky'"
+
+# Contains
+bool var_mı = string.contains("sky", "k")
+print("Contains: " + var_mı)  # "Contains: true"
+
+# StartsWith/EndsWith
+bool başlar = string.startsWith("sky", "s")
+print("StartsWith: " + başlar)  # "StartsWith: true"
+
+bool biter = string.endsWith("sky", "y")
+print("EndsWith: " + biter)  # "EndsWith: true"
+
+print("--- Async Context Örnekleri ---")
+
+# Async fonksiyon
+async function async_işlem()
+  int sonuç = 42
+  string mesaj = f"Async işlem tamamlandı: {sonuç}"
+  return mesaj
+
+# Async context'te interpolation
+async function async_ana()
+  string async_mesaj = f"Sonuç: {await async_işlem()}"
+  print(async_mesaj)
+  return async_mesaj
+
+# Async çağrı
+var async_sonuç = async_ana()
+print("Async sonuç: " + await async_sonuç)
+
+print("--- Coroutine Context Örnekleri ---")
+
+# Coroutine fonksiyon
+coop function coop_işlem()
+  int i = 0
+  while i < 3
+    yield f"Coroutine: {i}"
+    i = i + 1
+  return "Coroutine tamamlandı"
+
+# Coroutine ile interpolation
+var coroutine = coop_işlem()
+while not coroutine.is_done()
+  string coop_mesaj = coroutine.resume()
+  print(coop_mesaj)
+
+print("--- Hata Durumları Testi ---")
+
+# Undefined variable (bu hata verecek)
+try
+  string hata_mesaj = "Undefined: $undefined_var"
+  print(hata_mesaj)
+except RuntimeError as e
+  print("Yakalanan hata: " + e.message)
+
+# Invalid interpolation (bu hata verecek)
+try
+  string hata_mesaj2 = "${}"
+  print(hata_mesaj2)
+except RuntimeError as e
+  print("Yakalanan hata: " + e.message)
+
+print("--- Performans Testi ---")
+
+# Çoklu interpolation
+int n = 1000
+string performans_mesaj = f"Test {n} kez çalıştırıldı"
+print(performans_mesaj)
+
+# Büyük string
+list büyük_liste = []
+int i = 0
+while i < 100
+  büyük_liste.append(i)
+  i = i + 1
+
+string büyük_mesaj = f"Büyük liste: {büyük_liste}"
+print("Büyük mesaj uzunluğu: " + string.length(büyük_mesaj))
+
+print("=== String Interpolation Örnekleri Tamamlandı ===")

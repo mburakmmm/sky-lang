@@ -1,0 +1,15 @@
+# Async/Await Demo Test
+print("🚀 Async/Await Demo Başlıyor...")
+
+# Async fonksiyon tanımlama
+async function indir(url: string)
+  print("📡 Veri indiriliyor: " + url)
+  # Mock await - gerçekte sleep() olacak
+  return "İndirilen veri: " + url
+
+# Async fonksiyon çağırma
+print("⏳ Async işlem başlatılıyor...")
+
+# Basit test - async fonksiyon tanımlandı mı?
+print("✅ Async fonksiyon tanımlandı")
+print("🏁 Async/Await Demo Tamamlandı")

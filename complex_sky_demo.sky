@@ -1,0 +1,63 @@
+# Karmaşık Sky Demo - Tüm Özellikleri Test Eden Kod
+
+# 1. Değişken tanımlamaları
+int toplam = 0
+string mesaj = "Sky Dili Demo"
+bool devam_et = true
+
+print("=== SKY DİLİ KARMAŞIK DEMO ===")
+print("Başlangıç mesajı: " + mesaj)
+
+# 2. Fonksiyon tanımlaması - recursive faktöriyel
+function faktoriyel(n: int)
+    if n <= 1:
+        return 1
+    else:
+        return n * faktoriyel(n - 1)
+
+# 3. Fonksiyon - sayı kontrolü
+function sayi_kontrol(sayi: int)
+    if sayi > 10:
+        return "Büyük sayı"
+    elif sayi > 5:
+        return "Orta sayı"
+    else:
+        return "Küçük sayı"
+
+# 4. Ana while döngüsü
+int i = 1
+while i <= 5:
+    print("=== İTERASYON " + i + " ===")
+    
+    # 5. İç içe if-elif-else yapısı
+    if i == 1:
+        print("İlk iterasyon - faktöriyel hesaplama")
+        int fakt_sonuc = faktoriyel(3)
+        print("3! = " + fakt_sonuc)
+    elif i == 2:
+        print("İkinci iterasyon - sayı kontrolü")
+        string kontrol = sayi_kontrol(7)
+        print("7 için: " + kontrol)
+    elif i == 3:
+        print("Üçüncü iterasyon - for döngüsü")
+        # 6. For döngüsü
+        for j: var in [1, 2, 3]:
+            print("  For döngüsü: j = " + j)
+    elif i == 4:
+        print("Dördüncü iterasyon - karmaşık hesaplama")
+        int a = 10
+        int b = 5
+        int sonuc = a * b + i
+        print("Hesaplama: " + a + " * " + b + " + " + i + " = " + sonuc)
+    else:
+        print("Son iterasyon - toplam hesaplama")
+        toplam = toplam + i
+        print("Toplam şu ana kadar: " + toplam)
+    
+    # 7. Assignment ile sayaç artırma
+    i = i + 1
+
+# 8. Sonuç yazdırma
+print("=== SONUÇLAR ===")
+print("Final toplam: " + toplam)
+print("Demo tamamlandı!")

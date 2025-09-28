@@ -1,0 +1,9 @@
+# Gerçek Python Bridge Test
+print("🐍 Gerçek Python Bridge Test Başlıyor...")
+
+# Python bridge fonksiyonunu çağır - gerçek çağrı  
+var py_math = python_import("math")
+print("🔍 Python math modülü import edildi!")
+
+print("✅ Python bridge test tamamlandı")
+print("🏁 Gerçek Python Bridge Test Bitti")

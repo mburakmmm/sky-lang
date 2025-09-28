@@ -1,0 +1,6 @@
+# Negative numbers test
+int negatif = -10
+int pozitif = 5
+print("Negatif: " + negatif)
+print("Pozitif: " + pozitif)
+print("Toplam: " + (negatif + pozitif))

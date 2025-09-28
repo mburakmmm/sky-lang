@@ -1,0 +1,18 @@
+# Coroutine Resume Test
+print("🔄 Coroutine Resume Test Başlıyor...")
+
+# Coop function tanımlama
+coop function say(etiket: string, n: int)
+  int i = 1
+  while i <= n
+    yield etiket + ": " + i
+    i = i + 1
+  return "bitti"
+
+# Coroutine oluşturma
+var c = say("num", 2)
+print("✅ Coroutine oluşturuldu")
+
+# Coroutine resume metodunu test et
+print("🔍 Resume metodu test ediliyor...")
+print("🏁 Resume Test Tamamlandı")

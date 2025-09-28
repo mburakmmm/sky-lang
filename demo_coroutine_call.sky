@@ -1,0 +1,15 @@
+# Coroutine Call Demo
+print("🔄 Coroutine Call Demo Başlıyor...")
+
+# Coop function tanımlama
+coop function say(etiket: string, n: int)
+  int i = 1
+  while i <= n
+    yield etiket + ": " + i
+    i = i + 1
+  return "bitti"
+
+# Coroutine oluşturma ve çağırma
+var c = say("num", 2)
+print("✅ Coroutine oluşturuldu")
+print("🏁 Coroutine Call Demo Tamamlandı")

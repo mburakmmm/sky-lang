@@ -1,0 +1,8 @@
+# Import System Test
+print("📦 Import System Test Başlıyor...")
+
+# Import syntax test
+import math
+print("🔍 math modülü import edildi!")
+
+print("✅ Import System Test Bitti")

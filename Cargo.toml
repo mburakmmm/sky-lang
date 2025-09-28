@@ -1,0 +1,42 @@
+[package]
+name = "sky"
+version = "0.1.0"
+edition = "2021"
+authors = ["Sky Language Team"]
+license = "MIT"
+description = "Sky programming language - Python-like syntax with mandatory type annotations"
+
+[dependencies]
+# Lexer/Parser
+chumsky = "0.9"
+unicode-ident = "1.0"
+
+# VM & Runtime
+gc = "0.4"
+
+# Bridges
+pyo3 = { version = "0.22", features = ["auto-initialize"] }
+quickjs = "0.1"
+
+# CLI
+clap = { version = "4.4", features = ["derive"] }
+
+# Utilities
+thiserror = "1.0"
+anyhow = "1.0"
+colored = "2.0"
+lazy_static = "1.4"
+
+# Async runtime
+tokio = { version = "1.0", features = ["full"] }
+
+# HTTP client for stdlib
+reqwest = { version = "0.11", features = ["json"] }
+
+[lib]
+name = "sky"
+path = "sky/lib.rs"
+
+[[bin]]
+name = "sky"
+path = "sky/cli/main.rs"

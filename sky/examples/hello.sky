@@ -1,0 +1,45 @@
+# Sky Hello World Örneği
+# Basit Sky programı - Merhaba Dünya
+
+print("Merhaba Sky!")
+print("Sky programlama diline hoş geldiniz!")
+
+# Değişken tanımlamaları
+int sayı = 42
+float pi = 3.14159
+bool doğru = true
+string mesaj = "Sky dili çalışıyor!"
+
+# Değişkenleri yazdır
+print("Sayı: " + sayı)
+print("Pi: " + pi)
+print("Doğru: " + doğru)
+print("Mesaj: " + mesaj)
+
+# Liste örneği
+list sayılar = [1, 2, 3, 4, 5]
+print("Sayılar: " + sayılar)
+
+# Sözlük örneği
+map sözlük = {"ad": "Sky", "versiyon": 1, "dil": "Türkçe"}
+print("Sözlük: " + sözlük)
+
+# Basit hesaplama
+int toplam = sayı + 10
+float alan = pi * sayı * sayı
+print("Toplam: " + toplam)
+print("Alan: " + alan)
+
+# Koşul örneği
+if sayı > 40
+  print("Sayı 40'tan büyük")
+else
+  print("Sayı 40'tan küçük veya eşit")
+
+# Döngü örneği
+int i = 1
+while i <= 5
+  print("Döngü: " + i)
+  i = i + 1
+
+print("Program tamamlandı!")

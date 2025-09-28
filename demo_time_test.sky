@@ -1,0 +1,37 @@
+# Time Module Test
+print("⏰ Time Module Test Başlıyor...")
+
+# Now fonksiyonu
+var current_time = now()
+print("🕐 Current time: " + current_time)
+
+# Sleep fonksiyonu
+print("😴 Sleeping for 100ms...")
+sleep(100)
+print("✅ Sleep completed!")
+
+# Date string fonksiyonu
+var date_str = date_string()
+print("📅 Date string: " + date_str)
+
+# Timer fonksiyonu
+var timer_duration = timer(500)
+print("⏱️ Timer duration: " + timer_duration)
+
+# Benchmark fonksiyonu
+var benchmark_result = benchmark(1000)
+print("🏃 Benchmark result: " + benchmark_result + "ms")
+
+# Timezone fonksiyonu
+var tz = timezone()
+print("🌍 Timezone: " + tz)
+
+# Micros fonksiyonu
+var micros_time = micros()
+print("⏱️ Micros time: " + micros_time)
+
+# Nanos fonksiyonu
+var nanos_time = nanos()
+print("⏱️ Nanos time: " + nanos_time)
+
+print("✅ Time Module Test Bitti")

@@ -1,0 +1,8 @@
+# Simple Coop Test
+print("🔄 Simple Coop Test Başlıyor...")
+
+coop function test()
+  yield "Coop çalışıyor!"
+  return "Bitti"
+
+print("✅ Coop function tanımlandı")

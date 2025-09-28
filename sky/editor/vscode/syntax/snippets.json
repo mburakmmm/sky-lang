@@ -1,0 +1,315 @@
+{
+  "Variable Declaration": {
+    "prefix": "var",
+    "body": [
+      "${1:var} ${2:name} = ${3:value}"
+    ],
+    "description": "Variable declaration"
+  },
+  "Integer Variable": {
+    "prefix": "int",
+    "body": [
+      "int ${1:name} = ${2:0}"
+    ],
+    "description": "Integer variable declaration"
+  },
+  "Float Variable": {
+    "prefix": "float",
+    "body": [
+      "float ${1:name} = ${2:0.0}"
+    ],
+    "description": "Float variable declaration"
+  },
+  "Boolean Variable": {
+    "prefix": "bool",
+    "body": [
+      "bool ${1:name} = ${2:true}"
+    ],
+    "description": "Boolean variable declaration"
+  },
+  "String Variable": {
+    "prefix": "string",
+    "body": [
+      "string ${1:name} = \"${2:value}\""
+    ],
+    "description": "String variable declaration"
+  },
+  "List Variable": {
+    "prefix": "list",
+    "body": [
+      "list ${1:name} = [${2:}]"
+    ],
+    "description": "List variable declaration"
+  },
+  "Map Variable": {
+    "prefix": "map",
+    "body": [
+      "map ${1:name} = {${2:}}"
+    ],
+    "description": "Map variable declaration"
+  },
+  "Function": {
+    "prefix": "function",
+    "body": [
+      "function ${1:name}(${2:params})",
+      "  ${3:# function body}",
+      "  return ${4:value}"
+    ],
+    "description": "Function definition"
+  },
+  "Async Function": {
+    "prefix": "async",
+    "body": [
+      "async function ${1:name}(${2:params})",
+      "  ${3:# async function body}",
+      "  return ${4:value}"
+    ],
+    "description": "Async function definition"
+  },
+  "Coop Function": {
+    "prefix": "coop",
+    "body": [
+      "coop function ${1:name}(${2:params})",
+      "  ${3:# coroutine function body}",
+      "  yield ${4:value}",
+      "  return ${5:value}"
+    ],
+    "description": "Coroutine function definition"
+  },
+  "If Statement": {
+    "prefix": "if",
+    "body": [
+      "if ${1:condition}",
+      "  ${2:# if body}"
+    ],
+    "description": "If statement"
+  },
+  "If-Else Statement": {
+    "prefix": "ifelse",
+    "body": [
+      "if ${1:condition}",
+      "  ${2:# if body}",
+      "else",
+      "  ${3:# else body}"
+    ],
+    "description": "If-else statement"
+  },
+  "If-Elif-Else Statement": {
+    "prefix": "ifelif",
+    "body": [
+      "if ${1:condition}",
+      "  ${2:# if body}",
+      "elif ${3:condition}",
+      "  ${4:# elif body}",
+      "else",
+      "  ${5:# else body}"
+    ],
+    "description": "If-elif-else statement"
+  },
+  "For Loop": {
+    "prefix": "for",
+    "body": [
+      "for ${1:elem}: var in ${2:iterable}",
+      "  ${3:# for body}"
+    ],
+    "description": "For loop"
+  },
+  "While Loop": {
+    "prefix": "while",
+    "body": [
+      "while ${1:condition}",
+      "  ${2:# while body}"
+    ],
+    "description": "While loop"
+  },
+  "Return Statement": {
+    "prefix": "return",
+    "body": [
+      "return ${1:value}"
+    ],
+    "description": "Return statement"
+  },
+  "Yield Statement": {
+    "prefix": "yield",
+    "body": [
+      "yield ${1:value}"
+    ],
+    "description": "Yield statement"
+  },
+  "Await Statement": {
+    "prefix": "await",
+    "body": [
+      "await ${1:expression}"
+    ],
+    "description": "Await statement"
+  },
+  "Break Statement": {
+    "prefix": "break",
+    "body": [
+      "break"
+    ],
+    "description": "Break statement"
+  },
+  "Continue Statement": {
+    "prefix": "continue",
+    "body": [
+      "continue"
+    ],
+    "description": "Continue statement"
+  },
+  "Import Statement": {
+    "prefix": "import",
+    "body": [
+      "import ${1:module}"
+    ],
+    "description": "Import statement"
+  },
+  "Print Statement": {
+    "prefix": "print",
+    "body": [
+      "print(${1:value})"
+    ],
+    "description": "Print statement"
+  },
+  "Try-Except Block": {
+    "prefix": "try",
+    "body": [
+      "try",
+      "  ${1:# try body}",
+      "except ${2:Error} as ${3:e}",
+      "  ${4:# except body}"
+    ],
+    "description": "Try-except block"
+  },
+  "Try-Except-Finally Block": {
+    "prefix": "tryfinally",
+    "body": [
+      "try",
+      "  ${1:# try body}",
+      "except ${2:Error} as ${3:e}",
+      "  ${4:# except body}",
+      "finally",
+      "  ${5:# finally body}"
+    ],
+    "description": "Try-except-finally block"
+  },
+  "List Literal": {
+    "prefix": "list",
+    "body": [
+      "[${1:}]"
+    ],
+    "description": "List literal"
+  },
+  "Map Literal": {
+    "prefix": "map",
+    "body": [
+      "{${1:}}"
+    ],
+    "description": "Map literal"
+  },
+  "Function Call": {
+    "prefix": "call",
+    "body": [
+      "${1:function}(${2:args})"
+    ],
+    "description": "Function call"
+  },
+  "Binary Expression": {
+    "prefix": "binary",
+    "body": [
+      "${1:left} ${2:op} ${3:right}"
+    ],
+    "description": "Binary expression"
+  },
+  "Unary Expression": {
+    "prefix": "unary",
+    "body": [
+      "${1:op}${2:operand}"
+    ],
+    "description": "Unary expression"
+  },
+  "String Literal": {
+    "prefix": "str",
+    "body": [
+      "\"${1:value}\""
+    ],
+    "description": "String literal"
+  },
+  "Integer Literal": {
+    "prefix": "int",
+    "body": [
+      "${1:0}"
+    ],
+    "description": "Integer literal"
+  },
+  "Float Literal": {
+    "prefix": "float",
+    "body": [
+      "${1:0.0}"
+    ],
+    "description": "Float literal"
+  },
+  "Boolean Literal": {
+    "prefix": "bool",
+    "body": [
+      "${1:true}"
+    ],
+    "description": "Boolean literal"
+  },
+  "Null Literal": {
+    "prefix": "null",
+    "body": [
+      "null"
+    ],
+    "description": "Null literal"
+  },
+  "Python Import": {
+    "prefix": "pyimport",
+    "body": [
+      "var ${1:module} = python.import(\"${2:module_name}\")"
+    ],
+    "description": "Python module import"
+  },
+  "JavaScript Eval": {
+    "prefix": "jseval",
+    "body": [
+      "var ${1:result} = js.eval(\"${2:code}\")"
+    ],
+    "description": "JavaScript code evaluation"
+  },
+  "Async Sleep": {
+    "prefix": "sleep",
+    "body": [
+      "await async.sleep(${1:1000})"
+    ],
+    "description": "Async sleep"
+  },
+  "HTTP Get": {
+    "prefix": "httpget",
+    "body": [
+      "var ${1:response} = await http.get(\"${2:url}\")"
+    ],
+    "description": "HTTP GET request"
+  },
+  "Time Now": {
+    "prefix": "now",
+    "body": [
+      "float ${1:timestamp} = time.now()"
+    ],
+    "description": "Get current timestamp"
+  },
+  "Coroutine Resume": {
+    "prefix": "resume",
+    "body": [
+      "var ${1:value} = ${2:coroutine}.resume()"
+    ],
+    "description": "Resume coroutine"
+  },
+  "Coroutine Done": {
+    "prefix": "done",
+    "body": [
+      "bool ${1:is_done} = ${2:coroutine}.is_done()"
+    ],
+    "description": "Check if coroutine is done"
+  }
+}

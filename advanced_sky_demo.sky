@@ -1,0 +1,115 @@
+# Sky Dili - Gelişmiş Demo
+# Karmaşık algoritmalar, fonksiyonlar ve control flow yapıları
+
+print("=== Sky Dili Gelişmiş Demo ===")
+
+# Faktöriyel hesaplama fonksiyonu
+function faktöriyel(n: int)
+  if n <= 1
+    return 1
+  else
+    return n * faktöriyel(n - 1)
+
+# Fibonacci serisi fonksiyonu
+function fibonacci(n: int)
+  if n <= 1
+    return n
+  else
+    return fibonacci(n - 1) + fibonacci(n - 2)
+
+# Asal sayı kontrolü fonksiyonu
+function asal_mı(sayı: int)
+  if sayı <= 1
+    return false
+  elif sayı == 2
+    return true
+  else
+    int i = 2
+    while i * i <= sayı
+      if sayı % i == 0
+        return false
+      i = i + 1
+    return true
+
+# Sayı dizisini sıralama fonksiyonu (bubble sort)
+function sırala(liste: list)
+  int n = len(liste)
+  int i = 0
+  while i < n
+    int j = 0
+    while j < n - i - 1
+      if liste[j] > liste[j + 1]
+        # Swap işlemi
+        int temp = liste[j]
+        liste[j] = liste[j + 1]
+        liste[j + 1] = temp
+      j = j + 1
+    i = i + 1
+  return liste
+
+# Ana program
+print("--- Matematik Fonksiyonları ---")
+
+int test_sayısı = 5
+print("Faktöriyel(" + test_sayısı + ") = " + faktöriyel(test_sayısı))
+
+int fib_n = 8
+print("Fibonacci(" + fib_n + ") = " + fibonacci(fib_n))
+
+print("--- Asal Sayı Kontrolü ---")
+for i: var in [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+  if asal_mı(i)
+    print(i + " asal sayı")
+  else
+    print(i + " asal değil")
+
+print("--- Karmaşık Döngü Örneği ---")
+int toplam = 0
+int çift_sayılar = 0
+int tek_sayılar = 0
+
+for num: var in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+  toplam = toplam + num
+  
+  if num % 2 == 0
+    çift_sayılar = çift_sayılar + 1
+    print(num + " çift sayı")
+  elif num % 3 == 0
+    print(num + " 3'ün katı")
+  else
+    tek_sayılar = tek_sayılar + 1
+    print(num + " tek sayı")
+
+print("Toplam: " + toplam)
+print("Çift sayılar: " + çift_sayılar)
+print("Tek sayılar: " + tek_sayılar)
+
+print("--- İç İçe Döngü ve Koşullar ---")
+for satır: var in [1, 2, 3, 4, 5]
+  string çıktı = ""
+  for sütun: var in [1, 2, 3, 4, 5]
+    if satır == sütun
+      çıktı = çıktı + "X "
+    elif satır + sütun == 6
+      çıktı = çıktı + "O "
+    else
+      çıktı = çıktı + ". "
+  print("Satır " + satır + ": " + çıktı)
+
+print("--- While Döngüsü ile Sayı Tahmin Oyunu ---")
+int hedef = 7
+int tahmin = 1
+int deneme = 0
+
+while tahmin != hedef
+  deneme = deneme + 1
+  if tahmin < hedef
+    print("Deneme " + deneme + ": " + tahmin + " çok küçük")
+    tahmin = tahmin + 1
+  elif tahmin > hedef
+    print("Deneme " + deneme + ": " + tahmin + " çok büyük")
+    tahmin = tahmin - 1
+
+print("Tebrikler! " + deneme + " denemede buldunuz: " + hedef)
+
+print("=== Demo Tamamlandı ===")

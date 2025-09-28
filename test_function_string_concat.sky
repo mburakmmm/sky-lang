@@ -1,0 +1,6 @@
+# Function + string concatenation test
+function get_string()
+    return "Test"
+
+string result = "Result: " + get_string()
+print(result)

@@ -1,0 +1,30 @@
+# IO Module Complete Test
+print("📚 IO Module Complete Test Başlıyor...")
+
+# Print test
+print("✅ Print çalışıyor!")
+
+# Write test (newline olmadan)
+write("📝 Write test: ")
+print("")  # Newline ekle
+
+# Format test
+var formatted = format("Merhaba {}!", "Sky")
+print("🔤 Format test: " + formatted)
+
+# Len test
+var text = "Sky Language"
+var length = len(text)
+print("📏 Len test: '" + text + "' uzunluğu = " + length)
+
+# Type test
+var number = 42
+var number_type = type(number)
+print("🏷️ Type test: " + number + " tipi = " + number_type)
+
+# Input test
+print("Lütfen bir şey yazın:")
+var user_input = input()
+print("Yazdığınız: " + user_input)
+
+print("✅ IO Module Complete Test Bitti")
