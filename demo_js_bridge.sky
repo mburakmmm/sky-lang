@@ -1,9 +1,0 @@
-# JavaScript Bridge Test
-print("🟨 JavaScript Bridge Test Başlıyor...")
-
-# JS bridge fonksiyonunu çağır - gerçek çağrı  
-var js_func = js_eval("(x) => x * 2")
-print("🔍 JavaScript fonksiyonu oluşturuldu!")
-
-print("✅ JS bridge test tamamlandı")
-print("🏁 JavaScript Bridge Test Bitti")

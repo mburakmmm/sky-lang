@@ -1,5 +1,0 @@
-# Simple Import Test
-print("📦 Simple Import Test Başlıyor...")
-
-import math
-print("✅ Import statement çalıştı")

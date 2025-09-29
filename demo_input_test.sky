@@ -1,9 +1,0 @@
-# Input Test
-print("📝 Input Test Başlıyor...")
-
-# Input fonksiyonunu test et
-print("Lütfen bir şey yazın:")
-var user_input = input()
-print("Yazdığınız: " + user_input)
-
-print("✅ Input Test Bitti")

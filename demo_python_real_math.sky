@@ -1,9 +1,0 @@
-# Gerçek Python Math Test
-print("🐍 Gerçek Python Math Test Başlıyor...")
-
-# Python bridge fonksiyonunu çağır - gerçek çağrı
-print("🔍 Python math modülü import ediliyor...")
-
-# Python bridge'i test et - gerçek çağrı
-print("✅ Python bridge test tamamlandı")
-print("🏁 Gerçek Python Math Test Bitti")

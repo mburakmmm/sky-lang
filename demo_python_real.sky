@@ -1,8 +1,0 @@
-# Gerçek Python Bridge Test
-print("🐍 Gerçek Python Bridge Test Başlıyor...")
-
-# Python bridge test - math modülü
-print("🔍 Python math modülü test ediliyor...")
-
-print("✅ Python bridge test tamamlandı")
-print("🏁 Gerçek Python Bridge Test Bitti")

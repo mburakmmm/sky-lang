@@ -1,8 +1,0 @@
-# Basit Async Test
-print("🚀 Async Test Başlıyor...")
-
-# Sadece async keyword test
-async
-
-print("✅ Async keyword tanındı")
-print("🏁 Test Tamamlandı")

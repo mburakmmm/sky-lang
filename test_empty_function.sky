@@ -1,6 +1,0 @@
-# Empty function test
-function boş_fonksiyon()
-    # Boş
-
-boş_fonksiyon()
-print("Boş fonksiyon çalıştı")

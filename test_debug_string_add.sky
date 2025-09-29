@@ -1,7 +1,0 @@
-# Debug string add test
-function test_string_add()
-    string sonuç = ""
-    sonuç = sonuç + "Test"
-    return sonuç
-
-print("Sonuç: " + test_string_add())

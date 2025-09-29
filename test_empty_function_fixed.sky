@@ -1,7 +1,0 @@
-# Empty function test with pass-like statement
-function boş_fonksiyon()
-    # Boş fonksiyon - sadece comment
-    return null
-
-boş_fonksiyon()
-print("Boş fonksiyon çalıştı")

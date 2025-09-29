@@ -1,8 +1,0 @@
-# Math Direct Test
-print("📊 Math Direct Test Başlıyor...")
-
-# Math modülünü direkt kullan (import olmadan)
-var result = math.sqrt(16)
-print("📊 math.sqrt(16) = " + result)
-
-print("✅ Math Direct Test Bitti")

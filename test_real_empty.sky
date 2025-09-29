@@ -1,6 +1,0 @@
-# Real empty function test
-function test()
-    # Just a comment
-
-test()
-print("Real empty function çalıştı")
