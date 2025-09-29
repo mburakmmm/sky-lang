@@ -63,6 +63,9 @@ pub enum OpCode {
     // Async
     Await,           // Async bekleme
     
+    // Range
+    MakeRange,       // Range value oluştur (start, end)
+    
     // Built-ins
     Print,           // Yazdır
     
@@ -157,6 +160,7 @@ impl std::fmt::Display for OpCode {
             Self::CoopResume => write!(f, "COOP_RESUME"),
             Self::CoopIsDone => write!(f, "COOP_IS_DONE"),
             Self::Await => write!(f, "AWAIT"),
+            Self::MakeRange => write!(f, "MAKE_RANGE"),
             Self::Print => write!(f, "PRINT"),
             Self::Dup => write!(f, "DUP"),
             Self::Swap => write!(f, "SWAP"),

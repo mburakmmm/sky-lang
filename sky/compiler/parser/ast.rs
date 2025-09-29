@@ -106,6 +106,17 @@ pub enum Expr {
         parts: Vec<InterpPart>,
         span: Span,
     },
+    Range {
+        start: Box<Expr>,
+        end: Box<Expr>,
+        span: Span,
+    },
+    Ternary {
+        condition: Box<Expr>,
+        true_expr: Box<Expr>,
+        false_expr: Box<Expr>,
+        span: Span,
+    },
 }
 
 /// Literal değerler

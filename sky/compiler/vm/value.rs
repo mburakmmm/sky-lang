@@ -20,6 +20,10 @@ pub enum Value {
     NativeFn(NativeFunction),
     Future(FutureValue),
     Coroutine(CoroutineValue),
+    Range {
+        start: i64,
+        end: i64,
+    },
     Null,
 }
 
@@ -162,6 +166,7 @@ impl Value {
             Self::NativeFn(_) => ValueKind::NativeFn,
             Self::Future(_) => ValueKind::Future,
             Self::Coroutine(_) => ValueKind::Coroutine,
+            Self::Range { .. } => ValueKind::Range,
             Self::Null => ValueKind::Null,
         }
     }
@@ -205,6 +210,7 @@ impl Value {
             Self::NativeFn(f) => format!("<native:{}>", f.name),
             Self::Future(f) => format!("<future:{}>", f.id),
             Self::Coroutine(c) => format!("<coroutine:{}>", c.id),
+            Self::Range { start, end } => format!("{}..{}", start, end),
             Self::Null => "null".to_string(),
         }
     }

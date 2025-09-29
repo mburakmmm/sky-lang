@@ -166,6 +166,7 @@ impl Vm {
                 0x73 => { self.coop_resume()?; self.advance_ip(); },            // COOP_RESUME
                 0x74 => { self.coop_is_done()?; self.advance_ip(); },           // COOP_IS_DONE
                 0x80 => { self.await_future()?; self.advance_ip(); },           // AWAIT
+                0x81 => { self.make_range()?; self.advance_ip(); },              // MAKE_RANGE
                 0x90 => { self.print_value()?; self.advance_ip(); },            // PRINT
                 0xA0 => { self.dup_value()?; self.advance_ip(); },              // DUP
                 0xA1 => { self.swap_values()?; self.advance_ip(); },            // SWAP
@@ -625,6 +626,38 @@ impl Vm {
     fn print_value(&mut self) -> Result<(), RuntimeError> {
         let value = self.stack.pop()?;
         println!("{}", value.to_string());
+        Ok(())
+    }
+
+    fn make_range(&mut self) -> Result<(), RuntimeError> {
+        let end = self.stack.pop()?;
+        let start = self.stack.pop()?;
+        
+        // Start ve end değerlerini integer'a çevir
+        let start_val = match start {
+            Value::Int(i) => i,
+            Value::Float(f) => f as i64,
+            _ => return Err(RuntimeError::InvalidOperation {
+                op: "Range start must be a number".to_string(),
+                span: crate::compiler::diag::Span::new(0, 0, 0),
+            }),
+        };
+        
+        let end_val = match end {
+            Value::Int(i) => i,
+            Value::Float(f) => f as i64,
+            _ => return Err(RuntimeError::InvalidOperation {
+                op: "Range end must be a number".to_string(),
+                span: crate::compiler::diag::Span::new(0, 0, 0),
+            }),
+        };
+        
+        let range = Value::Range {
+            start: start_val,
+            end: end_val,
+        };
+        
+        self.stack.push(range)?;
         Ok(())
     }
 

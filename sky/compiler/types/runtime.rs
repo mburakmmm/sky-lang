@@ -17,6 +17,7 @@ pub enum ValueKind {
     NativeFn,
     Future,
     Coroutine,
+    Range,
     Null,
 }
 
@@ -55,6 +56,7 @@ impl std::fmt::Display for ValueKind {
             ValueKind::NativeFn => "native function",
             ValueKind::Future => "future",
             ValueKind::Coroutine => "coroutine",
+            ValueKind::Range => "range",
             ValueKind::Null => "null",
         };
         write!(f, "{}", name)
@@ -129,6 +131,7 @@ pub mod conversions {
             ValueKind::NativeFn => "native function".to_string(),
             ValueKind::Future => "future".to_string(),
             ValueKind::Coroutine => "coroutine".to_string(),
+            ValueKind::Range => "range".to_string(),
             ValueKind::Null => "null".to_string(),
         }
     }

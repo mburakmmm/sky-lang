@@ -76,23 +76,46 @@ pub fn lex(src: &str) -> Result<Vec<Token>, Diagnostic> {
             '"' => {
                 let start = pos;
                 let mut escaped = false;
+                let mut string_content = String::new();
+                
                 while let Some((_, next_ch)) = chars.next() {
                     if escaped {
+                        // Escape sequence işle
+                        match next_ch {
+                            'n' => string_content.push('\n'),
+                            't' => string_content.push('\t'),
+                            'r' => string_content.push('\r'),
+                            '"' => string_content.push('"'),
+                            '\\' => string_content.push('\\'),
+                            _ => {
+                                // Geçersiz escape sequence - karakteri olduğu gibi ekle
+                                string_content.push('\\');
+                                string_content.push(next_ch);
+                            }
+                        }
                         escaped = false;
                         continue;
                     }
+                    
                     if next_ch == '\\' {
                         escaped = true;
                         continue;
                     }
+                    
                     if next_ch == '"' {
                         break;
                     }
+                    
+                    string_content.push(next_ch);
                 }
-                tokens.push(Token::new(
+                
+                let end_pos = chars.peek().map(|(p, _)| *p).unwrap_or(src.len());
+                let mut token = Token::new(
                     token::TokenKind::String,
-                    Span::new(0, start, chars.peek().map(|(p, _)| *p).unwrap_or(src.len()))
-                ));
+                    Span::new(0, start, end_pos)
+                );
+                token.value = Some(string_content);
+                tokens.push(token);
             }
             
             // Sayılar
@@ -103,8 +126,17 @@ pub fn lex(src: &str) -> Result<Vec<Token>, Diagnostic> {
                     match next_ch {
                         '0'..='9' => { chars.next(); }
                         '.' if !has_dot => {
-                            has_dot = true;
-                            chars.next();
+                            // İkinci noktayı kontrol et (Range operatörü için)
+                            let mut lookahead = chars.clone();
+                            lookahead.next(); // İlk noktayı geç
+                            if let Some((_, '.')) = lookahead.peek() {
+                                // İkinci nokta var, bu Range operatörü, sayı parsing'i bitir
+                                break;
+                            } else {
+                                // Tek nokta, Float parsing devam et
+                                has_dot = true;
+                                chars.next();
+                            }
                         }
                         _ => break,
                     }
@@ -157,12 +189,22 @@ pub fn lex(src: &str) -> Result<Vec<Token>, Diagnostic> {
             }
             ':' => tokens.push(Token::new(token::TokenKind::Colon, Span::new(0, pos, pos + 1))),
             ',' => tokens.push(Token::new(token::TokenKind::Comma, Span::new(0, pos, pos + 1))),
+            '?' => tokens.push(Token::new(token::TokenKind::Question, Span::new(0, pos, pos + 1))),
             '(' => tokens.push(Token::new(token::TokenKind::LeftParen, Span::new(0, pos, pos + 1))),
             ')' => tokens.push(Token::new(token::TokenKind::RightParen, Span::new(0, pos, pos + 1))),
             '[' => tokens.push(Token::new(token::TokenKind::LeftBracket, Span::new(0, pos, pos + 1))),
             ']' => tokens.push(Token::new(token::TokenKind::RightBracket, Span::new(0, pos, pos + 1))),
             '{' => tokens.push(Token::new(token::TokenKind::LeftBrace, Span::new(0, pos, pos + 1))),
             '}' => tokens.push(Token::new(token::TokenKind::RightBrace, Span::new(0, pos, pos + 1))),
+            '.' => {
+                if chars.peek().map(|(_, ch)| *ch) == Some('.') {
+                    chars.next();
+                    tokens.push(Token::new(token::TokenKind::Range, Span::new(0, pos, pos + 2)));
+                } else {
+                    // Tek nokta - float parsing'de işlenir
+                    continue;
+                }
+            }
             
             // Whitespace (satır başı hariç)
             ' ' | '\t' | '\r' => {
@@ -205,6 +247,7 @@ pub fn lex(src: &str) -> Result<Vec<Token>, Diagnostic> {
     
     Ok(tokens)
 }
+
 
 #[cfg(test)]
 mod tests {

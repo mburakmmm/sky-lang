@@ -165,6 +165,7 @@ pub fn type_of(args: &[Value]) -> Result<Value, RuntimeError> {
         Value::NativeFn(_) => "native_function",
         Value::Future(_) => "future",
         Value::Coroutine(_) => "coroutine",
+        Value::Range { .. } => "range",
         Value::Null => "null",
     };
 

@@ -129,7 +129,8 @@ impl Parser {
                     statements.push(stmt);
                 }
                 Err(e) => {
-                    self.synchronize();
+                    // Hata mesajını döndür, synchronize etme
+                    return Err(e);
                 }
             }
         }
@@ -591,23 +592,48 @@ impl Parser {
 
     fn parse_precedence(&mut self, precedence: u8) -> Result<Expr, Diagnostic> {
         let mut expr = self.parse_unary()?;
-        //          precedence, self.peek().kind, self.get_precedence());
 
         while precedence < self.get_precedence() {
-            //          precedence, precedence, self.get_precedence());
-            let op = self.parse_binary_op()?;
-            let mut right_precedence = op.precedence();
-            if !op.is_left_associative() {
-                right_precedence += 1;
+            // Range operatörü özel kontrolü
+            if self.check(TokenKind::Range) {
+                self.advance(); // .. token'ını geç
+                let right = self.parse_unary()?;
+                let expr_span = expr.span();
+                expr = Expr::Range {
+                    start: Box::new(expr),
+                    end: Box::new(right),
+                    span: expr_span,
+                };
             }
-            let right = self.parse_precedence(right_precedence)?;
-            let expr_span = expr.span();
-            expr = Expr::Binary {
-                left: Box::new(expr),
-                op,
-                right: Box::new(right),
-                span: expr_span,
-            };
+            // Ternary operatörü özel kontrolü
+            else if self.check(TokenKind::Question) {
+                self.advance(); // ? token'ını geç
+                let true_expr = self.parse_precedence(1)?; // En düşük precedence
+                self.consume(TokenKind::Colon, "Expected ':' in ternary operator")?;
+                let false_expr = self.parse_precedence(1)?; // En düşük precedence
+                let expr_span = expr.span();
+                expr = Expr::Ternary {
+                    condition: Box::new(expr),
+                    true_expr: Box::new(true_expr),
+                    false_expr: Box::new(false_expr),
+                    span: expr_span,
+                };
+            } else {
+                // Binary operatörler
+                let op = self.parse_binary_op()?;
+                let mut right_precedence = op.precedence();
+                if !op.is_left_associative() {
+                    right_precedence += 1;
+                }
+                let right = self.parse_precedence(right_precedence)?;
+                let expr_span = expr.span();
+                expr = Expr::Binary {
+                    left: Box::new(expr),
+                    op,
+                    right: Box::new(right),
+                    span: expr_span,
+                };
+            }
         }
 
         Ok(expr)
@@ -797,11 +823,13 @@ impl Parser {
             TokenKind::LessEqual => BinaryOp::Le.precedence(),
             TokenKind::Greater => BinaryOp::Gt.precedence(),
             TokenKind::GreaterEqual => BinaryOp::Ge.precedence(),
+            TokenKind::Range => 4, // Range operatörü - comparison seviyesinde
             TokenKind::Plus => BinaryOp::Add.precedence(),
             TokenKind::Minus => BinaryOp::Sub.precedence(),
             TokenKind::Star => BinaryOp::Mul.precedence(),
             TokenKind::Slash => BinaryOp::Div.precedence(),
             TokenKind::Percent => BinaryOp::Mod.precedence(),
+            TokenKind::Question => 1, // Ternary operatörü - en düşük precedence
             _ => 0,
         };
         precedence
@@ -847,6 +875,8 @@ impl ExprSpan for Expr {
             Expr::Await { span, .. } => *span,
             Expr::Yield { span, .. } => *span,
             Expr::Interpolated { span, .. } => *span,
+            Expr::Range { span, .. } => *span,
+            Expr::Ternary { span, .. } => *span,
         }
     }
 }
@@ -929,6 +959,52 @@ mod tests {
             let token = self.previous();
             let value = token.text(&source_clone).to_string();
             Ok(Expr::Lit(Literal::String(value)))
+        } else if self.match_token(&[TokenKind::LeftBracket]) {
+            // List literal: [1, 2, 3]
+            let mut elements = Vec::new();
+            
+            if !self.check(TokenKind::RightBracket) {
+                loop {
+                    elements.push(self.expression()?);
+                    if !self.match_token(&[TokenKind::Comma]) {
+                        break;
+                    }
+                }
+            }
+            
+            self.consume(TokenKind::RightBracket, "Expected ']' after list elements")?;
+            Ok(Expr::Lit(Literal::List(elements)))
+        } else if self.match_token(&[TokenKind::LeftBrace]) {
+            // Map literal: {key: value, key2: value2}
+            let mut pairs = Vec::new();
+            
+            if !self.check(TokenKind::RightBrace) {
+                loop {
+                    // Key (string literal veya identifier)
+                    let key = if self.match_token(&[TokenKind::String]) {
+                        let source_clone = self.source.clone();
+                        let token = self.previous();
+                        token.text(&source_clone).to_string()
+                    } else if self.match_token(&[TokenKind::Identifier]) {
+                        let source_clone = self.source.clone();
+                        let token = self.previous();
+                        token.text(&source_clone).to_string()
+                    } else {
+                        return Err(Diagnostic::error("E0000", "Expected string or identifier for map key", self.peek().span));
+                    };
+                    
+                    self.consume(TokenKind::Colon, "Expected ':' after map key")?;
+                    let value = self.expression()?;
+                    pairs.push((key, value));
+                    
+                    if !self.match_token(&[TokenKind::Comma]) {
+                        break;
+                    }
+                }
+            }
+            
+            self.consume(TokenKind::RightBrace, "Expected '}' after map pairs")?;
+            Ok(Expr::Lit(Literal::Map(pairs)))
         } else if self.match_token(&[TokenKind::LeftParen]) {
             let expr = self.expression()?;
             self.consume(TokenKind::RightParen, "Expected ')' after expression")?;
@@ -995,8 +1071,10 @@ mod tests {
             TokenKind::And => 2,
             TokenKind::EqualEqual | TokenKind::BangEqual => 3,
             TokenKind::Greater | TokenKind::GreaterEqual | TokenKind::Less | TokenKind::LessEqual => 4,
-            TokenKind::Plus | TokenKind::Minus => 5,
-            TokenKind::Star | TokenKind::Slash | TokenKind::Percent => 6,
+            TokenKind::Range => 5, // Range operatörü
+            TokenKind::Plus | TokenKind::Minus => 6,
+            TokenKind::Star | TokenKind::Slash | TokenKind::Percent => 7,
+            TokenKind::Question => 8, // Ternary operatörü - en düşük precedence
             _ => 0,
         };
         precedence

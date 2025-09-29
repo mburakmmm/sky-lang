@@ -657,7 +657,7 @@ fn print_diagnostics(diagnostics: &[Diagnostic]) {
     let source_map = SourceMap::new();
     let emitter = Emitter::new(source_map);
     for diag in diagnostics {
-        emitter.emit(diag);
+        print!("{}", emitter.emit(diag));
     }
 }
 

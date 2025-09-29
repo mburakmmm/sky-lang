@@ -470,6 +470,14 @@ impl Compiler {
                 self.chunk.write_op(OpCode::Yield, 0);
             }
             
+            BoundExpr::Range { start, end, .. } => {
+                // Range expression: start ve end değerlerini compile et
+                self.compile_expression(*start)?;
+                self.compile_expression(*end)?;
+                // Range opcode - start ve end değerlerini alıp Range value oluştur
+                self.chunk.write_op(OpCode::MakeRange, 0);
+            }
+            
             BoundExpr::Attr { object, attr, .. } => {
                 self.compile_expression(*object)?;
                 // Attribute access - object.field

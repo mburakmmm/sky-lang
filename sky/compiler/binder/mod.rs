@@ -149,6 +149,11 @@ pub enum BoundExpr {
         expr: Option<Box<BoundExpr>>,
         span: Span,
     },
+    Range {
+        start: Box<BoundExpr>,
+        end: Box<BoundExpr>,
+        span: Span,
+    },
 }
 
 /// Ana bağlama fonksiyonu
@@ -677,6 +682,25 @@ impl Binder {
             Expr::Interpolated { parts, span } => {
                 // String interpolation binding - şimdilik basit implementation
                 Ok(BoundExpr::Lit(crate::compiler::parser::ast::Literal::String("interpolated".to_string())))
+            }
+            
+            Expr::Range { start, end, span } => {
+                // Range expression binding
+                let bound_start = self.bind_expression(*start)?;
+                let bound_end = self.bind_expression(*end)?;
+                Ok(BoundExpr::Range {
+                    start: Box::new(bound_start),
+                    end: Box::new(bound_end),
+                    span,
+                })
+            }
+            
+            Expr::Ternary { condition, true_expr, false_expr, span } => {
+                // Ternary expression binding - şimdilik basit implementation
+                let bound_condition = self.bind_expression(*condition)?;
+                let bound_true = self.bind_expression(*true_expr)?;
+                let bound_false = self.bind_expression(*false_expr)?;
+                Ok(BoundExpr::Lit(crate::compiler::parser::ast::Literal::String("ternary".to_string())))
             }
         }
     }

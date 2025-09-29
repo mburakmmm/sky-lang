@@ -78,6 +78,8 @@ pub enum TokenKind {
     RightBracket,
     LeftBrace,
     RightBrace,
+    Range,  // ..
+    Question,  // ?
     
     // Special
     Newline,

@@ -236,6 +236,10 @@ impl Chunk {
                     output.push_str("AWAIT\n");
                     ip += 1;
                 }
+                0x81 => { // MakeRange
+                    output.push_str("MAKE_RANGE\n");
+                    ip += 1;
+                }
                 0x90 => { // Print
                     output.push_str("PRINT\n");
                     ip += 1;
@@ -337,6 +341,7 @@ impl Chunk {
             OpCode::CoopResume => self.code.push(0x73),
             OpCode::CoopIsDone => self.code.push(0x74),
             OpCode::Await => self.code.push(0x80),
+            OpCode::MakeRange => self.code.push(0x81),
             OpCode::Print => self.code.push(0x90),
             OpCode::Swap => self.code.push(0xA1),
             OpCode::Nop => self.code.push(0xFF),

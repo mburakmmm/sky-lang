@@ -41,6 +41,7 @@ pub fn stringify(value: &Value) -> String {
         Value::NativeFn(func) => format!("<native function {}>", func.name),
         Value::Future(_) => "<future>".to_string(),
         Value::Coroutine(coro) => format!("<coroutine {}>", coro.id),
+        Value::Range { start, end } => format!("{}..{}", start, end),
     }
 }
 

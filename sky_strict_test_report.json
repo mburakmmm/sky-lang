@@ -1,16 +1,16 @@
 {
-  "timestamp": "2025-09-29T18:43:09.826543",
+  "timestamp": "2025-09-30T01:52:13.566422",
   "sky_binary": "/Users/melihburakmemis/sky/target/release/sky",
   "binary_exists": true,
   "binary_executable": true,
   "total_tests": 61,
-  "passed_tests": 23,
+  "passed_tests": 24,
   "warning_tests": 0,
-  "failed_tests": 38,
-  "success_rate": 37.704918032786885,
+  "failed_tests": 37,
+  "success_rate": 39.34426229508197,
   "performance_tests": {
-    "Basit aritmetik - 1000 iterasyon": 0.004049777984619141,
-    "String concatenation - 100 iterasyon": 0.003504037857055664
+    "Basit aritmetik - 1000 iterasyon": 0.0038700103759765625,
+    "String concatenation - 100 iterasyon": 0.004049062728881836
   },
   "test_categories": {
     "syntax_strictness": {
@@ -22,9 +22,9 @@
         "Tip zorunluluğu - eksik tip": {
           "passed": true,
           "returncode": 1,
-          "stdout": "",
+          "stdout": "DEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\n",
           "stderr": "",
-          "execution_time": 0.00439000129699707,
+          "execution_time": 0.004481077194213867,
           "category": "Sözdizimi"
         },
         "Tip zorunluluğu - geçersiz tip": {
@@ -32,15 +32,15 @@
           "returncode": 0,
           "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"string\")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 RETURN\n=== END DISASSEMBLY ===\n",
           "stderr": "",
-          "execution_time": 0.005501985549926758,
+          "execution_time": 0.003915071487426758,
           "category": "Sözdizimi"
         },
         "Tip zorunluluğu - doğru kullanım": {
           "passed": true,
           "returncode": 0,
-          "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_GLOBAL 0\n0009 LOAD_LOCAL 20\n0012 CALL 1\n0014 POP\n0015 RETURN\n=== END DISASSEMBLY ===\n42",
+          "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_GLOBAL 0\n0009 LOAD_LOCAL 20\n0012 CALL 1\n0014 POP\n0015 RETURN\n=== END DISASSEMBLY ===\n42",
           "stderr": "DEBUG: print fonksiyonu çağrıldı, argüman: 42\n",
-          "execution_time": 0.004312992095947266,
+          "execution_time": 0.005066871643066406,
           "category": "Sözdizimi"
         },
         "Tab yasağı - tab karakteri": {
@@ -48,15 +48,15 @@
           "returncode": 1,
           "stdout": "",
           "stderr": "",
-          "execution_time": 0.004218101501464844,
+          "execution_time": 0.004618167877197266,
           "category": "Sözdizimi"
         },
         "Girinti tutarsızlığı": {
           "passed": false,
           "returncode": 0,
-          "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Bool(true)\n  [1] String(\"test\")\n  [2] String(\"wrong indent\")\n\nCode:\n0000 CONST 0\n0003 JUMP_IF_FALSE 27\n0006 LOAD_GLOBAL 0\n0009 CONST 1\n0012 CALL 1\n0014 POP\n0015 LOAD_GLOBAL 0\n0018 CONST 2\n0021 CALL 1\n0023 POP\n0024 JUMP 27\n0027 RETURN\n=== END DISASSEMBLY ===\ntestwrong indent",
+          "stdout": "DEBUG: get_precedence - peek: Colon, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Dedent, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Bool(true)\n  [1] String(\"test\")\n  [2] String(\"wrong indent\")\n\nCode:\n0000 CONST 0\n0003 JUMP_IF_FALSE 27\n0006 LOAD_GLOBAL 0\n0009 CONST 1\n0012 CALL 1\n0014 POP\n0015 LOAD_GLOBAL 0\n0018 CONST 2\n0021 CALL 1\n0023 POP\n0024 JUMP 27\n0027 RETURN\n=== END DISASSEMBLY ===\ntestwrong indent",
           "stderr": "DEBUG: print fonksiyonu çağrıldı, argüman: test\nDEBUG: print fonksiyonu çağrıldı, argüman: wrong indent\n",
-          "execution_time": 0.0045337677001953125,
+          "execution_time": 0.004614114761352539,
           "category": "Sözdizimi"
         },
         "Geçersiz karakter - özel karakter": {
@@ -64,23 +64,23 @@
           "returncode": 1,
           "stdout": "",
           "stderr": "",
-          "execution_time": 0.00486302375793457,
+          "execution_time": 0.004305839538574219,
           "category": "Sözdizimi"
         },
         "Eksik iki nokta - if statement": {
           "passed": true,
           "returncode": 0,
-          "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"test\")\n\nCode:\n0000 LOAD_GLOBAL 0\n0003 CONST 0\n0006 CALL 1\n0008 POP\n0009 RETURN\n=== END DISASSEMBLY ===\ntest",
+          "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Dedent, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"test\")\n\nCode:\n0000 LOAD_GLOBAL 0\n0003 CONST 0\n0006 CALL 1\n0008 POP\n0009 RETURN\n=== END DISASSEMBLY ===\ntest",
           "stderr": "DEBUG: print fonksiyonu çağrıldı, argüman: test\n",
-          "execution_time": 0.0037801265716552734,
+          "execution_time": 0.004901885986328125,
           "category": "Sözdizimi"
         },
         "Eksik iki nokta - function parameter": {
           "passed": true,
           "returncode": 0,
-          "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n\nCode:\n0000 MAKE_FUNCTION 0 1\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 0\n0010 LOAD_GLOBAL 20\n0013 CONST 0\n0016 CALL 1\n0018 CALL 1\n0020 POP\n0021 RETURN\n=== END DISASSEMBLY ===\n42",
+          "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n\nCode:\n0000 MAKE_FUNCTION 0 1\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 0\n0010 LOAD_GLOBAL 20\n0013 CONST 0\n0016 CALL 1\n0018 CALL 1\n0020 POP\n0021 RETURN\n=== END DISASSEMBLY ===\n42",
           "stderr": "DEBUG: print fonksiyonu çağrıldı, argüman: 42\n",
-          "execution_time": 0.004006147384643555,
+          "execution_time": 0.004655122756958008,
           "category": "Sözdizimi"
         },
         "Geçersiz keyword kullanımı": {
@@ -88,15 +88,15 @@
           "returncode": 0,
           "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n\nCode:\n0000 CONST 0\n0003 RETURN\n0004 RETURN\n=== END DISASSEMBLY ===\n",
           "stderr": "",
-          "execution_time": 0.00532078742980957,
+          "execution_time": 0.0037419795989990234,
           "category": "Sözdizimi"
         },
         "Eksik parantez - function call": {
           "passed": false,
           "returncode": 0,
-          "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"test\")\n\nCode:\n0000 LOAD_GLOBAL 0\n0003 POP\n0004 CONST 0\n0007 POP\n0008 RETURN\n=== END DISASSEMBLY ===\n",
+          "stdout": "DEBUG: get_precedence - peek: String, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"test\")\n\nCode:\n0000 LOAD_GLOBAL 0\n0003 POP\n0004 CONST 0\n0007 POP\n0008 RETURN\n=== END DISASSEMBLY ===\n",
           "stderr": "",
-          "execution_time": 0.003947019577026367,
+          "execution_time": 0.004608869552612305,
           "category": "Sözdizimi"
         }
       }
@@ -110,81 +110,81 @@
         "Int tip kontrolü - string atama": {
           "passed": false,
           "returncode": 0,
-          "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n  [1] String(\"string\")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 UNKNOWN(57)\n0010 STORE_LOCAL 20\n0013 POP\n0014 RETURN\n=== END DISASSEMBLY ===\n",
+          "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n  [1] String(\"string\")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 UNKNOWN(57)\n0010 STORE_LOCAL 20\n0013 POP\n0014 RETURN\n=== END DISASSEMBLY ===\n",
           "stderr": "",
-          "execution_time": 0.0036149024963378906,
+          "execution_time": 0.004049062728881836,
           "category": "Tip Sistemi"
         },
         "Float tip kontrolü - int atama": {
           "passed": true,
           "returncode": 0,
-          "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Float(3.14)\n  [1] Int(42)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 UNKNOWN(57)\n0010 STORE_LOCAL 20\n0013 POP\n0014 RETURN\n=== END DISASSEMBLY ===\n",
+          "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Float(3.14)\n  [1] Int(42)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 UNKNOWN(57)\n0010 STORE_LOCAL 20\n0013 POP\n0014 RETURN\n=== END DISASSEMBLY ===\n",
           "stderr": "",
-          "execution_time": 0.003721952438354492,
+          "execution_time": 0.004429817199707031,
           "category": "Tip Sistemi"
         },
         "Bool tip kontrolü - string atama": {
           "passed": false,
           "returncode": 0,
-          "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Bool(true)\n  [1] String(\"false\")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 UNKNOWN(57)\n0010 STORE_LOCAL 20\n0013 POP\n0014 RETURN\n=== END DISASSEMBLY ===\n",
+          "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Bool(true)\n  [1] String(\"false\")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 UNKNOWN(57)\n0010 STORE_LOCAL 20\n0013 POP\n0014 RETURN\n=== END DISASSEMBLY ===\n",
           "stderr": "",
-          "execution_time": 0.005139827728271484,
+          "execution_time": 0.004077911376953125,
           "category": "Tip Sistemi"
         },
         "String tip kontrolü - int atama": {
           "passed": false,
           "returncode": 0,
-          "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"hello\")\n  [1] Int(42)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 UNKNOWN(57)\n0010 STORE_LOCAL 20\n0013 POP\n0014 RETURN\n=== END DISASSEMBLY ===\n",
+          "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"hello\")\n  [1] Int(42)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 UNKNOWN(57)\n0010 STORE_LOCAL 20\n0013 POP\n0014 RETURN\n=== END DISASSEMBLY ===\n",
           "stderr": "",
-          "execution_time": 0.0039632320404052734,
+          "execution_time": 0.004762172698974609,
           "category": "Tip Sistemi"
         },
         "Var tip - herhangi bir değer": {
           "passed": true,
           "returncode": 0,
-          "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n  [1] String(\"string\")\n  [2] Bool(true)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 UNKNOWN(57)\n0010 STORE_LOCAL 20\n0013 POP\n0014 CONST 2\n0017 UNKNOWN(57)\n0018 STORE_LOCAL 20\n0021 POP\n0022 LOAD_GLOBAL 0\n0025 LOAD_LOCAL 20\n0028 CALL 1\n0030 POP\n0031 RETURN\n=== END DISASSEMBLY ===\ntrue",
+          "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n  [1] String(\"string\")\n  [2] Bool(true)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 UNKNOWN(57)\n0010 STORE_LOCAL 20\n0013 POP\n0014 CONST 2\n0017 UNKNOWN(57)\n0018 STORE_LOCAL 20\n0021 POP\n0022 LOAD_GLOBAL 0\n0025 LOAD_LOCAL 20\n0028 CALL 1\n0030 POP\n0031 RETURN\n=== END DISASSEMBLY ===\ntrue",
           "stderr": "DEBUG: print fonksiyonu çağrıldı, argüman: true\n",
-          "execution_time": 0.0038700103759765625,
+          "execution_time": 0.00429987907409668,
           "category": "Tip Sistemi"
         },
         "List tip kontrolü - farklı tip eleman": {
           "passed": true,
           "returncode": 1,
-          "stdout": "",
+          "stdout": "DEBUG: get_precedence - peek: Comma, precedence: 0\nDEBUG: get_precedence - peek: Comma, precedence: 0\nDEBUG: get_precedence - peek: RightBracket, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: LeftBracket, precedence: 0\nDEBUG: get_precedence - peek: RightBracket, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\n",
           "stderr": "",
-          "execution_time": 0.004317283630371094,
+          "execution_time": 0.0038878917694091797,
           "category": "Tip Sistemi"
         },
         "Map tip kontrolü - farklı tip değer": {
           "passed": true,
           "returncode": 1,
-          "stdout": "",
+          "stdout": "DEBUG: get_precedence - peek: RightBrace, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: LeftBracket, precedence: 0\nDEBUG: get_precedence - peek: RightBracket, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\n",
           "stderr": "",
-          "execution_time": 0.00472712516784668,
+          "execution_time": 0.004431009292602539,
           "category": "Tip Sistemi"
         },
         "Function return tip kontrolü": {
           "passed": true,
           "returncode": 0,
-          "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n\nCode:\n0000 MAKE_FUNCTION 0 0\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 0\n0010 LOAD_GLOBAL 20\n0013 CALL 0\n0015 CALL 1\n0017 POP\n0018 RETURN\n=== END DISASSEMBLY ===\nstring",
+          "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n\nCode:\n0000 MAKE_FUNCTION 0 0\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 0\n0010 LOAD_GLOBAL 20\n0013 CALL 0\n0015 CALL 1\n0017 POP\n0018 RETURN\n=== END DISASSEMBLY ===\nstring",
           "stderr": "DEBUG: print fonksiyonu çağrıldı, argüman: string\n",
-          "execution_time": 0.0037348270416259766,
+          "execution_time": 0.0043909549713134766,
           "category": "Tip Sistemi"
         },
         "Aritmetik operasyon tip kontrolü": {
           "passed": false,
           "returncode": 0,
-          "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n  [1] String(\"hello\")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 STORE_LOCAL 21\n0012 LOAD_LOCAL 20\n0015 LOAD_LOCAL 21\n0018 ADD\n0019 STORE_LOCAL 22\n0022 RETURN\n=== END DISASSEMBLY ===\n",
+          "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n  [1] String(\"hello\")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 STORE_LOCAL 21\n0012 LOAD_LOCAL 20\n0015 LOAD_LOCAL 21\n0018 ADD\n0019 STORE_LOCAL 22\n0022 RETURN\n=== END DISASSEMBLY ===\n",
           "stderr": "",
-          "execution_time": 0.0038328170776367188,
+          "execution_time": 0.004083871841430664,
           "category": "Tip Sistemi"
         },
         "Karşılaştırma operasyon tip kontrolü": {
           "passed": false,
           "returncode": 0,
-          "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n  [1] String(\"hello\")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 STORE_LOCAL 21\n0012 LOAD_LOCAL 20\n0015 LOAD_LOCAL 21\n0018 EQUAL\n0019 STORE_LOCAL 22\n0022 RETURN\n=== END DISASSEMBLY ===\n",
+          "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: EqualEqual, precedence: 3\nDEBUG: get_precedence - peek: EqualEqual, precedence: 3\nDEBUG: parse_precedence - precedence: 0, peek: EqualEqual, get_precedence: 3\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n  [1] String(\"hello\")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 STORE_LOCAL 21\n0012 LOAD_LOCAL 20\n0015 LOAD_LOCAL 21\n0018 EQUAL\n0019 STORE_LOCAL 22\n0022 RETURN\n=== END DISASSEMBLY ===\n",
           "stderr": "",
-          "execution_time": 0.004831790924072266,
+          "execution_time": 0.0038220882415771484,
           "category": "Tip Sistemi"
         }
       }
@@ -198,41 +198,41 @@
         "If statement - doğru sözdizimi": {
           "passed": true,
           "returncode": 0,
-          "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"test\")\n\nCode:\n0000 LOAD_GLOBAL 0\n0003 CONST 0\n0006 CALL 1\n0008 POP\n0009 RETURN\n=== END DISASSEMBLY ===\ntest",
+          "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Dedent, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"test\")\n\nCode:\n0000 LOAD_GLOBAL 0\n0003 CONST 0\n0006 CALL 1\n0008 POP\n0009 RETURN\n=== END DISASSEMBLY ===\ntest",
           "stderr": "DEBUG: print fonksiyonu çağrıldı, argüman: test\n",
-          "execution_time": 0.004098176956176758,
+          "execution_time": 0.004642963409423828,
           "category": "Kontrol Akışı"
         },
         "Elif statement - doğru sözdizimi": {
           "passed": true,
           "returncode": 0,
-          "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"test\")\n  [1] Bool(true)\n  [2] String(\"elif\")\n\nCode:\n0000 LOAD_GLOBAL 0\n0003 CONST 0\n0006 CALL 1\n0008 POP\n0009 CONST 1\n0012 POP\n0013 LOAD_GLOBAL 0\n0016 CONST 2\n0019 CALL 1\n0021 POP\n0022 RETURN\n=== END DISASSEMBLY ===\ntestelif",
+          "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Dedent, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"test\")\n  [1] Bool(true)\n  [2] String(\"elif\")\n\nCode:\n0000 LOAD_GLOBAL 0\n0003 CONST 0\n0006 CALL 1\n0008 POP\n0009 CONST 1\n0012 POP\n0013 LOAD_GLOBAL 0\n0016 CONST 2\n0019 CALL 1\n0021 POP\n0022 RETURN\n=== END DISASSEMBLY ===\ntestelif",
           "stderr": "DEBUG: print fonksiyonu çağrıldı, argüman: test\nDEBUG: print fonksiyonu çağrıldı, argüman: elif\n",
-          "execution_time": 0.0037908554077148438,
+          "execution_time": 0.004206180572509766,
           "category": "Kontrol Akışı"
         },
         "Else statement - doğru sözdizimi": {
           "passed": true,
           "returncode": 0,
-          "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"test\")\n  [1] String(\"else\")\n\nCode:\n0000 LOAD_GLOBAL 0\n0003 CONST 0\n0006 CALL 1\n0008 POP\n0009 LOAD_GLOBAL 0\n0012 CONST 1\n0015 CALL 1\n0017 POP\n0018 RETURN\n=== END DISASSEMBLY ===\ntestelse",
+          "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Dedent, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"test\")\n  [1] String(\"else\")\n\nCode:\n0000 LOAD_GLOBAL 0\n0003 CONST 0\n0006 CALL 1\n0008 POP\n0009 LOAD_GLOBAL 0\n0012 CONST 1\n0015 CALL 1\n0017 POP\n0018 RETURN\n=== END DISASSEMBLY ===\ntestelse",
           "stderr": "DEBUG: print fonksiyonu çağrıldı, argüman: test\nDEBUG: print fonksiyonu çağrıldı, argüman: else\n",
-          "execution_time": 0.0038340091705322266,
+          "execution_time": 0.004137992858886719,
           "category": "Kontrol Akışı"
         },
         "While döngüsü - doğru sözdizimi": {
           "passed": true,
           "returncode": 0,
-          "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(0)\n  [1] Int(1)\n  [2] String(\"test\")\n  [3] Int(1)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_LOCAL 20\n0009 CONST 1\n0012 LESS\n0013 JUMP_IF_FALSE 40\n0016 LOAD_GLOBAL 0\n0019 CONST 2\n0022 CALL 1\n0024 POP\n0025 LOAD_LOCAL 20\n0028 CONST 3\n0031 ADD\n0032 UNKNOWN(57)\n0033 STORE_LOCAL 20\n0036 POP\n0037 JUMP 6\n0040 RETURN\n=== END DISASSEMBLY ===\ntest",
+          "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Less, precedence: 4\nDEBUG: get_precedence - peek: Less, precedence: 4\nDEBUG: parse_precedence - precedence: 0, peek: Less, get_precedence: 4\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Dedent, precedence: 0\nDEBUG: get_precedence - peek: Dedent, precedence: 0\nDEBUG: get_precedence - peek: Dedent, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(0)\n  [1] Int(1)\n  [2] String(\"test\")\n  [3] Int(1)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_LOCAL 20\n0009 CONST 1\n0012 LESS\n0013 JUMP_IF_FALSE 40\n0016 LOAD_GLOBAL 0\n0019 CONST 2\n0022 CALL 1\n0024 POP\n0025 LOAD_LOCAL 20\n0028 CONST 3\n0031 ADD\n0032 UNKNOWN(57)\n0033 STORE_LOCAL 20\n0036 POP\n0037 JUMP 6\n0040 RETURN\n=== END DISASSEMBLY ===\ntest",
           "stderr": "DEBUG: print fonksiyonu çağrıldı, argüman: test\n",
-          "execution_time": 0.004670143127441406,
+          "execution_time": 0.004044055938720703,
           "category": "Kontrol Akışı"
         },
         "For döngüsü - doğru sözdizimi": {
           "passed": true,
           "returncode": 0,
-          "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] List([Int(1), Int(2), Int(3)])\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_LOCAL 20\n0009 UNKNOWN(B0)\n0010 UNKNOWN(B1)\n0011 UNKNOWN(B2)\n0012 JUMP_IF_FALSE 30\n0015 STORE_LOCAL 21\n0018 LOAD_GLOBAL 0\n0021 LOAD_LOCAL 21\n0024 CALL 1\n0026 POP\n0027 JUMP 10\n0030 RETURN\n=== END DISASSEMBLY ===\n1",
+          "stdout": "DEBUG: get_precedence - peek: Comma, precedence: 0\nDEBUG: get_precedence - peek: Comma, precedence: 0\nDEBUG: get_precedence - peek: RightBracket, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Dedent, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] List([Int(1), Int(2), Int(3)])\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_LOCAL 20\n0009 UNKNOWN(B0)\n0010 UNKNOWN(B1)\n0011 UNKNOWN(B2)\n0012 JUMP_IF_FALSE 30\n0015 STORE_LOCAL 21\n0018 LOAD_GLOBAL 0\n0021 LOAD_LOCAL 21\n0024 CALL 1\n0026 POP\n0027 JUMP 10\n0030 RETURN\n=== END DISASSEMBLY ===\n1",
           "stderr": "DEBUG: print fonksiyonu çağrıldı, argüman: 1\n",
-          "execution_time": 0.0038361549377441406,
+          "execution_time": 0.00432896614074707,
           "category": "Kontrol Akışı"
         },
         "Break - döngü dışında": {
@@ -240,7 +240,7 @@
           "returncode": 0,
           "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n\nCode:\n0000 JUMP 0\n0003 RETURN\n=== END DISASSEMBLY ===\n",
           "stderr": "",
-          "execution_time": 0.0034461021423339844,
+          "execution_time": 0.00415802001953125,
           "category": "Kontrol Akışı"
         },
         "Continue - döngü dışında": {
@@ -248,7 +248,7 @@
           "returncode": 0,
           "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n\nCode:\n0000 JUMP 0\n0003 RETURN\n=== END DISASSEMBLY ===\n",
           "stderr": "",
-          "execution_time": 0.0036809444427490234,
+          "execution_time": 0.003802061080932617,
           "category": "Kontrol Akışı"
         },
         "Return - fonksiyon dışında": {
@@ -256,7 +256,7 @@
           "returncode": 0,
           "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n\nCode:\n0000 CONST 0\n0003 RETURN\n0004 RETURN\n=== END DISASSEMBLY ===\n",
           "stderr": "",
-          "execution_time": 0.0046651363372802734,
+          "execution_time": 0.0043752193450927734,
           "category": "Kontrol Akışı"
         },
         "Await - async dışında": {
@@ -264,7 +264,7 @@
           "returncode": 0,
           "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n\nCode:\n0000 RETURN\n=== END DISASSEMBLY ===\n",
           "stderr": "",
-          "execution_time": 0.003774881362915039,
+          "execution_time": 0.004017829895019531,
           "category": "Kontrol Akışı"
         },
         "Yield - coop dışında": {
@@ -272,95 +272,95 @@
           "returncode": 0,
           "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n\nCode:\n0000 RETURN\n=== END DISASSEMBLY ===\n",
           "stderr": "",
-          "execution_time": 0.0035991668701171875,
+          "execution_time": 0.004002094268798828,
           "category": "Kontrol Akışı"
         }
       }
     },
     "function_strictness": {
       "total": 10,
-      "passed": 7,
-      "failed": 3,
-      "success_rate": 70.0,
+      "passed": 8,
+      "failed": 2,
+      "success_rate": 80.0,
       "tests": {
         "Fonksiyon - eksik parametre tipi": {
           "passed": true,
           "returncode": 1,
-          "stdout": "",
+          "stdout": "DEBUG: get_precedence - peek: Dedent, precedence: 0\n",
           "stderr": "",
-          "execution_time": 0.0035169124603271484,
+          "execution_time": 0.003710031509399414,
           "category": "Fonksiyon"
         },
         "Fonksiyon - doğru sözdizimi": {
           "passed": true,
           "returncode": 0,
-          "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n\nCode:\n0000 MAKE_FUNCTION 0 1\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 0\n0010 LOAD_GLOBAL 20\n0013 CONST 0\n0016 CALL 1\n0018 CALL 1\n0020 POP\n0021 RETURN\n=== END DISASSEMBLY ===\n42",
+          "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n\nCode:\n0000 MAKE_FUNCTION 0 1\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 0\n0010 LOAD_GLOBAL 20\n0013 CONST 0\n0016 CALL 1\n0018 CALL 1\n0020 POP\n0021 RETURN\n=== END DISASSEMBLY ===\n42",
           "stderr": "DEBUG: print fonksiyonu çağrıldı, argüman: 42\n",
-          "execution_time": 0.004514932632446289,
+          "execution_time": 0.004703044891357422,
           "category": "Fonksiyon"
         },
         "Async fonksiyon - doğru sözdizimi": {
           "passed": true,
           "returncode": 0,
-          "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n\nCode:\n0000 MAKE_FUNCTION 0 1\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 20\n0010 CONST 0\n0013 CALL 1\n0015 STORE_LOCAL 21\n0018 RETURN\n=== END DISASSEMBLY ===\n",
+          "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n\nCode:\n0000 MAKE_FUNCTION 0 1\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 20\n0010 CONST 0\n0013 CALL 1\n0015 STORE_LOCAL 21\n0018 RETURN\n=== END DISASSEMBLY ===\n",
           "stderr": "",
-          "execution_time": 0.0038132667541503906,
+          "execution_time": 0.004294872283935547,
           "category": "Fonksiyon"
         },
         "Coop fonksiyon - doğru sözdizimi": {
-          "passed": false,
-          "returncode": 1,
-          "stdout": "",
+          "passed": true,
+          "returncode": 0,
+          "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Identifier, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n\nCode:\n0000 MAKE_COOP_FUNCTION 0 1\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 20\n0010 CONST 0\n0013 CALL 1\n0015 STORE_LOCAL 21\n0018 RETURN\n=== END DISASSEMBLY ===\n",
           "stderr": "",
-          "execution_time": 0.0036208629608154297,
+          "execution_time": 0.003957986831665039,
           "category": "Fonksiyon"
         },
         "Fonksiyon - geçersiz parametre tipi": {
           "passed": true,
           "returncode": 1,
-          "stdout": "",
+          "stdout": "DEBUG: get_precedence - peek: Dedent, precedence: 0\n",
           "stderr": "",
-          "execution_time": 0.0035512447357177734,
+          "execution_time": 0.003566741943359375,
           "category": "Fonksiyon"
         },
         "Fonksiyon - eksik return değeri": {
           "passed": false,
           "returncode": 1,
-          "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n\nCode:\n0000 MAKE_FUNCTION 0 0\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 0\n0010 LOAD_GLOBAL 20\n0013 CALL 0\n0015 CALL 1\n0017 POP\n0018 RETURN\n=== END DISASSEMBLY ===\ntest",
+          "stdout": "DEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n\nCode:\n0000 MAKE_FUNCTION 0 0\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 0\n0010 LOAD_GLOBAL 20\n0013 CALL 0\n0015 CALL 1\n0017 POP\n0018 RETURN\n=== END DISASSEMBLY ===\ntest",
           "stderr": "DEBUG: print fonksiyonu çağrıldı, argüman: test\nHata: Stack underflow\n",
-          "execution_time": 0.00428318977355957,
+          "execution_time": 0.004907846450805664,
           "category": "Fonksiyon"
         },
         "Fonksiyon - yanlış return tipi": {
           "passed": true,
           "returncode": 0,
-          "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n\nCode:\n0000 MAKE_FUNCTION 0 0\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 0\n0010 LOAD_GLOBAL 20\n0013 CALL 0\n0015 CALL 1\n0017 POP\n0018 RETURN\n=== END DISASSEMBLY ===\nstring",
+          "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n\nCode:\n0000 MAKE_FUNCTION 0 0\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 0\n0010 LOAD_GLOBAL 20\n0013 CALL 0\n0015 CALL 1\n0017 POP\n0018 RETURN\n=== END DISASSEMBLY ===\nstring",
           "stderr": "DEBUG: print fonksiyonu çağrıldı, argüman: string\n",
-          "execution_time": 0.003951311111450195,
+          "execution_time": 0.004135847091674805,
           "category": "Fonksiyon"
         },
         "Fonksiyon - çoklu return tipi": {
           "passed": true,
           "returncode": 0,
-          "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n  [1] String(\"string\")\n\nCode:\n0000 MAKE_FUNCTION 0 0\n0004 STORE_GLOBAL 20\n0007 CONST 0\n0010 RETURN\n0011 CONST 1\n0014 RETURN\n0015 RETURN\n=== END DISASSEMBLY ===\n",
+          "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Dedent, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n  [1] String(\"string\")\n\nCode:\n0000 MAKE_FUNCTION 0 0\n0004 STORE_GLOBAL 20\n0007 CONST 0\n0010 RETURN\n0011 CONST 1\n0014 RETURN\n0015 RETURN\n=== END DISASSEMBLY ===\n",
           "stderr": "",
-          "execution_time": 0.0034949779510498047,
+          "execution_time": 0.003812074661254883,
           "category": "Fonksiyon"
         },
         "Fonksiyon - eksik parametre": {
           "passed": true,
           "returncode": 1,
-          "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n\nCode:\n0000 MAKE_FUNCTION 0 2\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 20\n0010 CONST 0\n0013 CALL 1\n0015 POP\n0016 RETURN\n=== END DISASSEMBLY ===\n",
+          "stdout": "DEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n\nCode:\n0000 MAKE_FUNCTION 0 2\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 20\n0010 CONST 0\n0013 CALL 1\n0015 POP\n0016 RETURN\n=== END DISASSEMBLY ===\n",
           "stderr": "Hata: Invalid operation: add\n",
-          "execution_time": 0.003566265106201172,
+          "execution_time": 0.0035638809204101562,
           "category": "Fonksiyon"
         },
         "Fonksiyon - fazla parametre": {
           "passed": false,
           "returncode": 0,
-          "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n  [1] Int(43)\n\nCode:\n0000 MAKE_FUNCTION 0 1\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 20\n0010 CONST 0\n0013 CONST 1\n0016 CALL 2\n0018 POP\n0019 RETURN\n=== END DISASSEMBLY ===\n",
+          "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Comma, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n  [1] Int(43)\n\nCode:\n0000 MAKE_FUNCTION 0 1\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 20\n0010 CONST 0\n0013 CONST 1\n0016 CALL 2\n0018 POP\n0019 RETURN\n=== END DISASSEMBLY ===\n",
           "stderr": "",
-          "execution_time": 0.004275321960449219,
+          "execution_time": 0.004708766937255859,
           "category": "Fonksiyon"
         }
       }
@@ -374,49 +374,49 @@
         "Basit aritmetik - 1000 iterasyon": {
           "passed": true,
           "returncode": 0,
-          "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(0)\n  [1] Int(1)\n  [2] Int(1000)\n  [3] Int(1)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 STORE_LOCAL 21\n0012 LOAD_LOCAL 21\n0015 CONST 2\n0018 LESS_EQUAL\n0019 JUMP_IF_FALSE 49\n0022 LOAD_LOCAL 20\n0025 LOAD_LOCAL 21\n0028 ADD\n0029 UNKNOWN(57)\n0030 STORE_LOCAL 20\n0033 POP\n0034 LOAD_LOCAL 21\n0037 CONST 3\n0040 ADD\n0041 UNKNOWN(57)\n0042 STORE_LOCAL 21\n0045 POP\n0046 JUMP 12\n0049 LOAD_GLOBAL 0\n0052 LOAD_LOCAL 20\n0055 CALL 1\n0057 POP\n0058 RETURN\n=== END DISASSEMBLY ===\n",
+          "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: parse_precedence - precedence: 0, peek: LessEqual, get_precedence: 4\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(0)\n  [1] Int(1)\n  [2] Int(1000)\n  [3] Int(1)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 STORE_LOCAL 21\n0012 LOAD_LOCAL 21\n0015 CONST 2\n0018 LESS_EQUAL\n0019 JUMP_IF_FALSE 49\n0022 LOAD_LOCAL 20\n0025 LOAD_LOCAL 21\n0028 ADD\n0029 UNKNOWN(57)\n0030 STORE_LOCAL 20\n0033 POP\n0034 LOAD_LOCAL 21\n0037 CONST 3\n0040 ADD\n0041 UNKNOWN(57)\n0042 STORE_LOCAL 21\n0045 POP\n0046 JUMP 12\n0049 LOAD_GLOBAL 0\n0052 LOAD_LOCAL 20\n0055 CALL 1\n0057 POP\n0058 RETURN\n=== END DISASSEMBLY ===\n",
           "stderr": "",
-          "execution_time": 0.004049777984619141,
+          "execution_time": 0.0038700103759765625,
           "category": "Performans"
         },
         "String concatenation - 100 iterasyon": {
           "passed": true,
           "returncode": 0,
-          "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"\")\n  [1] Int(1)\n  [2] Int(100)\n  [3] String(\"test\")\n  [4] Int(1)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 STORE_LOCAL 21\n0012 LOAD_LOCAL 21\n0015 CONST 2\n0018 LESS_EQUAL\n0019 JUMP_IF_FALSE 49\n0022 LOAD_LOCAL 20\n0025 CONST 3\n0028 ADD\n0029 UNKNOWN(57)\n0030 STORE_LOCAL 20\n0033 POP\n0034 LOAD_LOCAL 21\n0037 CONST 4\n0040 ADD\n0041 UNKNOWN(57)\n0042 STORE_LOCAL 21\n0045 POP\n0046 JUMP 12\n0049 LOAD_GLOBAL 0\n0052 LOAD_GLOBAL 10\n0055 LOAD_LOCAL 20\n0058 CALL 1\n0060 CALL 1\n0062 POP\n0063 RETURN\n=== END DISASSEMBLY ===\n",
+          "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: parse_precedence - precedence: 0, peek: LessEqual, get_precedence: 4\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"\")\n  [1] Int(1)\n  [2] Int(100)\n  [3] String(\"test\")\n  [4] Int(1)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 STORE_LOCAL 21\n0012 LOAD_LOCAL 21\n0015 CONST 2\n0018 LESS_EQUAL\n0019 JUMP_IF_FALSE 49\n0022 LOAD_LOCAL 20\n0025 CONST 3\n0028 ADD\n0029 UNKNOWN(57)\n0030 STORE_LOCAL 20\n0033 POP\n0034 LOAD_LOCAL 21\n0037 CONST 4\n0040 ADD\n0041 UNKNOWN(57)\n0042 STORE_LOCAL 21\n0045 POP\n0046 JUMP 12\n0049 LOAD_GLOBAL 0\n0052 LOAD_GLOBAL 10\n0055 LOAD_LOCAL 20\n0058 CALL 1\n0060 CALL 1\n0062 POP\n0063 RETURN\n=== END DISASSEMBLY ===\n",
           "stderr": "",
-          "execution_time": 0.003504037857055664,
+          "execution_time": 0.004049062728881836,
           "category": "Performans"
         },
         "Recursive factorial - 20": {
           "passed": false,
           "returncode": 1,
-          "stdout": "",
+          "stdout": "DEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: parse_precedence - precedence: 0, peek: LessEqual, get_precedence: 4\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Star, precedence: 6\nDEBUG: get_precedence - peek: Star, precedence: 6\nDEBUG: parse_precedence - precedence: 0, peek: Star, get_precedence: 6\nDEBUG: get_precedence - peek: Minus, precedence: 5\nDEBUG: get_precedence - peek: Minus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Minus, get_precedence: 5\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n",
           "stderr": "",
-          "execution_time": 0.003625154495239258,
+          "execution_time": 0.0037441253662109375,
           "category": "Performans"
         },
         "List operations - 1000 eleman": {
           "passed": false,
           "returncode": 1,
-          "stdout": "",
+          "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: parse_precedence - precedence: 0, peek: LessEqual, get_precedence: 4\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: RightBracket, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n",
           "stderr": "",
-          "execution_time": 0.003917694091796875,
+          "execution_time": 0.004746913909912109,
           "category": "Performans"
         },
         "Map operations - 1000 eleman": {
           "passed": false,
           "returncode": 1,
-          "stdout": "",
+          "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: parse_precedence - precedence: 0, peek: LessEqual, get_precedence: 4\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: LeftBracket, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: RightBracket, precedence: 0\nDEBUG: get_precedence - peek: RightBracket, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n",
           "stderr": "",
-          "execution_time": 0.0043888092041015625,
+          "execution_time": 0.0038068294525146484,
           "category": "Performans"
         },
         "String concatenation - büyük string": {
           "passed": true,
           "returncode": 0,
-          "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"\")\n  [1] Int(1)\n  [2] Int(1000)\n  [3] String(\"very long string that takes memory\")\n  [4] Int(1)\n  [5] String(\"String created\")\n  [6] Null\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 STORE_LOCAL 21\n0012 LOAD_LOCAL 21\n0015 CONST 2\n0018 LESS_EQUAL\n0019 JUMP_IF_FALSE 49\n0022 LOAD_LOCAL 20\n0025 CONST 3\n0028 ADD\n0029 UNKNOWN(57)\n0030 STORE_LOCAL 20\n0033 POP\n0034 LOAD_LOCAL 21\n0037 CONST 4\n0040 ADD\n0041 UNKNOWN(57)\n0042 STORE_LOCAL 21\n0045 POP\n0046 JUMP 12\n0049 LOAD_GLOBAL 0\n0052 CONST 5\n0055 CALL 1\n0057 POP\n0058 CONST 6\n0061 UNKNOWN(57)\n0062 STORE_LOCAL 20\n0065 POP\n0066 RETURN\n=== END DISASSEMBLY ===\n",
+          "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: parse_precedence - precedence: 0, peek: LessEqual, get_precedence: 4\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"\")\n  [1] Int(1)\n  [2] Int(1000)\n  [3] String(\"very long string that takes memory\")\n  [4] Int(1)\n  [5] String(\"String created\")\n  [6] Null\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 STORE_LOCAL 21\n0012 LOAD_LOCAL 21\n0015 CONST 2\n0018 LESS_EQUAL\n0019 JUMP_IF_FALSE 49\n0022 LOAD_LOCAL 20\n0025 CONST 3\n0028 ADD\n0029 UNKNOWN(57)\n0030 STORE_LOCAL 20\n0033 POP\n0034 LOAD_LOCAL 21\n0037 CONST 4\n0040 ADD\n0041 UNKNOWN(57)\n0042 STORE_LOCAL 21\n0045 POP\n0046 JUMP 12\n0049 LOAD_GLOBAL 0\n0052 CONST 5\n0055 CALL 1\n0057 POP\n0058 CONST 6\n0061 UNKNOWN(57)\n0062 STORE_LOCAL 20\n0065 POP\n0066 RETURN\n=== END DISASSEMBLY ===\n",
           "stderr": "",
-          "execution_time": 0.004106998443603516,
+          "execution_time": 0.004760026931762695,
           "category": "Performans"
         }
       }
@@ -430,25 +430,25 @@
         "Büyük liste oluşturma": {
           "passed": false,
           "returncode": 1,
-          "stdout": "",
+          "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: parse_precedence - precedence: 0, peek: LessEqual, get_precedence: 4\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: RightBracket, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\n",
           "stderr": "",
-          "execution_time": 0.0037260055541992188,
+          "execution_time": 0.0038712024688720703,
           "category": "Bellek"
         },
         "Büyük map oluşturma": {
           "passed": false,
           "returncode": 1,
-          "stdout": "",
+          "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: parse_precedence - precedence: 0, peek: LessEqual, get_precedence: 4\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: LeftBracket, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: RightBracket, precedence: 0\nDEBUG: get_precedence - peek: RightBracket, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\n",
           "stderr": "",
-          "execution_time": 0.003798961639404297,
+          "execution_time": 0.0038700103759765625,
           "category": "Bellek"
         },
         "Nested structures": {
           "passed": false,
           "returncode": 1,
-          "stdout": "",
+          "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: parse_precedence - precedence: 0, peek: LessEqual, get_precedence: 4\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: parse_precedence - precedence: 0, peek: LessEqual, get_precedence: 4\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Star, precedence: 6\nDEBUG: get_precedence - peek: Star, precedence: 6\nDEBUG: parse_precedence - precedence: 0, peek: Star, get_precedence: 6\nDEBUG: get_precedence - peek: RightBracket, precedence: 0\nDEBUG: get_precedence - peek: RightBracket, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: RightBracket, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\n",
           "stderr": "",
-          "execution_time": 0.004132747650146484,
+          "execution_time": 0.0037810802459716797,
           "category": "Bellek"
         }
       }
@@ -462,49 +462,49 @@
         "Division by zero": {
           "passed": true,
           "returncode": 1,
-          "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n  [1] Int(0)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 STORE_LOCAL 21\n0012 LOAD_LOCAL 20\n0015 LOAD_LOCAL 21\n0018 DIV\n0019 STORE_LOCAL 22\n0022 RETURN\n=== END DISASSEMBLY ===\n",
+          "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Slash, precedence: 6\nDEBUG: get_precedence - peek: Slash, precedence: 6\nDEBUG: parse_precedence - precedence: 0, peek: Slash, get_precedence: 6\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n  [1] Int(0)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 STORE_LOCAL 21\n0012 LOAD_LOCAL 20\n0015 LOAD_LOCAL 21\n0018 DIV\n0019 STORE_LOCAL 22\n0022 RETURN\n=== END DISASSEMBLY ===\n",
           "stderr": "Hata: Division by zero\n",
-          "execution_time": 0.004453182220458984,
+          "execution_time": 0.003843069076538086,
           "category": "Hata Yönetimi"
         },
         "Modulo by zero": {
           "passed": true,
           "returncode": 1,
-          "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n  [1] Int(0)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 STORE_LOCAL 21\n0012 LOAD_LOCAL 20\n0015 LOAD_LOCAL 21\n0018 MOD\n0019 STORE_LOCAL 22\n0022 RETURN\n=== END DISASSEMBLY ===\n",
+          "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Percent, precedence: 6\nDEBUG: get_precedence - peek: Percent, precedence: 6\nDEBUG: parse_precedence - precedence: 0, peek: Percent, get_precedence: 6\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n  [1] Int(0)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 STORE_LOCAL 21\n0012 LOAD_LOCAL 20\n0015 LOAD_LOCAL 21\n0018 MOD\n0019 STORE_LOCAL 22\n0022 RETURN\n=== END DISASSEMBLY ===\n",
           "stderr": "Hata: Division by zero\n",
-          "execution_time": 0.0038101673126220703,
+          "execution_time": 0.004930257797241211,
           "category": "Hata Yönetimi"
         },
         "Array index out of bounds": {
           "passed": false,
           "returncode": 0,
-          "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] List([Int(1), Int(2), Int(3)])\n  [1] List([Int(10)])\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_LOCAL 20\n0009 STORE_LOCAL 21\n0012 CONST 1\n0015 POP\n0016 RETURN\n=== END DISASSEMBLY ===\n",
+          "stdout": "DEBUG: get_precedence - peek: Comma, precedence: 0\nDEBUG: get_precedence - peek: Comma, precedence: 0\nDEBUG: get_precedence - peek: RightBracket, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: LeftBracket, precedence: 0\nDEBUG: get_precedence - peek: RightBracket, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] List([Int(1), Int(2), Int(3)])\n  [1] List([Int(10)])\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_LOCAL 20\n0009 STORE_LOCAL 21\n0012 CONST 1\n0015 POP\n0016 RETURN\n=== END DISASSEMBLY ===\n",
           "stderr": "",
-          "execution_time": 0.00421595573425293,
+          "execution_time": 0.004504203796386719,
           "category": "Hata Yönetimi"
         },
         "Map key not found": {
           "passed": false,
           "returncode": 0,
-          "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Map([(\"\\\"key\\\"\", String(\"value\"))])\n  [1] List([String(\"nonexistent\")])\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_LOCAL 20\n0009 STORE_LOCAL 21\n0012 CONST 1\n0015 POP\n0016 RETURN\n=== END DISASSEMBLY ===\n",
+          "stdout": "DEBUG: get_precedence - peek: RightBrace, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: LeftBracket, precedence: 0\nDEBUG: get_precedence - peek: RightBracket, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Map([(\"\\\"key\\\"\", String(\"value\"))])\n  [1] List([String(\"nonexistent\")])\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_LOCAL 20\n0009 STORE_LOCAL 21\n0012 CONST 1\n0015 POP\n0016 RETURN\n=== END DISASSEMBLY ===\n",
           "stderr": "",
-          "execution_time": 0.00459599494934082,
+          "execution_time": 0.0054399967193603516,
           "category": "Hata Yönetimi"
         },
         "Stack overflow - deep recursion": {
           "passed": true,
           "returncode": 1,
-          "stdout": "",
+          "stdout": "DEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: parse_precedence - precedence: 0, peek: LessEqual, get_precedence: 4\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Minus, precedence: 5\nDEBUG: get_precedence - peek: Minus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Minus, get_precedence: 5\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n",
           "stderr": "",
-          "execution_time": 0.0043909549713134766,
+          "execution_time": 0.00504612922668457,
           "category": "Hata Yönetimi"
         },
         "Infinite loop detection": {
           "passed": false,
           "returncode": 0,
-          "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Bool(true)\n  [1] String(\"infinite\")\n\nCode:\n0000 CONST 0\n0003 JUMP_IF_FALSE 18\n0006 LOAD_GLOBAL 0\n0009 CONST 1\n0012 CALL 1\n0014 POP\n0015 JUMP 0\n0018 RETURN\n=== END DISASSEMBLY ===\ninfinite",
+          "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Dedent, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Bool(true)\n  [1] String(\"infinite\")\n\nCode:\n0000 CONST 0\n0003 JUMP_IF_FALSE 18\n0006 LOAD_GLOBAL 0\n0009 CONST 1\n0012 CALL 1\n0014 POP\n0015 JUMP 0\n0018 RETURN\n=== END DISASSEMBLY ===\ninfinite",
           "stderr": "DEBUG: print fonksiyonu çağrıldı, argüman: infinite\n",
-          "execution_time": 0.0034770965576171875,
+          "execution_time": 0.00444793701171875,
           "category": "Hata Yönetimi"
         }
       }
@@ -518,33 +518,33 @@
         "Türkçe karakterli değişken": {
           "passed": true,
           "returncode": 0,
-          "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_GLOBAL 0\n0009 LOAD_LOCAL 20\n0012 CALL 1\n0014 POP\n0015 RETURN\n=== END DISASSEMBLY ===\n42",
+          "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_GLOBAL 0\n0009 LOAD_LOCAL 20\n0012 CALL 1\n0014 POP\n0015 RETURN\n=== END DISASSEMBLY ===\n42",
           "stderr": "DEBUG: print fonksiyonu çağrıldı, argüman: 42\n",
-          "execution_time": 0.004387855529785156,
+          "execution_time": 0.004106998443603516,
           "category": "Unicode"
         },
         "Türkçe karakterli fonksiyon": {
           "passed": true,
           "returncode": 0,
-          "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(5)\n\nCode:\n0000 MAKE_FUNCTION 0 1\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 0\n0010 LOAD_GLOBAL 20\n0013 CONST 0\n0016 CALL 1\n0018 CALL 1\n0020 POP\n0021 RETURN\n=== END DISASSEMBLY ===\ntest",
+          "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(5)\n\nCode:\n0000 MAKE_FUNCTION 0 1\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 0\n0010 LOAD_GLOBAL 20\n0013 CONST 0\n0016 CALL 1\n0018 CALL 1\n0020 POP\n0021 RETURN\n=== END DISASSEMBLY ===\ntest",
           "stderr": "DEBUG: print fonksiyonu çağrıldı, argüman: test\n",
-          "execution_time": 0.003893136978149414,
+          "execution_time": 0.0047512054443359375,
           "category": "Unicode"
         },
         "Unicode string literal": {
           "passed": true,
           "returncode": 0,
-          "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"🚀 Sky Dili 🎉\")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_GLOBAL 0\n0009 LOAD_LOCAL 20\n0012 CALL 1\n0014 POP\n0015 RETURN\n=== END DISASSEMBLY ===\n🚀 Sky Dili 🎉",
+          "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"🚀 Sky Dili 🎉\")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_GLOBAL 0\n0009 LOAD_LOCAL 20\n0012 CALL 1\n0014 POP\n0015 RETURN\n=== END DISASSEMBLY ===\n🚀 Sky Dili 🎉",
           "stderr": "DEBUG: print fonksiyonu çağrıldı, argüman: 🚀 Sky Dili 🎉\n",
-          "execution_time": 0.003609180450439453,
+          "execution_time": 0.005424976348876953,
           "category": "Unicode"
         },
         "Türkçe karakterli string interpolation": {
           "passed": true,
           "returncode": 0,
-          "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"Melih\")\n  [1] String(\"Merhaba $isim\")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 STORE_LOCAL 21\n0012 LOAD_GLOBAL 0\n0015 LOAD_LOCAL 21\n0018 CALL 1\n0020 POP\n0021 RETURN\n=== END DISASSEMBLY ===\nMerhaba $isim",
+          "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"Melih\")\n  [1] String(\"Merhaba $isim\")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 STORE_LOCAL 21\n0012 LOAD_GLOBAL 0\n0015 LOAD_LOCAL 21\n0018 CALL 1\n0020 POP\n0021 RETURN\n=== END DISASSEMBLY ===\nMerhaba $isim",
           "stderr": "DEBUG: print fonksiyonu çağrıldı, argüman: Merhaba $isim\n",
-          "execution_time": 0.003573894500732422,
+          "execution_time": 0.004235982894897461,
           "category": "Unicode"
         },
         "Unicode identifier - geçersiz karakter": {
@@ -552,7 +552,7 @@
           "returncode": 1,
           "stdout": "",
           "stderr": "",
-          "execution_time": 0.004082918167114258,
+          "execution_time": 0.003710031509399414,
           "category": "Unicode"
         },
         "Unicode identifier - sayı ile başlama": {
@@ -560,7 +560,7 @@
           "returncode": 0,
           "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n\nCode:\n0000 RETURN\n=== END DISASSEMBLY ===\n",
           "stderr": "",
-          "execution_time": 0.0038330554962158203,
+          "execution_time": 0.004750251770019531,
           "category": "Unicode"
         }
       }
@@ -570,9 +570,9 @@
     "Tip zorunluluğu - eksik tip": {
       "passed": true,
       "returncode": 1,
-      "stdout": "",
+      "stdout": "DEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\n",
       "stderr": "",
-      "execution_time": 0.00439000129699707,
+      "execution_time": 0.004481077194213867,
       "category": "Sözdizimi"
     },
     "Tip zorunluluğu - geçersiz tip": {
@@ -580,15 +580,15 @@
       "returncode": 0,
       "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"string\")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 RETURN\n=== END DISASSEMBLY ===\n",
       "stderr": "",
-      "execution_time": 0.005501985549926758,
+      "execution_time": 0.003915071487426758,
       "category": "Sözdizimi"
     },
     "Tip zorunluluğu - doğru kullanım": {
       "passed": true,
       "returncode": 0,
-      "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_GLOBAL 0\n0009 LOAD_LOCAL 20\n0012 CALL 1\n0014 POP\n0015 RETURN\n=== END DISASSEMBLY ===\n42",
+      "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_GLOBAL 0\n0009 LOAD_LOCAL 20\n0012 CALL 1\n0014 POP\n0015 RETURN\n=== END DISASSEMBLY ===\n42",
       "stderr": "DEBUG: print fonksiyonu çağrıldı, argüman: 42\n",
-      "execution_time": 0.004312992095947266,
+      "execution_time": 0.005066871643066406,
       "category": "Sözdizimi"
     },
     "Tab yasağı - tab karakteri": {
@@ -596,15 +596,15 @@
       "returncode": 1,
       "stdout": "",
       "stderr": "",
-      "execution_time": 0.004218101501464844,
+      "execution_time": 0.004618167877197266,
       "category": "Sözdizimi"
     },
     "Girinti tutarsızlığı": {
       "passed": false,
       "returncode": 0,
-      "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Bool(true)\n  [1] String(\"test\")\n  [2] String(\"wrong indent\")\n\nCode:\n0000 CONST 0\n0003 JUMP_IF_FALSE 27\n0006 LOAD_GLOBAL 0\n0009 CONST 1\n0012 CALL 1\n0014 POP\n0015 LOAD_GLOBAL 0\n0018 CONST 2\n0021 CALL 1\n0023 POP\n0024 JUMP 27\n0027 RETURN\n=== END DISASSEMBLY ===\ntestwrong indent",
+      "stdout": "DEBUG: get_precedence - peek: Colon, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Dedent, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Bool(true)\n  [1] String(\"test\")\n  [2] String(\"wrong indent\")\n\nCode:\n0000 CONST 0\n0003 JUMP_IF_FALSE 27\n0006 LOAD_GLOBAL 0\n0009 CONST 1\n0012 CALL 1\n0014 POP\n0015 LOAD_GLOBAL 0\n0018 CONST 2\n0021 CALL 1\n0023 POP\n0024 JUMP 27\n0027 RETURN\n=== END DISASSEMBLY ===\ntestwrong indent",
       "stderr": "DEBUG: print fonksiyonu çağrıldı, argüman: test\nDEBUG: print fonksiyonu çağrıldı, argüman: wrong indent\n",
-      "execution_time": 0.0045337677001953125,
+      "execution_time": 0.004614114761352539,
       "category": "Sözdizimi"
     },
     "Geçersiz karakter - özel karakter": {
@@ -612,23 +612,23 @@
       "returncode": 1,
       "stdout": "",
       "stderr": "",
-      "execution_time": 0.00486302375793457,
+      "execution_time": 0.004305839538574219,
       "category": "Sözdizimi"
     },
     "Eksik iki nokta - if statement": {
       "passed": true,
       "returncode": 0,
-      "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"test\")\n\nCode:\n0000 LOAD_GLOBAL 0\n0003 CONST 0\n0006 CALL 1\n0008 POP\n0009 RETURN\n=== END DISASSEMBLY ===\ntest",
+      "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Dedent, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"test\")\n\nCode:\n0000 LOAD_GLOBAL 0\n0003 CONST 0\n0006 CALL 1\n0008 POP\n0009 RETURN\n=== END DISASSEMBLY ===\ntest",
       "stderr": "DEBUG: print fonksiyonu çağrıldı, argüman: test\n",
-      "execution_time": 0.0037801265716552734,
+      "execution_time": 0.004901885986328125,
       "category": "Sözdizimi"
     },
     "Eksik iki nokta - function parameter": {
       "passed": true,
       "returncode": 0,
-      "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n\nCode:\n0000 MAKE_FUNCTION 0 1\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 0\n0010 LOAD_GLOBAL 20\n0013 CONST 0\n0016 CALL 1\n0018 CALL 1\n0020 POP\n0021 RETURN\n=== END DISASSEMBLY ===\n42",
+      "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n\nCode:\n0000 MAKE_FUNCTION 0 1\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 0\n0010 LOAD_GLOBAL 20\n0013 CONST 0\n0016 CALL 1\n0018 CALL 1\n0020 POP\n0021 RETURN\n=== END DISASSEMBLY ===\n42",
       "stderr": "DEBUG: print fonksiyonu çağrıldı, argüman: 42\n",
-      "execution_time": 0.004006147384643555,
+      "execution_time": 0.004655122756958008,
       "category": "Sözdizimi"
     },
     "Geçersiz keyword kullanımı": {
@@ -636,135 +636,135 @@
       "returncode": 0,
       "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n\nCode:\n0000 CONST 0\n0003 RETURN\n0004 RETURN\n=== END DISASSEMBLY ===\n",
       "stderr": "",
-      "execution_time": 0.00532078742980957,
+      "execution_time": 0.0037419795989990234,
       "category": "Sözdizimi"
     },
     "Eksik parantez - function call": {
       "passed": false,
       "returncode": 0,
-      "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"test\")\n\nCode:\n0000 LOAD_GLOBAL 0\n0003 POP\n0004 CONST 0\n0007 POP\n0008 RETURN\n=== END DISASSEMBLY ===\n",
+      "stdout": "DEBUG: get_precedence - peek: String, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"test\")\n\nCode:\n0000 LOAD_GLOBAL 0\n0003 POP\n0004 CONST 0\n0007 POP\n0008 RETURN\n=== END DISASSEMBLY ===\n",
       "stderr": "",
-      "execution_time": 0.003947019577026367,
+      "execution_time": 0.004608869552612305,
       "category": "Sözdizimi"
     },
     "Int tip kontrolü - string atama": {
       "passed": false,
       "returncode": 0,
-      "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n  [1] String(\"string\")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 UNKNOWN(57)\n0010 STORE_LOCAL 20\n0013 POP\n0014 RETURN\n=== END DISASSEMBLY ===\n",
+      "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n  [1] String(\"string\")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 UNKNOWN(57)\n0010 STORE_LOCAL 20\n0013 POP\n0014 RETURN\n=== END DISASSEMBLY ===\n",
       "stderr": "",
-      "execution_time": 0.0036149024963378906,
+      "execution_time": 0.004049062728881836,
       "category": "Tip Sistemi"
     },
     "Float tip kontrolü - int atama": {
       "passed": true,
       "returncode": 0,
-      "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Float(3.14)\n  [1] Int(42)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 UNKNOWN(57)\n0010 STORE_LOCAL 20\n0013 POP\n0014 RETURN\n=== END DISASSEMBLY ===\n",
+      "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Float(3.14)\n  [1] Int(42)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 UNKNOWN(57)\n0010 STORE_LOCAL 20\n0013 POP\n0014 RETURN\n=== END DISASSEMBLY ===\n",
       "stderr": "",
-      "execution_time": 0.003721952438354492,
+      "execution_time": 0.004429817199707031,
       "category": "Tip Sistemi"
     },
     "Bool tip kontrolü - string atama": {
       "passed": false,
       "returncode": 0,
-      "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Bool(true)\n  [1] String(\"false\")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 UNKNOWN(57)\n0010 STORE_LOCAL 20\n0013 POP\n0014 RETURN\n=== END DISASSEMBLY ===\n",
+      "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Bool(true)\n  [1] String(\"false\")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 UNKNOWN(57)\n0010 STORE_LOCAL 20\n0013 POP\n0014 RETURN\n=== END DISASSEMBLY ===\n",
       "stderr": "",
-      "execution_time": 0.005139827728271484,
+      "execution_time": 0.004077911376953125,
       "category": "Tip Sistemi"
     },
     "String tip kontrolü - int atama": {
       "passed": false,
       "returncode": 0,
-      "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"hello\")\n  [1] Int(42)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 UNKNOWN(57)\n0010 STORE_LOCAL 20\n0013 POP\n0014 RETURN\n=== END DISASSEMBLY ===\n",
+      "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"hello\")\n  [1] Int(42)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 UNKNOWN(57)\n0010 STORE_LOCAL 20\n0013 POP\n0014 RETURN\n=== END DISASSEMBLY ===\n",
       "stderr": "",
-      "execution_time": 0.0039632320404052734,
+      "execution_time": 0.004762172698974609,
       "category": "Tip Sistemi"
     },
     "Var tip - herhangi bir değer": {
       "passed": true,
       "returncode": 0,
-      "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n  [1] String(\"string\")\n  [2] Bool(true)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 UNKNOWN(57)\n0010 STORE_LOCAL 20\n0013 POP\n0014 CONST 2\n0017 UNKNOWN(57)\n0018 STORE_LOCAL 20\n0021 POP\n0022 LOAD_GLOBAL 0\n0025 LOAD_LOCAL 20\n0028 CALL 1\n0030 POP\n0031 RETURN\n=== END DISASSEMBLY ===\ntrue",
+      "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n  [1] String(\"string\")\n  [2] Bool(true)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 UNKNOWN(57)\n0010 STORE_LOCAL 20\n0013 POP\n0014 CONST 2\n0017 UNKNOWN(57)\n0018 STORE_LOCAL 20\n0021 POP\n0022 LOAD_GLOBAL 0\n0025 LOAD_LOCAL 20\n0028 CALL 1\n0030 POP\n0031 RETURN\n=== END DISASSEMBLY ===\ntrue",
       "stderr": "DEBUG: print fonksiyonu çağrıldı, argüman: true\n",
-      "execution_time": 0.0038700103759765625,
+      "execution_time": 0.00429987907409668,
       "category": "Tip Sistemi"
     },
     "List tip kontrolü - farklı tip eleman": {
       "passed": true,
       "returncode": 1,
-      "stdout": "",
+      "stdout": "DEBUG: get_precedence - peek: Comma, precedence: 0\nDEBUG: get_precedence - peek: Comma, precedence: 0\nDEBUG: get_precedence - peek: RightBracket, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: LeftBracket, precedence: 0\nDEBUG: get_precedence - peek: RightBracket, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\n",
       "stderr": "",
-      "execution_time": 0.004317283630371094,
+      "execution_time": 0.0038878917694091797,
       "category": "Tip Sistemi"
     },
     "Map tip kontrolü - farklı tip değer": {
       "passed": true,
       "returncode": 1,
-      "stdout": "",
+      "stdout": "DEBUG: get_precedence - peek: RightBrace, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: LeftBracket, precedence: 0\nDEBUG: get_precedence - peek: RightBracket, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\n",
       "stderr": "",
-      "execution_time": 0.00472712516784668,
+      "execution_time": 0.004431009292602539,
       "category": "Tip Sistemi"
     },
     "Function return tip kontrolü": {
       "passed": true,
       "returncode": 0,
-      "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n\nCode:\n0000 MAKE_FUNCTION 0 0\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 0\n0010 LOAD_GLOBAL 20\n0013 CALL 0\n0015 CALL 1\n0017 POP\n0018 RETURN\n=== END DISASSEMBLY ===\nstring",
+      "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n\nCode:\n0000 MAKE_FUNCTION 0 0\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 0\n0010 LOAD_GLOBAL 20\n0013 CALL 0\n0015 CALL 1\n0017 POP\n0018 RETURN\n=== END DISASSEMBLY ===\nstring",
       "stderr": "DEBUG: print fonksiyonu çağrıldı, argüman: string\n",
-      "execution_time": 0.0037348270416259766,
+      "execution_time": 0.0043909549713134766,
       "category": "Tip Sistemi"
     },
     "Aritmetik operasyon tip kontrolü": {
       "passed": false,
       "returncode": 0,
-      "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n  [1] String(\"hello\")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 STORE_LOCAL 21\n0012 LOAD_LOCAL 20\n0015 LOAD_LOCAL 21\n0018 ADD\n0019 STORE_LOCAL 22\n0022 RETURN\n=== END DISASSEMBLY ===\n",
+      "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n  [1] String(\"hello\")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 STORE_LOCAL 21\n0012 LOAD_LOCAL 20\n0015 LOAD_LOCAL 21\n0018 ADD\n0019 STORE_LOCAL 22\n0022 RETURN\n=== END DISASSEMBLY ===\n",
       "stderr": "",
-      "execution_time": 0.0038328170776367188,
+      "execution_time": 0.004083871841430664,
       "category": "Tip Sistemi"
     },
     "Karşılaştırma operasyon tip kontrolü": {
       "passed": false,
       "returncode": 0,
-      "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n  [1] String(\"hello\")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 STORE_LOCAL 21\n0012 LOAD_LOCAL 20\n0015 LOAD_LOCAL 21\n0018 EQUAL\n0019 STORE_LOCAL 22\n0022 RETURN\n=== END DISASSEMBLY ===\n",
+      "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: EqualEqual, precedence: 3\nDEBUG: get_precedence - peek: EqualEqual, precedence: 3\nDEBUG: parse_precedence - precedence: 0, peek: EqualEqual, get_precedence: 3\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n  [1] String(\"hello\")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 STORE_LOCAL 21\n0012 LOAD_LOCAL 20\n0015 LOAD_LOCAL 21\n0018 EQUAL\n0019 STORE_LOCAL 22\n0022 RETURN\n=== END DISASSEMBLY ===\n",
       "stderr": "",
-      "execution_time": 0.004831790924072266,
+      "execution_time": 0.0038220882415771484,
       "category": "Tip Sistemi"
     },
     "If statement - doğru sözdizimi": {
       "passed": true,
       "returncode": 0,
-      "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"test\")\n\nCode:\n0000 LOAD_GLOBAL 0\n0003 CONST 0\n0006 CALL 1\n0008 POP\n0009 RETURN\n=== END DISASSEMBLY ===\ntest",
+      "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Dedent, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"test\")\n\nCode:\n0000 LOAD_GLOBAL 0\n0003 CONST 0\n0006 CALL 1\n0008 POP\n0009 RETURN\n=== END DISASSEMBLY ===\ntest",
       "stderr": "DEBUG: print fonksiyonu çağrıldı, argüman: test\n",
-      "execution_time": 0.004098176956176758,
+      "execution_time": 0.004642963409423828,
       "category": "Kontrol Akışı"
     },
     "Elif statement - doğru sözdizimi": {
       "passed": true,
       "returncode": 0,
-      "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"test\")\n  [1] Bool(true)\n  [2] String(\"elif\")\n\nCode:\n0000 LOAD_GLOBAL 0\n0003 CONST 0\n0006 CALL 1\n0008 POP\n0009 CONST 1\n0012 POP\n0013 LOAD_GLOBAL 0\n0016 CONST 2\n0019 CALL 1\n0021 POP\n0022 RETURN\n=== END DISASSEMBLY ===\ntestelif",
+      "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Dedent, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"test\")\n  [1] Bool(true)\n  [2] String(\"elif\")\n\nCode:\n0000 LOAD_GLOBAL 0\n0003 CONST 0\n0006 CALL 1\n0008 POP\n0009 CONST 1\n0012 POP\n0013 LOAD_GLOBAL 0\n0016 CONST 2\n0019 CALL 1\n0021 POP\n0022 RETURN\n=== END DISASSEMBLY ===\ntestelif",
       "stderr": "DEBUG: print fonksiyonu çağrıldı, argüman: test\nDEBUG: print fonksiyonu çağrıldı, argüman: elif\n",
-      "execution_time": 0.0037908554077148438,
+      "execution_time": 0.004206180572509766,
       "category": "Kontrol Akışı"
     },
     "Else statement - doğru sözdizimi": {
       "passed": true,
       "returncode": 0,
-      "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"test\")\n  [1] String(\"else\")\n\nCode:\n0000 LOAD_GLOBAL 0\n0003 CONST 0\n0006 CALL 1\n0008 POP\n0009 LOAD_GLOBAL 0\n0012 CONST 1\n0015 CALL 1\n0017 POP\n0018 RETURN\n=== END DISASSEMBLY ===\ntestelse",
+      "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Dedent, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"test\")\n  [1] String(\"else\")\n\nCode:\n0000 LOAD_GLOBAL 0\n0003 CONST 0\n0006 CALL 1\n0008 POP\n0009 LOAD_GLOBAL 0\n0012 CONST 1\n0015 CALL 1\n0017 POP\n0018 RETURN\n=== END DISASSEMBLY ===\ntestelse",
       "stderr": "DEBUG: print fonksiyonu çağrıldı, argüman: test\nDEBUG: print fonksiyonu çağrıldı, argüman: else\n",
-      "execution_time": 0.0038340091705322266,
+      "execution_time": 0.004137992858886719,
       "category": "Kontrol Akışı"
     },
     "While döngüsü - doğru sözdizimi": {
       "passed": true,
       "returncode": 0,
-      "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(0)\n  [1] Int(1)\n  [2] String(\"test\")\n  [3] Int(1)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_LOCAL 20\n0009 CONST 1\n0012 LESS\n0013 JUMP_IF_FALSE 40\n0016 LOAD_GLOBAL 0\n0019 CONST 2\n0022 CALL 1\n0024 POP\n0025 LOAD_LOCAL 20\n0028 CONST 3\n0031 ADD\n0032 UNKNOWN(57)\n0033 STORE_LOCAL 20\n0036 POP\n0037 JUMP 6\n0040 RETURN\n=== END DISASSEMBLY ===\ntest",
+      "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Less, precedence: 4\nDEBUG: get_precedence - peek: Less, precedence: 4\nDEBUG: parse_precedence - precedence: 0, peek: Less, get_precedence: 4\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Dedent, precedence: 0\nDEBUG: get_precedence - peek: Dedent, precedence: 0\nDEBUG: get_precedence - peek: Dedent, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(0)\n  [1] Int(1)\n  [2] String(\"test\")\n  [3] Int(1)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_LOCAL 20\n0009 CONST 1\n0012 LESS\n0013 JUMP_IF_FALSE 40\n0016 LOAD_GLOBAL 0\n0019 CONST 2\n0022 CALL 1\n0024 POP\n0025 LOAD_LOCAL 20\n0028 CONST 3\n0031 ADD\n0032 UNKNOWN(57)\n0033 STORE_LOCAL 20\n0036 POP\n0037 JUMP 6\n0040 RETURN\n=== END DISASSEMBLY ===\ntest",
       "stderr": "DEBUG: print fonksiyonu çağrıldı, argüman: test\n",
-      "execution_time": 0.004670143127441406,
+      "execution_time": 0.004044055938720703,
       "category": "Kontrol Akışı"
     },
     "For döngüsü - doğru sözdizimi": {
       "passed": true,
       "returncode": 0,
-      "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] List([Int(1), Int(2), Int(3)])\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_LOCAL 20\n0009 UNKNOWN(B0)\n0010 UNKNOWN(B1)\n0011 UNKNOWN(B2)\n0012 JUMP_IF_FALSE 30\n0015 STORE_LOCAL 21\n0018 LOAD_GLOBAL 0\n0021 LOAD_LOCAL 21\n0024 CALL 1\n0026 POP\n0027 JUMP 10\n0030 RETURN\n=== END DISASSEMBLY ===\n1",
+      "stdout": "DEBUG: get_precedence - peek: Comma, precedence: 0\nDEBUG: get_precedence - peek: Comma, precedence: 0\nDEBUG: get_precedence - peek: RightBracket, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Dedent, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] List([Int(1), Int(2), Int(3)])\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_LOCAL 20\n0009 UNKNOWN(B0)\n0010 UNKNOWN(B1)\n0011 UNKNOWN(B2)\n0012 JUMP_IF_FALSE 30\n0015 STORE_LOCAL 21\n0018 LOAD_GLOBAL 0\n0021 LOAD_LOCAL 21\n0024 CALL 1\n0026 POP\n0027 JUMP 10\n0030 RETURN\n=== END DISASSEMBLY ===\n1",
       "stderr": "DEBUG: print fonksiyonu çağrıldı, argüman: 1\n",
-      "execution_time": 0.0038361549377441406,
+      "execution_time": 0.00432896614074707,
       "category": "Kontrol Akışı"
     },
     "Break - döngü dışında": {
@@ -772,7 +772,7 @@
       "returncode": 0,
       "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n\nCode:\n0000 JUMP 0\n0003 RETURN\n=== END DISASSEMBLY ===\n",
       "stderr": "",
-      "execution_time": 0.0034461021423339844,
+      "execution_time": 0.00415802001953125,
       "category": "Kontrol Akışı"
     },
     "Continue - döngü dışında": {
@@ -780,7 +780,7 @@
       "returncode": 0,
       "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n\nCode:\n0000 JUMP 0\n0003 RETURN\n=== END DISASSEMBLY ===\n",
       "stderr": "",
-      "execution_time": 0.0036809444427490234,
+      "execution_time": 0.003802061080932617,
       "category": "Kontrol Akışı"
     },
     "Return - fonksiyon dışında": {
@@ -788,7 +788,7 @@
       "returncode": 0,
       "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n\nCode:\n0000 CONST 0\n0003 RETURN\n0004 RETURN\n=== END DISASSEMBLY ===\n",
       "stderr": "",
-      "execution_time": 0.0046651363372802734,
+      "execution_time": 0.0043752193450927734,
       "category": "Kontrol Akışı"
     },
     "Await - async dışında": {
@@ -796,7 +796,7 @@
       "returncode": 0,
       "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n\nCode:\n0000 RETURN\n=== END DISASSEMBLY ===\n",
       "stderr": "",
-      "execution_time": 0.003774881362915039,
+      "execution_time": 0.004017829895019531,
       "category": "Kontrol Akışı"
     },
     "Yield - coop dışında": {
@@ -804,239 +804,239 @@
       "returncode": 0,
       "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n\nCode:\n0000 RETURN\n=== END DISASSEMBLY ===\n",
       "stderr": "",
-      "execution_time": 0.0035991668701171875,
+      "execution_time": 0.004002094268798828,
       "category": "Kontrol Akışı"
     },
     "Fonksiyon - eksik parametre tipi": {
       "passed": true,
       "returncode": 1,
-      "stdout": "",
+      "stdout": "DEBUG: get_precedence - peek: Dedent, precedence: 0\n",
       "stderr": "",
-      "execution_time": 0.0035169124603271484,
+      "execution_time": 0.003710031509399414,
       "category": "Fonksiyon"
     },
     "Fonksiyon - doğru sözdizimi": {
       "passed": true,
       "returncode": 0,
-      "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n\nCode:\n0000 MAKE_FUNCTION 0 1\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 0\n0010 LOAD_GLOBAL 20\n0013 CONST 0\n0016 CALL 1\n0018 CALL 1\n0020 POP\n0021 RETURN\n=== END DISASSEMBLY ===\n42",
+      "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n\nCode:\n0000 MAKE_FUNCTION 0 1\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 0\n0010 LOAD_GLOBAL 20\n0013 CONST 0\n0016 CALL 1\n0018 CALL 1\n0020 POP\n0021 RETURN\n=== END DISASSEMBLY ===\n42",
       "stderr": "DEBUG: print fonksiyonu çağrıldı, argüman: 42\n",
-      "execution_time": 0.004514932632446289,
+      "execution_time": 0.004703044891357422,
       "category": "Fonksiyon"
     },
     "Async fonksiyon - doğru sözdizimi": {
       "passed": true,
       "returncode": 0,
-      "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n\nCode:\n0000 MAKE_FUNCTION 0 1\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 20\n0010 CONST 0\n0013 CALL 1\n0015 STORE_LOCAL 21\n0018 RETURN\n=== END DISASSEMBLY ===\n",
+      "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n\nCode:\n0000 MAKE_FUNCTION 0 1\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 20\n0010 CONST 0\n0013 CALL 1\n0015 STORE_LOCAL 21\n0018 RETURN\n=== END DISASSEMBLY ===\n",
       "stderr": "",
-      "execution_time": 0.0038132667541503906,
+      "execution_time": 0.004294872283935547,
       "category": "Fonksiyon"
     },
     "Coop fonksiyon - doğru sözdizimi": {
-      "passed": false,
-      "returncode": 1,
-      "stdout": "",
+      "passed": true,
+      "returncode": 0,
+      "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Identifier, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n\nCode:\n0000 MAKE_COOP_FUNCTION 0 1\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 20\n0010 CONST 0\n0013 CALL 1\n0015 STORE_LOCAL 21\n0018 RETURN\n=== END DISASSEMBLY ===\n",
       "stderr": "",
-      "execution_time": 0.0036208629608154297,
+      "execution_time": 0.003957986831665039,
       "category": "Fonksiyon"
     },
     "Fonksiyon - geçersiz parametre tipi": {
       "passed": true,
       "returncode": 1,
-      "stdout": "",
+      "stdout": "DEBUG: get_precedence - peek: Dedent, precedence: 0\n",
       "stderr": "",
-      "execution_time": 0.0035512447357177734,
+      "execution_time": 0.003566741943359375,
       "category": "Fonksiyon"
     },
     "Fonksiyon - eksik return değeri": {
       "passed": false,
       "returncode": 1,
-      "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n\nCode:\n0000 MAKE_FUNCTION 0 0\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 0\n0010 LOAD_GLOBAL 20\n0013 CALL 0\n0015 CALL 1\n0017 POP\n0018 RETURN\n=== END DISASSEMBLY ===\ntest",
+      "stdout": "DEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n\nCode:\n0000 MAKE_FUNCTION 0 0\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 0\n0010 LOAD_GLOBAL 20\n0013 CALL 0\n0015 CALL 1\n0017 POP\n0018 RETURN\n=== END DISASSEMBLY ===\ntest",
       "stderr": "DEBUG: print fonksiyonu çağrıldı, argüman: test\nHata: Stack underflow\n",
-      "execution_time": 0.00428318977355957,
+      "execution_time": 0.004907846450805664,
       "category": "Fonksiyon"
     },
     "Fonksiyon - yanlış return tipi": {
       "passed": true,
       "returncode": 0,
-      "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n\nCode:\n0000 MAKE_FUNCTION 0 0\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 0\n0010 LOAD_GLOBAL 20\n0013 CALL 0\n0015 CALL 1\n0017 POP\n0018 RETURN\n=== END DISASSEMBLY ===\nstring",
+      "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n\nCode:\n0000 MAKE_FUNCTION 0 0\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 0\n0010 LOAD_GLOBAL 20\n0013 CALL 0\n0015 CALL 1\n0017 POP\n0018 RETURN\n=== END DISASSEMBLY ===\nstring",
       "stderr": "DEBUG: print fonksiyonu çağrıldı, argüman: string\n",
-      "execution_time": 0.003951311111450195,
+      "execution_time": 0.004135847091674805,
       "category": "Fonksiyon"
     },
     "Fonksiyon - çoklu return tipi": {
       "passed": true,
       "returncode": 0,
-      "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n  [1] String(\"string\")\n\nCode:\n0000 MAKE_FUNCTION 0 0\n0004 STORE_GLOBAL 20\n0007 CONST 0\n0010 RETURN\n0011 CONST 1\n0014 RETURN\n0015 RETURN\n=== END DISASSEMBLY ===\n",
+      "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Dedent, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n  [1] String(\"string\")\n\nCode:\n0000 MAKE_FUNCTION 0 0\n0004 STORE_GLOBAL 20\n0007 CONST 0\n0010 RETURN\n0011 CONST 1\n0014 RETURN\n0015 RETURN\n=== END DISASSEMBLY ===\n",
       "stderr": "",
-      "execution_time": 0.0034949779510498047,
+      "execution_time": 0.003812074661254883,
       "category": "Fonksiyon"
     },
     "Fonksiyon - eksik parametre": {
       "passed": true,
       "returncode": 1,
-      "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n\nCode:\n0000 MAKE_FUNCTION 0 2\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 20\n0010 CONST 0\n0013 CALL 1\n0015 POP\n0016 RETURN\n=== END DISASSEMBLY ===\n",
+      "stdout": "DEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n\nCode:\n0000 MAKE_FUNCTION 0 2\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 20\n0010 CONST 0\n0013 CALL 1\n0015 POP\n0016 RETURN\n=== END DISASSEMBLY ===\n",
       "stderr": "Hata: Invalid operation: add\n",
-      "execution_time": 0.003566265106201172,
+      "execution_time": 0.0035638809204101562,
       "category": "Fonksiyon"
     },
     "Fonksiyon - fazla parametre": {
       "passed": false,
       "returncode": 0,
-      "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n  [1] Int(43)\n\nCode:\n0000 MAKE_FUNCTION 0 1\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 20\n0010 CONST 0\n0013 CONST 1\n0016 CALL 2\n0018 POP\n0019 RETURN\n=== END DISASSEMBLY ===\n",
+      "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Comma, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n  [1] Int(43)\n\nCode:\n0000 MAKE_FUNCTION 0 1\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 20\n0010 CONST 0\n0013 CONST 1\n0016 CALL 2\n0018 POP\n0019 RETURN\n=== END DISASSEMBLY ===\n",
       "stderr": "",
-      "execution_time": 0.004275321960449219,
+      "execution_time": 0.004708766937255859,
       "category": "Fonksiyon"
     },
     "Basit aritmetik - 1000 iterasyon": {
       "passed": true,
       "returncode": 0,
-      "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(0)\n  [1] Int(1)\n  [2] Int(1000)\n  [3] Int(1)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 STORE_LOCAL 21\n0012 LOAD_LOCAL 21\n0015 CONST 2\n0018 LESS_EQUAL\n0019 JUMP_IF_FALSE 49\n0022 LOAD_LOCAL 20\n0025 LOAD_LOCAL 21\n0028 ADD\n0029 UNKNOWN(57)\n0030 STORE_LOCAL 20\n0033 POP\n0034 LOAD_LOCAL 21\n0037 CONST 3\n0040 ADD\n0041 UNKNOWN(57)\n0042 STORE_LOCAL 21\n0045 POP\n0046 JUMP 12\n0049 LOAD_GLOBAL 0\n0052 LOAD_LOCAL 20\n0055 CALL 1\n0057 POP\n0058 RETURN\n=== END DISASSEMBLY ===\n",
+      "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: parse_precedence - precedence: 0, peek: LessEqual, get_precedence: 4\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(0)\n  [1] Int(1)\n  [2] Int(1000)\n  [3] Int(1)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 STORE_LOCAL 21\n0012 LOAD_LOCAL 21\n0015 CONST 2\n0018 LESS_EQUAL\n0019 JUMP_IF_FALSE 49\n0022 LOAD_LOCAL 20\n0025 LOAD_LOCAL 21\n0028 ADD\n0029 UNKNOWN(57)\n0030 STORE_LOCAL 20\n0033 POP\n0034 LOAD_LOCAL 21\n0037 CONST 3\n0040 ADD\n0041 UNKNOWN(57)\n0042 STORE_LOCAL 21\n0045 POP\n0046 JUMP 12\n0049 LOAD_GLOBAL 0\n0052 LOAD_LOCAL 20\n0055 CALL 1\n0057 POP\n0058 RETURN\n=== END DISASSEMBLY ===\n",
       "stderr": "",
-      "execution_time": 0.004049777984619141,
+      "execution_time": 0.0038700103759765625,
       "category": "Performans"
     },
     "String concatenation - 100 iterasyon": {
       "passed": true,
       "returncode": 0,
-      "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"\")\n  [1] Int(1)\n  [2] Int(100)\n  [3] String(\"test\")\n  [4] Int(1)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 STORE_LOCAL 21\n0012 LOAD_LOCAL 21\n0015 CONST 2\n0018 LESS_EQUAL\n0019 JUMP_IF_FALSE 49\n0022 LOAD_LOCAL 20\n0025 CONST 3\n0028 ADD\n0029 UNKNOWN(57)\n0030 STORE_LOCAL 20\n0033 POP\n0034 LOAD_LOCAL 21\n0037 CONST 4\n0040 ADD\n0041 UNKNOWN(57)\n0042 STORE_LOCAL 21\n0045 POP\n0046 JUMP 12\n0049 LOAD_GLOBAL 0\n0052 LOAD_GLOBAL 10\n0055 LOAD_LOCAL 20\n0058 CALL 1\n0060 CALL 1\n0062 POP\n0063 RETURN\n=== END DISASSEMBLY ===\n",
+      "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: parse_precedence - precedence: 0, peek: LessEqual, get_precedence: 4\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"\")\n  [1] Int(1)\n  [2] Int(100)\n  [3] String(\"test\")\n  [4] Int(1)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 STORE_LOCAL 21\n0012 LOAD_LOCAL 21\n0015 CONST 2\n0018 LESS_EQUAL\n0019 JUMP_IF_FALSE 49\n0022 LOAD_LOCAL 20\n0025 CONST 3\n0028 ADD\n0029 UNKNOWN(57)\n0030 STORE_LOCAL 20\n0033 POP\n0034 LOAD_LOCAL 21\n0037 CONST 4\n0040 ADD\n0041 UNKNOWN(57)\n0042 STORE_LOCAL 21\n0045 POP\n0046 JUMP 12\n0049 LOAD_GLOBAL 0\n0052 LOAD_GLOBAL 10\n0055 LOAD_LOCAL 20\n0058 CALL 1\n0060 CALL 1\n0062 POP\n0063 RETURN\n=== END DISASSEMBLY ===\n",
       "stderr": "",
-      "execution_time": 0.003504037857055664,
+      "execution_time": 0.004049062728881836,
       "category": "Performans"
     },
     "Recursive factorial - 20": {
       "passed": false,
       "returncode": 1,
-      "stdout": "",
+      "stdout": "DEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: parse_precedence - precedence: 0, peek: LessEqual, get_precedence: 4\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Star, precedence: 6\nDEBUG: get_precedence - peek: Star, precedence: 6\nDEBUG: parse_precedence - precedence: 0, peek: Star, get_precedence: 6\nDEBUG: get_precedence - peek: Minus, precedence: 5\nDEBUG: get_precedence - peek: Minus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Minus, get_precedence: 5\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n",
       "stderr": "",
-      "execution_time": 0.003625154495239258,
+      "execution_time": 0.0037441253662109375,
       "category": "Performans"
     },
     "List operations - 1000 eleman": {
       "passed": false,
       "returncode": 1,
-      "stdout": "",
+      "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: parse_precedence - precedence: 0, peek: LessEqual, get_precedence: 4\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: RightBracket, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n",
       "stderr": "",
-      "execution_time": 0.003917694091796875,
+      "execution_time": 0.004746913909912109,
       "category": "Performans"
     },
     "Map operations - 1000 eleman": {
       "passed": false,
       "returncode": 1,
-      "stdout": "",
+      "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: parse_precedence - precedence: 0, peek: LessEqual, get_precedence: 4\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: LeftBracket, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: RightBracket, precedence: 0\nDEBUG: get_precedence - peek: RightBracket, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n",
       "stderr": "",
-      "execution_time": 0.0043888092041015625,
+      "execution_time": 0.0038068294525146484,
       "category": "Performans"
     },
     "Büyük liste oluşturma": {
       "passed": false,
       "returncode": 1,
-      "stdout": "",
+      "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: parse_precedence - precedence: 0, peek: LessEqual, get_precedence: 4\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: RightBracket, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\n",
       "stderr": "",
-      "execution_time": 0.0037260055541992188,
+      "execution_time": 0.0038712024688720703,
       "category": "Bellek"
     },
     "Büyük map oluşturma": {
       "passed": false,
       "returncode": 1,
-      "stdout": "",
+      "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: parse_precedence - precedence: 0, peek: LessEqual, get_precedence: 4\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: LeftBracket, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: RightBracket, precedence: 0\nDEBUG: get_precedence - peek: RightBracket, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\n",
       "stderr": "",
-      "execution_time": 0.003798961639404297,
+      "execution_time": 0.0038700103759765625,
       "category": "Bellek"
     },
     "String concatenation - büyük string": {
       "passed": true,
       "returncode": 0,
-      "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"\")\n  [1] Int(1)\n  [2] Int(1000)\n  [3] String(\"very long string that takes memory\")\n  [4] Int(1)\n  [5] String(\"String created\")\n  [6] Null\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 STORE_LOCAL 21\n0012 LOAD_LOCAL 21\n0015 CONST 2\n0018 LESS_EQUAL\n0019 JUMP_IF_FALSE 49\n0022 LOAD_LOCAL 20\n0025 CONST 3\n0028 ADD\n0029 UNKNOWN(57)\n0030 STORE_LOCAL 20\n0033 POP\n0034 LOAD_LOCAL 21\n0037 CONST 4\n0040 ADD\n0041 UNKNOWN(57)\n0042 STORE_LOCAL 21\n0045 POP\n0046 JUMP 12\n0049 LOAD_GLOBAL 0\n0052 CONST 5\n0055 CALL 1\n0057 POP\n0058 CONST 6\n0061 UNKNOWN(57)\n0062 STORE_LOCAL 20\n0065 POP\n0066 RETURN\n=== END DISASSEMBLY ===\n",
+      "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: parse_precedence - precedence: 0, peek: LessEqual, get_precedence: 4\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"\")\n  [1] Int(1)\n  [2] Int(1000)\n  [3] String(\"very long string that takes memory\")\n  [4] Int(1)\n  [5] String(\"String created\")\n  [6] Null\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 STORE_LOCAL 21\n0012 LOAD_LOCAL 21\n0015 CONST 2\n0018 LESS_EQUAL\n0019 JUMP_IF_FALSE 49\n0022 LOAD_LOCAL 20\n0025 CONST 3\n0028 ADD\n0029 UNKNOWN(57)\n0030 STORE_LOCAL 20\n0033 POP\n0034 LOAD_LOCAL 21\n0037 CONST 4\n0040 ADD\n0041 UNKNOWN(57)\n0042 STORE_LOCAL 21\n0045 POP\n0046 JUMP 12\n0049 LOAD_GLOBAL 0\n0052 CONST 5\n0055 CALL 1\n0057 POP\n0058 CONST 6\n0061 UNKNOWN(57)\n0062 STORE_LOCAL 20\n0065 POP\n0066 RETURN\n=== END DISASSEMBLY ===\n",
       "stderr": "",
-      "execution_time": 0.004106998443603516,
+      "execution_time": 0.004760026931762695,
       "category": "Performans"
     },
     "Nested structures": {
       "passed": false,
       "returncode": 1,
-      "stdout": "",
+      "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: parse_precedence - precedence: 0, peek: LessEqual, get_precedence: 4\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: parse_precedence - precedence: 0, peek: LessEqual, get_precedence: 4\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Star, precedence: 6\nDEBUG: get_precedence - peek: Star, precedence: 6\nDEBUG: parse_precedence - precedence: 0, peek: Star, get_precedence: 6\nDEBUG: get_precedence - peek: RightBracket, precedence: 0\nDEBUG: get_precedence - peek: RightBracket, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: RightBracket, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\n",
       "stderr": "",
-      "execution_time": 0.004132747650146484,
+      "execution_time": 0.0037810802459716797,
       "category": "Bellek"
     },
     "Division by zero": {
       "passed": true,
       "returncode": 1,
-      "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n  [1] Int(0)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 STORE_LOCAL 21\n0012 LOAD_LOCAL 20\n0015 LOAD_LOCAL 21\n0018 DIV\n0019 STORE_LOCAL 22\n0022 RETURN\n=== END DISASSEMBLY ===\n",
+      "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Slash, precedence: 6\nDEBUG: get_precedence - peek: Slash, precedence: 6\nDEBUG: parse_precedence - precedence: 0, peek: Slash, get_precedence: 6\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n  [1] Int(0)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 STORE_LOCAL 21\n0012 LOAD_LOCAL 20\n0015 LOAD_LOCAL 21\n0018 DIV\n0019 STORE_LOCAL 22\n0022 RETURN\n=== END DISASSEMBLY ===\n",
       "stderr": "Hata: Division by zero\n",
-      "execution_time": 0.004453182220458984,
+      "execution_time": 0.003843069076538086,
       "category": "Hata Yönetimi"
     },
     "Modulo by zero": {
       "passed": true,
       "returncode": 1,
-      "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n  [1] Int(0)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 STORE_LOCAL 21\n0012 LOAD_LOCAL 20\n0015 LOAD_LOCAL 21\n0018 MOD\n0019 STORE_LOCAL 22\n0022 RETURN\n=== END DISASSEMBLY ===\n",
+      "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Percent, precedence: 6\nDEBUG: get_precedence - peek: Percent, precedence: 6\nDEBUG: parse_precedence - precedence: 0, peek: Percent, get_precedence: 6\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n  [1] Int(0)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 STORE_LOCAL 21\n0012 LOAD_LOCAL 20\n0015 LOAD_LOCAL 21\n0018 MOD\n0019 STORE_LOCAL 22\n0022 RETURN\n=== END DISASSEMBLY ===\n",
       "stderr": "Hata: Division by zero\n",
-      "execution_time": 0.0038101673126220703,
+      "execution_time": 0.004930257797241211,
       "category": "Hata Yönetimi"
     },
     "Array index out of bounds": {
       "passed": false,
       "returncode": 0,
-      "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] List([Int(1), Int(2), Int(3)])\n  [1] List([Int(10)])\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_LOCAL 20\n0009 STORE_LOCAL 21\n0012 CONST 1\n0015 POP\n0016 RETURN\n=== END DISASSEMBLY ===\n",
+      "stdout": "DEBUG: get_precedence - peek: Comma, precedence: 0\nDEBUG: get_precedence - peek: Comma, precedence: 0\nDEBUG: get_precedence - peek: RightBracket, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: LeftBracket, precedence: 0\nDEBUG: get_precedence - peek: RightBracket, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] List([Int(1), Int(2), Int(3)])\n  [1] List([Int(10)])\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_LOCAL 20\n0009 STORE_LOCAL 21\n0012 CONST 1\n0015 POP\n0016 RETURN\n=== END DISASSEMBLY ===\n",
       "stderr": "",
-      "execution_time": 0.00421595573425293,
+      "execution_time": 0.004504203796386719,
       "category": "Hata Yönetimi"
     },
     "Map key not found": {
       "passed": false,
       "returncode": 0,
-      "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Map([(\"\\\"key\\\"\", String(\"value\"))])\n  [1] List([String(\"nonexistent\")])\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_LOCAL 20\n0009 STORE_LOCAL 21\n0012 CONST 1\n0015 POP\n0016 RETURN\n=== END DISASSEMBLY ===\n",
+      "stdout": "DEBUG: get_precedence - peek: RightBrace, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: LeftBracket, precedence: 0\nDEBUG: get_precedence - peek: RightBracket, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Map([(\"\\\"key\\\"\", String(\"value\"))])\n  [1] List([String(\"nonexistent\")])\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_LOCAL 20\n0009 STORE_LOCAL 21\n0012 CONST 1\n0015 POP\n0016 RETURN\n=== END DISASSEMBLY ===\n",
       "stderr": "",
-      "execution_time": 0.00459599494934082,
+      "execution_time": 0.0054399967193603516,
       "category": "Hata Yönetimi"
     },
     "Stack overflow - deep recursion": {
       "passed": true,
       "returncode": 1,
-      "stdout": "",
+      "stdout": "DEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: parse_precedence - precedence: 0, peek: LessEqual, get_precedence: 4\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Minus, precedence: 5\nDEBUG: get_precedence - peek: Minus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Minus, get_precedence: 5\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n",
       "stderr": "",
-      "execution_time": 0.0043909549713134766,
+      "execution_time": 0.00504612922668457,
       "category": "Hata Yönetimi"
     },
     "Infinite loop detection": {
       "passed": false,
       "returncode": 0,
-      "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Bool(true)\n  [1] String(\"infinite\")\n\nCode:\n0000 CONST 0\n0003 JUMP_IF_FALSE 18\n0006 LOAD_GLOBAL 0\n0009 CONST 1\n0012 CALL 1\n0014 POP\n0015 JUMP 0\n0018 RETURN\n=== END DISASSEMBLY ===\ninfinite",
+      "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Dedent, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Bool(true)\n  [1] String(\"infinite\")\n\nCode:\n0000 CONST 0\n0003 JUMP_IF_FALSE 18\n0006 LOAD_GLOBAL 0\n0009 CONST 1\n0012 CALL 1\n0014 POP\n0015 JUMP 0\n0018 RETURN\n=== END DISASSEMBLY ===\ninfinite",
       "stderr": "DEBUG: print fonksiyonu çağrıldı, argüman: infinite\n",
-      "execution_time": 0.0034770965576171875,
+      "execution_time": 0.00444793701171875,
       "category": "Hata Yönetimi"
     },
     "Türkçe karakterli değişken": {
       "passed": true,
       "returncode": 0,
-      "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_GLOBAL 0\n0009 LOAD_LOCAL 20\n0012 CALL 1\n0014 POP\n0015 RETURN\n=== END DISASSEMBLY ===\n42",
+      "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_GLOBAL 0\n0009 LOAD_LOCAL 20\n0012 CALL 1\n0014 POP\n0015 RETURN\n=== END DISASSEMBLY ===\n42",
       "stderr": "DEBUG: print fonksiyonu çağrıldı, argüman: 42\n",
-      "execution_time": 0.004387855529785156,
+      "execution_time": 0.004106998443603516,
       "category": "Unicode"
     },
     "Türkçe karakterli fonksiyon": {
       "passed": true,
       "returncode": 0,
-      "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(5)\n\nCode:\n0000 MAKE_FUNCTION 0 1\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 0\n0010 LOAD_GLOBAL 20\n0013 CONST 0\n0016 CALL 1\n0018 CALL 1\n0020 POP\n0021 RETURN\n=== END DISASSEMBLY ===\ntest",
+      "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(5)\n\nCode:\n0000 MAKE_FUNCTION 0 1\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 0\n0010 LOAD_GLOBAL 20\n0013 CONST 0\n0016 CALL 1\n0018 CALL 1\n0020 POP\n0021 RETURN\n=== END DISASSEMBLY ===\ntest",
       "stderr": "DEBUG: print fonksiyonu çağrıldı, argüman: test\n",
-      "execution_time": 0.003893136978149414,
+      "execution_time": 0.0047512054443359375,
       "category": "Unicode"
     },
     "Unicode string literal": {
       "passed": true,
       "returncode": 0,
-      "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"🚀 Sky Dili 🎉\")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_GLOBAL 0\n0009 LOAD_LOCAL 20\n0012 CALL 1\n0014 POP\n0015 RETURN\n=== END DISASSEMBLY ===\n🚀 Sky Dili 🎉",
+      "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"🚀 Sky Dili 🎉\")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_GLOBAL 0\n0009 LOAD_LOCAL 20\n0012 CALL 1\n0014 POP\n0015 RETURN\n=== END DISASSEMBLY ===\n🚀 Sky Dili 🎉",
       "stderr": "DEBUG: print fonksiyonu çağrıldı, argüman: 🚀 Sky Dili 🎉\n",
-      "execution_time": 0.003609180450439453,
+      "execution_time": 0.005424976348876953,
       "category": "Unicode"
     },
     "Türkçe karakterli string interpolation": {
       "passed": true,
       "returncode": 0,
-      "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"Melih\")\n  [1] String(\"Merhaba $isim\")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 STORE_LOCAL 21\n0012 LOAD_GLOBAL 0\n0015 LOAD_LOCAL 21\n0018 CALL 1\n0020 POP\n0021 RETURN\n=== END DISASSEMBLY ===\nMerhaba $isim",
+      "stdout": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"Melih\")\n  [1] String(\"Merhaba $isim\")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 STORE_LOCAL 21\n0012 LOAD_GLOBAL 0\n0015 LOAD_LOCAL 21\n0018 CALL 1\n0020 POP\n0021 RETURN\n=== END DISASSEMBLY ===\nMerhaba $isim",
       "stderr": "DEBUG: print fonksiyonu çağrıldı, argüman: Merhaba $isim\n",
-      "execution_time": 0.003573894500732422,
+      "execution_time": 0.004235982894897461,
       "category": "Unicode"
     },
     "Unicode identifier - geçersiz karakter": {
@@ -1044,7 +1044,7 @@
       "returncode": 1,
       "stdout": "",
       "stderr": "",
-      "execution_time": 0.004082918167114258,
+      "execution_time": 0.003710031509399414,
       "category": "Unicode"
     },
     "Unicode identifier - sayı ile başlama": {
@@ -1052,7 +1052,7 @@
       "returncode": 0,
       "stdout": "=== BYTECODE DISASSEMBLY ===\nConstants:\n\nCode:\n0000 RETURN\n=== END DISASSEMBLY ===\n",
       "stderr": "",
-      "execution_time": 0.0038330554962158203,
+      "execution_time": 0.004750251770019531,
       "category": "Unicode"
     }
   },
