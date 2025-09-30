@@ -86,6 +86,7 @@ pub fn is_compatible(declared: &TypeDecl, actual: &ValueKind) -> bool {
         TypeDecl::String => matches!(actual, ValueKind::String),
         TypeDecl::List => matches!(actual, ValueKind::List),
         TypeDecl::Map => matches!(actual, ValueKind::Map),
+        TypeDecl::ListParam(_) => matches!(actual, ValueKind::List), // Parametreli liste de genel liste olarak kabul edilir
     }
 }
 

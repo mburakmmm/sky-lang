@@ -9,6 +9,7 @@ use symbols::{SymbolInfo, SymbolKind, Slot};
 use crate::compiler::parser::ast::{Ast, Stmt, Expr, TypeDecl as AstTypeDecl};
 use crate::compiler::types::{TypeDecl, Param};
 use crate::compiler::diag::{Diagnostic, Span};
+use crate::compiler::parser::ast::PrimitiveType;
 
 impl From<AstTypeDecl> for TypeDecl {
     fn from(ast_ty: AstTypeDecl) -> Self {
@@ -20,6 +21,15 @@ impl From<AstTypeDecl> for TypeDecl {
             AstTypeDecl::String => TypeDecl::String,
             AstTypeDecl::List => TypeDecl::List,
             AstTypeDecl::Map => TypeDecl::Map,
+            AstTypeDecl::ListParam(param) => {
+                let decl_param = match param {
+                    PrimitiveType::Int => crate::compiler::types::decl::PrimitiveType::Int,
+                    PrimitiveType::Float => crate::compiler::types::decl::PrimitiveType::Float,
+                    PrimitiveType::Bool => crate::compiler::types::decl::PrimitiveType::Bool,
+                    PrimitiveType::String => crate::compiler::types::decl::PrimitiveType::String,
+                };
+                TypeDecl::ListParam(decl_param)
+            }
         }
     }
 }
@@ -80,7 +90,7 @@ pub enum BoundStmt {
         span: Span,
     },
     Import {
-        module: String,
+        module_name: String,
         span: Span,
     },
     ExprStmt {
@@ -419,6 +429,51 @@ impl Binder {
         self.next_slot += 1;
         self.symbols.push(http_symbol.clone());
         self.scopes.current_mut().insert("http".to_string(), http_symbol);
+        
+        // Özel değişkenler
+        let args_symbol = SymbolInfo::new(
+            "__args__".to_string(),
+            SymbolKind::Variable,
+            Some(TypeDecl::List),
+            Slot::Global(self.next_slot),
+            Span::new(0, 0, 0),
+        );
+        self.next_slot += 1;
+        self.symbols.push(args_symbol.clone());
+        self.scopes.current_mut().insert("__args__".to_string(), args_symbol);
+        
+        let name_symbol = SymbolInfo::new(
+            "__name__".to_string(),
+            SymbolKind::Variable,
+            Some(TypeDecl::String),
+            Slot::Global(self.next_slot),
+            Span::new(0, 0, 0),
+        );
+        self.next_slot += 1;
+        self.symbols.push(name_symbol.clone());
+        self.scopes.current_mut().insert("__name__".to_string(), name_symbol);
+        
+        let file_symbol = SymbolInfo::new(
+            "__file__".to_string(),
+            SymbolKind::Variable,
+            Some(TypeDecl::String),
+            Slot::Global(self.next_slot),
+            Span::new(0, 0, 0),
+        );
+        self.next_slot += 1;
+        self.symbols.push(file_symbol.clone());
+        self.scopes.current_mut().insert("__file__".to_string(), file_symbol);
+        
+        let dir_symbol = SymbolInfo::new(
+            "__dir__".to_string(),
+            SymbolKind::Variable,
+            Some(TypeDecl::String),
+            Slot::Global(self.next_slot),
+            Span::new(0, 0, 0),
+        );
+        self.next_slot += 1;
+        self.symbols.push(dir_symbol.clone());
+        self.scopes.current_mut().insert("__dir__".to_string(), dir_symbol);
     }
 
     fn bind_program(&mut self, ast: Ast) -> Result<BoundAst, Diagnostic> {
@@ -642,7 +697,14 @@ impl Binder {
                 Ok(BoundStmt::Continue { span })
             },
             
-            Stmt::Import { module, span } => Ok(BoundStmt::Import { module, span }),
+            Stmt::Import { module_name, span } => {
+                // Import statement'ı şimdilik passthrough olarak bırak
+                // Gerçek modül yükleme VM'de yapılacak
+                Ok(BoundStmt::Import {
+                    module_name,
+                    span,
+                })
+            }
             
             Stmt::ExprStmt { expr, span } => {
                 let bound_expr = self.bind_expression(expr)?;
@@ -778,13 +840,13 @@ impl Binder {
         let slot = Slot::Local(self.next_slot);
         self.next_slot += 1;
 
-        let symbol = SymbolInfo {
-            name: name.to_string(),
-            kind: SymbolKind::Variable,
-            ty: Some(ty.clone()),
+        let symbol = SymbolInfo::new(
+            name.to_string(),
+            SymbolKind::Variable,
+            Some(ty.clone()),
             slot,
             span,
-        };
+        );
 
         self.scopes.current_mut().insert(name.to_string(), symbol.clone());
         self.symbols.push(symbol.clone());
@@ -803,13 +865,13 @@ impl Binder {
 
         let slot = Slot::Local(slot_index as u32);
 
-        let symbol = SymbolInfo {
-            name: name.to_string(),
-            kind: SymbolKind::Variable,
-            ty: Some(ty.clone()),
+        let symbol = SymbolInfo::new(
+            name.to_string(),
+            SymbolKind::Variable,
+            Some(ty.clone()),
             slot,
             span,
-        };
+        );
 
         self.scopes.current_mut().insert(name.to_string(), symbol.clone());
         self.symbols.push(symbol.clone());
@@ -829,13 +891,13 @@ impl Binder {
         let slot = Slot::Global(self.next_slot);
         self.next_slot += 1;
 
-        let symbol = SymbolInfo {
-            name: name.to_string(),
-            kind: SymbolKind::Function,
-            ty: None, // Fonksiyonların dönüş tipi MVP'de belirtilmiyor
+        let symbol = SymbolInfo::new(
+            name.to_string(),
+            SymbolKind::Function,
+            None, // Fonksiyonların dönüş tipi MVP'de belirtilmiyor
             slot,
             span,
-        };
+        );
 
         self.scopes.current_mut().insert(name.to_string(), symbol.clone());
         self.symbols.push(symbol.clone());
@@ -845,6 +907,15 @@ impl Binder {
 
     fn resolve_variable(&mut self, name: &str, span: Span) -> Result<SymbolInfo, Diagnostic> {
         if let Some(symbol) = self.scopes.resolve(name) {
+            // Visibility kontrolü - private symbol'lere erişim kontrolü
+            // Şimdilik sadece temel kontrol, import sistemi olunca genişletilecek
+            if symbol.is_private() && !self.is_in_same_module(&symbol) {
+                return Err(Diagnostic::error(
+                    crate::compiler::diag::codes::PRIVATE_SYMBOL_ACCESS,
+                    &format!("Cannot access private symbol '{}'", name),
+                    span,
+                ));
+            }
             Ok(symbol.clone())
         } else {
             Err(Diagnostic::error(
@@ -853,6 +924,12 @@ impl Binder {
                 span,
             ))
         }
+    }
+    
+    /// Aynı modül içinde olup olmadığını kontrol et (şimdilik her zaman true)
+    fn is_in_same_module(&self, _symbol: &SymbolInfo) -> bool {
+        // Import sistemi olmadığı için şimdilik her zaman true
+        true
     }
 }
 

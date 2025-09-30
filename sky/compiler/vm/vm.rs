@@ -14,6 +14,7 @@ pub struct Vm {
     functions: Vec<Chunk>,
     next_coroutine_id: u64,
     next_future_id: u64,
+    cli_args: Vec<String>, // CLI argümanları
 }
 
 impl Vm {
@@ -53,6 +54,7 @@ impl Vm {
             functions: Vec::new(),
             next_coroutine_id: 1,
             next_future_id: 1,
+            cli_args: Vec::new(),
         };
         
         // Built-in fonksiyonları ekle
@@ -68,17 +70,125 @@ impl Vm {
             functions,
             next_coroutine_id: 1,
             next_future_id: 1,
+            cli_args: Vec::new(),
         };
         
         // Built-in fonksiyonları ekle
         vm.register_builtins();
         vm
     }
+    
+    pub fn new_with_args(functions: Vec<Chunk>, cli_args: Vec<String>) -> Self {
+        let mut vm = Self {
+            stack: Stack::new(),
+            frames: Vec::new(),
+            globals: Vec::new(),
+            functions,
+            next_coroutine_id: 1,
+            next_future_id: 1,
+            cli_args,
+        };
+        
+        // Built-in fonksiyonları ekle
+        vm.register_builtins();
+        vm
+    }
+    
+    pub fn new_with_file_info(functions: Vec<Chunk>, cli_args: Vec<String>, file_path: String) -> Self {
+        let mut vm = Self {
+            stack: Stack::new(),
+            frames: Vec::new(),
+            globals: Vec::new(),
+            functions,
+            next_coroutine_id: 1,
+            next_future_id: 1,
+            cli_args,
+        };
+        
+        // Built-in fonksiyonları ekle
+        vm.register_builtins();
+        
+        // Dosya bilgilerini güncelle
+        if let Some(file_value) = vm.globals.get_mut(22) {
+            *file_value = Value::String(file_path.clone());
+        }
+        if let Some(dir_value) = vm.globals.get_mut(23) {
+            let dir = std::path::Path::new(&file_path).parent()
+                .unwrap_or(std::path::Path::new("."))
+                .to_string_lossy()
+                .to_string();
+            *dir_value = Value::String(dir);
+        }
+        
+        vm
+    }
+
+    /// Main fonksiyonunu otomatik çağır
+    fn call_main_function(&mut self) -> Result<(), RuntimeError> {
+        // Main fonksiyonunu bul
+        if let Some(main_index) = self.find_main_function() {
+            // __args__ değişkenini stack'e push et
+            if let Some(args_index) = self.find_global_variable("__args__") {
+                self.stack.push(self.globals[args_index as usize].clone())?;
+            } else {
+                // __args__ bulunamazsa boş liste push et
+                self.stack.push(Value::List(vec![]))?;
+            }
+            
+            // Main fonksiyonunu çağır
+            self.call_function_by_index(main_index, 1)?;
+        }
+        Ok(())
+    }
+
+    /// Main fonksiyonunu bul
+    fn find_main_function(&self) -> Option<usize> {
+        for (i, chunk) in self.functions.iter().enumerate() {
+            // Fonksiyon ismini kontrol et (bu basit bir implementasyon)
+            // Gerçek implementasyonda fonksiyon isimlerini saklamak gerekir
+            if i == 0 { // İlk fonksiyon main olarak varsayılır
+                return Some(i);
+            }
+        }
+        None
+    }
+
+    /// Global değişkenin index'ini bul
+    fn find_global_variable(&self, name: &str) -> Option<u16> {
+        // Binder'dan gelen sembol bilgilerini kullan
+        // Şimdilik basit bir implementasyon
+        match name {
+            "__args__" => Some(20), // __args__ slot 20'de
+            "__name__" => Some(21), // __name__ slot 21'de
+            "__file__" => Some(22), // __file__ slot 22'de
+            "__dir__" => Some(23),  // __dir__ slot 23'te
+            _ => None,
+        }
+    }
+
+    /// Fonksiyonu index ile çağır
+    fn call_function_by_index(&mut self, index: usize, arg_count: u8) -> Result<(), RuntimeError> {
+        if index >= self.functions.len() {
+            return Err(RuntimeError::InvalidOperation {
+                op: "Invalid function index".to_string(),
+                span: crate::compiler::diag::Span::new(0, 0, 0),
+            });
+        }
+
+        let chunk = self.functions[index].clone();
+        let frame = CallFrame::new(chunk, self.stack.len() - arg_count as usize);
+        self.frames.push(frame);
+        
+        Ok(())
+    }
 
     /// Chunk'ı çalıştır
     pub fn run(&mut self, chunk: Chunk) -> Result<Value, RuntimeError> {
         let mut frame = CallFrame::new(chunk, self.stack.len());
         self.frames.push(frame);
+        
+        // Main fonksiyonunu otomatik çağır
+        self.call_main_function()?;
         
         while !self.frames.is_empty() {
             // Frame'i kontrol et
@@ -1397,6 +1507,20 @@ impl Vm {
         )));
         let http_module_value = Value::Map(http_module);
         self.globals.push(http_module_value);
+        
+        // Özel değişkenler (slot 20+)
+        let args_list: Vec<Value> = self.cli_args.iter().map(|arg| Value::String(arg.clone())).collect();
+        let args_value = Value::List(args_list);
+        self.globals.push(args_value);
+        
+        // __name__ (slot 21)
+        self.globals.push(Value::String("__main__".to_string()));
+        
+        // __file__ (slot 22) - CLI'den geçirilecek
+        self.globals.push(Value::String("".to_string()));
+        
+        // __dir__ (slot 23) - CLI'den geçirilecek
+        self.globals.push(Value::String("".to_string()));
     }
 }
 

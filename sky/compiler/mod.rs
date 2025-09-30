@@ -12,6 +12,7 @@ pub mod vm;
 pub mod runtime;
 pub mod stdlib;
 pub mod bridge;
+pub mod modules;
 // pub mod formatter; // Formatter is in sky/formatter/mod.rs
 
 // Re-exports

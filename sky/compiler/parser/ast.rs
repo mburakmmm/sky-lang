@@ -54,7 +54,7 @@ pub enum Stmt {
         span: Span,
     },
     Import {
-        module: String,
+        module_name: String,
         span: Span,
     },
     ExprStmt {
@@ -182,6 +182,16 @@ pub enum TypeDecl {
     String,
     List,
     Map,
+    ListParam(PrimitiveType),
+}
+
+/// Primitive tip türleri (list parametreleri için)
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum PrimitiveType {
+    Int,
+    Float,
+    Bool,
+    String,
 }
 
 /// Fonksiyon parametresi

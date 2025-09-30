@@ -1,0 +1,10 @@
+list[int] numbers = [1, 2, 3, 4, 5]
+list[string] names = ["Alice", "Bob", "Charlie"]
+
+print("Numbers:")
+print(numbers)
+print("Names:")
+print(names)
+print("First number: " + numbers[0])
+print("First name: " + names[0])
+print("File: " + __file__)

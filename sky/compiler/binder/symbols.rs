@@ -47,16 +47,19 @@ pub struct SymbolInfo {
     pub ty: Option<TypeDecl>,
     pub slot: Slot,
     pub span: Span,
+    pub is_public: bool, // Visibility: _ ile başlayanlar private
 }
 
 impl SymbolInfo {
     pub fn new(name: String, kind: SymbolKind, ty: Option<TypeDecl>, slot: Slot, span: Span) -> Self {
+        let is_public = !name.starts_with('_');
         Self {
             name,
             kind,
             ty,
             slot,
             span,
+            is_public,
         }
     }
 
@@ -73,6 +76,16 @@ impl SymbolInfo {
     /// Sembolün parametre olup olmadığını kontrol et
     pub fn is_parameter(&self) -> bool {
         matches!(self.kind, SymbolKind::Parameter)
+    }
+    
+    /// Sembolün public olup olmadığını kontrol et
+    pub fn is_public(&self) -> bool {
+        self.is_public
+    }
+    
+    /// Sembolün private olup olmadığını kontrol et
+    pub fn is_private(&self) -> bool {
+        !self.is_public
     }
 
     /// Sembolün local olup olmadığını kontrol et

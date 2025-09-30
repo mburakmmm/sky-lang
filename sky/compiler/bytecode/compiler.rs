@@ -346,15 +346,15 @@ impl Compiler {
                 }
             }
             
-            BoundStmt::Import { ref module, .. } => {
+            BoundStmt::Import { ref module_name, .. } => {
                 // Import implementation - modülü global namespace'e ekle
                 // Modül adını constant olarak ekle
-                let const_idx = self.chunk.add_constant(Value::String(module.clone()));
+                let const_idx = self.chunk.add_constant(Value::String(module_name.clone()));
                 self.chunk.write_op(OpCode::Const(const_idx), stmt.span().start_line());
                 
                 // Modülü global scope'a kaydet
                 // Stdlib modülleri için özel handling
-                match module.as_str() {
+                match module_name.as_str() {
                     "math" => {
                         // Math modülü için mock implementation
                         let math_module = Value::String("math_module".to_string());
@@ -364,12 +364,18 @@ impl Compiler {
                     }
                     _ => {
                         // Diğer modüller için genel handling
-                        let module_value = Value::String(format!("{}_module", module));
+                        let module_value = Value::String(format!("{}_module", module_name));
                         let module_idx = self.chunk.add_constant(module_value);
                         self.chunk.write_op(OpCode::Const(module_idx), stmt.span().start_line());
                         // Global slot assignment burada yapılacak
                     }
                 }
+            }
+            
+            BoundStmt::Import { module_name, .. } => {
+                // Import statement'ı şimdilik ignore et
+                // Gerçek modül yükleme VM'de yapılacak
+                println!("Import statement: {}", module_name);
             }
             
             BoundStmt::ExprStmt { expr, .. } => {

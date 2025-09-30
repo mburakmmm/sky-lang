@@ -1,0 +1,7 @@
+var public_var = "This is public"
+var _private_var = "This is private"
+
+print("Public variable: " + public_var)
+print("Private variable: " + _private_var)
+print("File: " + __file__)
+print("Module: " + __name__)

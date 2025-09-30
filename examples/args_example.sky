@@ -1,0 +1,8 @@
+print("Arguments count: " + len(__args__))
+print("Arguments:")
+int i = 0
+while i < len(__args__)
+  print("  " + (i + 1) + ". " + __args__[i])
+  i = i + 1
+print("File: " + __file__)
+print("Module: " + __name__)

@@ -186,6 +186,12 @@ pub mod codes {
     pub const COROUTINE_FINISHED: &str = "E2001";
     pub const PYTHON_BRIDGE_ERROR: &str = "E3001";
     pub const JS_BRIDGE_ERROR: &str = "E3002";
+    
+    // Entry point and visibility errors
+    pub const INVALID_MAIN_SIGNATURE: &str = "E6001";
+    pub const BRACE_BODY_NON_MAIN: &str = "E6002";
+    pub const MAIN_MUST_USE_BRACES: &str = "E6003";
+    pub const PRIVATE_SYMBOL_ACCESS: &str = "E0404";
 }
 
 #[cfg(test)]

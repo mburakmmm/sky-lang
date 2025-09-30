@@ -4,6 +4,7 @@
 use super::ast::*;
 use crate::compiler::lexer::{token::Token, token::TokenKind};
 use crate::compiler::diag::{Diagnostic, Span, codes};
+use crate::compiler::types::decl::PrimitiveType as DeclPrimitiveType;
 
 // Ast struct'ı ast.rs'ye taşındı
 
@@ -222,28 +223,7 @@ impl Parser {
                 let param_span = param_name.span;
                 
                 self.consume(TokenKind::Colon, "Expected ':' after parameter name")?;
-                let source_clone2 = self.source.clone();
-                let type_token = if self.match_token(&[TokenKind::IntType]) {
-                    self.previous()
-                } else if self.match_token(&[TokenKind::FloatType]) {
-                    self.previous()
-                } else if self.match_token(&[TokenKind::BoolType]) {
-                    self.previous()
-                } else if self.match_token(&[TokenKind::StringType]) {
-                    self.previous()
-                } else if self.match_token(&[TokenKind::ListType]) {
-                    self.previous()
-                } else if self.match_token(&[TokenKind::MapType]) {
-                    self.previous()
-                } else if self.match_token(&[TokenKind::Var]) {
-                    self.previous()
-                } else {
-                    return Err(Diagnostic::error("E0000", "Expected parameter type", self.peek().span));
-                };
-                let type_text = type_token.text(&source_clone2).to_string();
-                
-                let ty = TypeDecl::from_keyword(&type_text)
-                    .ok_or_else(|| Diagnostic::error("E0000", "Invalid type", type_token.span))?;
+                let (ty, _) = self.parse_type_declaration()?;
 
                 params.push(Param {
                     name: param_name_text,
@@ -258,6 +238,21 @@ impl Parser {
         }
 
         self.consume(TokenKind::RightParen, "Expected ')' after parameters")?;
+
+        // Main fonksiyonu parametre validasyonu
+        if name == "main" {
+            if !params.is_empty() && params.len() != 1 {
+                return Err(Diagnostic::error(crate::compiler::diag::codes::INVALID_MAIN_SIGNATURE, 
+                    "main function must have no parameters or exactly one 'args: list[string]' parameter", name_span));
+            }
+            if params.len() == 1 {
+                let param = &params[0];
+                if param.name != "args" || !matches!(param.ty, TypeDecl::ListParam(PrimitiveType::String)) {
+                    return Err(Diagnostic::error(crate::compiler::diag::codes::INVALID_MAIN_SIGNATURE, 
+                        "main function parameter must be 'args: list[string]'", param.span));
+                }
+            }
+        }
 
         // Newline token'ını atla
         if self.check(TokenKind::Newline) {
@@ -283,7 +278,23 @@ impl Parser {
             }
         }
 
-        let body = self.block()?;
+        // Main fonksiyonu için süslü parantez kontrolü
+        let body = if name == "main" {
+            // Main fonksiyonu süslü parantez kullanmalı
+            if self.match_token(&[TokenKind::LeftBrace]) {
+                self.brace_block()?
+            } else {
+                return Err(Diagnostic::error(crate::compiler::diag::codes::MAIN_MUST_USE_BRACES, 
+                    "main function body must be brace-delimited", self.peek().span));
+            }
+        } else {
+            // Diğer fonksiyonlar girintili blok kullanmalı
+            if self.check(TokenKind::LeftBrace) {
+                return Err(Diagnostic::error(crate::compiler::diag::codes::BRACE_BODY_NON_MAIN, 
+                    "only main function may use brace-delimited body", self.peek().span));
+            }
+            self.block()?
+        };
 
         // Reset context flags
         {
@@ -300,25 +311,117 @@ impl Parser {
         })
     }
 
+    fn parse_type_declaration(&mut self) -> Result<(TypeDecl, Span), Diagnostic> {
+        let start_span = self.peek().span;
+        
+        if self.match_token(&[TokenKind::Var]) {
+            Ok((TypeDecl::Var, self.previous().span))
+        } else if self.match_token(&[TokenKind::IntType]) {
+            Ok((TypeDecl::Int, self.previous().span))
+        } else if self.match_token(&[TokenKind::FloatType]) {
+            Ok((TypeDecl::Float, self.previous().span))
+        } else if self.match_token(&[TokenKind::BoolType]) {
+            Ok((TypeDecl::Bool, self.previous().span))
+        } else if self.match_token(&[TokenKind::StringType]) {
+            Ok((TypeDecl::String, self.previous().span))
+        } else if self.match_token(&[TokenKind::ListType]) {
+            // Check for parameterized list: list[type]
+            if self.match_token(&[TokenKind::LeftBracket]) {
+                let param_type = if self.match_token(&[TokenKind::IntType]) {
+                    DeclPrimitiveType::Int
+                } else if self.match_token(&[TokenKind::FloatType]) {
+                    DeclPrimitiveType::Float
+                } else if self.match_token(&[TokenKind::BoolType]) {
+                    DeclPrimitiveType::Bool
+                } else if self.match_token(&[TokenKind::StringType]) {
+                    DeclPrimitiveType::String
+                } else {
+                    return Err(Diagnostic::error("E0000", "Expected primitive type in list[T]", self.peek().span));
+                };
+                
+                self.consume(TokenKind::RightBracket, "Expected ']' after list parameter type")?;
+                let ast_param_type = match param_type {
+                    DeclPrimitiveType::Int => PrimitiveType::Int,
+                    DeclPrimitiveType::Float => PrimitiveType::Float,
+                    DeclPrimitiveType::Bool => PrimitiveType::Bool,
+                    DeclPrimitiveType::String => PrimitiveType::String,
+                };
+                Ok((TypeDecl::ListParam(ast_param_type), start_span))
+            } else {
+                Ok((TypeDecl::List, self.previous().span))
+            }
+        } else if self.match_token(&[TokenKind::MapType]) {
+            Ok((TypeDecl::Map, self.previous().span))
+        } else {
+            Err(Diagnostic::error("E0000", "Expected type declaration", self.peek().span))
+        }
+    }
+
+    fn brace_block(&mut self) -> Result<Vec<Stmt>, Diagnostic> {
+        let mut statements = Vec::new();
+        
+        while !self.check(TokenKind::RightBrace) && !self.is_at_end() {
+            // Skip INDENT/DEDENT tokens in brace blocks
+            if self.check(TokenKind::Indent) || self.check(TokenKind::Dedent) {
+                self.advance();
+                continue;
+            }
+            
+            // Skip NEWLINE tokens
+            if self.check(TokenKind::Newline) {
+                self.advance();
+                continue;
+            }
+            
+            // In brace blocks, we parse statements, not declarations
+            if self.is_type_declaration() {
+                let stmt = self.var_declaration()?;
+                statements.push(stmt);
+            } else if self.check(TokenKind::Function) || self.check(TokenKind::Async) || self.check(TokenKind::Coop) {
+                let stmt = self.declaration()?;
+                statements.push(stmt);
+            } else {
+                // For expression statements in brace blocks
+                let expr = self.expression()?;
+                let span = match &expr {
+                    Expr::Lit(_) => Span::new(0, 0, 0), // Placeholder
+                    Expr::Ident(_, span) => *span,
+                    Expr::Call { span, .. } => *span,
+                    Expr::Attr { span, .. } => *span,
+                    Expr::Index { span, .. } => *span,
+                    Expr::Unary { span, .. } => *span,
+                    Expr::Binary { span, .. } => *span,
+                    Expr::Await { span, .. } => *span,
+                    Expr::Yield { span, .. } => *span,
+                    Expr::Interpolated { span, .. } => *span,
+                    Expr::Range { span, .. } => *span,
+                    Expr::Ternary { span, .. } => *span,
+                };
+                statements.push(Stmt::ExprStmt {
+                    expr,
+                    span,
+                });
+            }
+        }
+        
+        self.consume(TokenKind::RightBrace, "Expected '}' after block")?;
+        Ok(statements)
+    }
+
     fn import_declaration(&mut self) -> Result<Stmt, Diagnostic> {
         let module_token = self.consume(TokenKind::Identifier, "Expected module name")?;
-        let module = module_token.text("").to_string();
+        let module_name = module_token.text("").to_string();
 
         Ok(Stmt::Import {
-            module,
+            module_name,
             span: module_token.span,
         })
     }
 
     fn var_declaration(&mut self) -> Result<Stmt, Diagnostic> {
-        let source_clone = self.source.clone();
-        let type_token = self.advance();
-        let (ty, type_span) = {
-            let ty = TypeDecl::from_keyword(type_token.text(&source_clone))
-                .ok_or_else(|| Diagnostic::error("E0000", "Invalid type", type_token.span))?;
-            (ty, type_token.span)
-        };
+        let (ty, type_span) = self.parse_type_declaration()?;
 
+        let source_clone = self.source.clone();
         let name_token = self.consume(TokenKind::Identifier, "Expected variable name")?;
         let name = name_token.text(&source_clone).to_string();
 

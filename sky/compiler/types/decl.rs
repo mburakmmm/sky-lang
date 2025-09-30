@@ -11,8 +11,41 @@ pub enum TypeDecl {
     Float,  // Ondalık sayı
     Bool,   // Boolean
     String, // Metin
-    List,   // Liste
+    List,   // Liste (generic olmayan)
     Map,    // Sözlük
+    ListParam(PrimitiveType), // Parametreli liste: list[int], list[string] vb.
+}
+
+/// Primitive tip türleri (list parametreleri için)
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum PrimitiveType {
+    Int,
+    Float,
+    Bool,
+    String,
+}
+
+impl PrimitiveType {
+    /// Keyword'den primitive tip oluştur
+    pub fn from_keyword(keyword: &str) -> Option<Self> {
+        match keyword {
+            "int" => Some(Self::Int),
+            "float" => Some(Self::Float),
+            "bool" => Some(Self::Bool),
+            "string" => Some(Self::String),
+            _ => None,
+        }
+    }
+    
+    /// Primitive tipi TypeDecl'e çevir
+    pub fn to_type_decl(&self) -> TypeDecl {
+        match self {
+            PrimitiveType::Int => TypeDecl::Int,
+            PrimitiveType::Float => TypeDecl::Float,
+            PrimitiveType::Bool => TypeDecl::Bool,
+            PrimitiveType::String => TypeDecl::String,
+        }
+    }
 }
 
 impl TypeDecl {
@@ -42,7 +75,12 @@ impl TypeDecl {
     
     /// Tip bildiriminin collection olup olmadığını kontrol et
     pub fn is_collection(&self) -> bool {
-        matches!(self, Self::List | Self::Map)
+        matches!(self, Self::List | Self::Map | Self::ListParam(_))
+    }
+    
+    /// Tip bildiriminin parametreli liste olup olmadığını kontrol et
+    pub fn is_parameterized_list(&self) -> bool {
+        matches!(self, Self::ListParam(_))
     }
     
     /// Tip bildirimini bytecode için u8'e çevir
@@ -55,6 +93,7 @@ impl TypeDecl {
             Self::String => 4,
             Self::List => 5,
             Self::Map => 6,
+            Self::ListParam(_) => 7, // Parametreli liste
         }
     }
     
@@ -68,6 +107,7 @@ impl TypeDecl {
             4 => Some(Self::String),
             5 => Some(Self::List),
             6 => Some(Self::Map),
+            7 => Some(Self::ListParam(PrimitiveType::String)), // Default parametreli liste
             _ => None,
         }
     }
@@ -83,6 +123,27 @@ impl std::fmt::Display for TypeDecl {
             TypeDecl::String => "string",
             TypeDecl::List => "list",
             TypeDecl::Map => "map",
+            TypeDecl::ListParam(param) => {
+                let param_name = match param {
+                    PrimitiveType::Int => "int",
+                    PrimitiveType::Float => "float",
+                    PrimitiveType::Bool => "bool",
+                    PrimitiveType::String => "string",
+                };
+                return write!(f, "list[{}]", param_name);
+            }
+        };
+        write!(f, "{}", name)
+    }
+}
+
+impl std::fmt::Display for PrimitiveType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let name = match self {
+            PrimitiveType::Int => "int",
+            PrimitiveType::Float => "float",
+            PrimitiveType::Bool => "bool",
+            PrimitiveType::String => "string",
         };
         write!(f, "{}", name)
     }

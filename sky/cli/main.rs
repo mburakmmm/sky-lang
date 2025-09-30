@@ -39,6 +39,10 @@ enum Commands {
         /// Hata durumunda stack trace göster
         #[arg(short, long)]
         trace: bool,
+        
+        /// Sky script'e geçirilecek argümanlar
+        #[arg(trailing_var_arg = true)]
+        args: Vec<String>,
     },
     
     /// REPL (Read-Eval-Print Loop) başlat
@@ -125,8 +129,8 @@ fn main() {
     let cli = Cli::parse();
     
     match &cli.command {
-        Commands::Run { file, debug, trace } => {
-            run_file(file, *debug, *trace);
+        Commands::Run { file, debug, trace, args } => {
+            run_file(file, *debug, *trace, args);
         }
         Commands::Repl { debug } => {
             start_repl(*debug);
@@ -156,7 +160,7 @@ fn main() {
 }
 
 /// Sky dosyasını çalıştır
-fn run_file(file: &PathBuf, debug: bool, trace: bool) {
+fn run_file(file: &PathBuf, debug: bool, trace: bool, args: &Vec<String>) {
     if !file.exists() {
         eprintln!("Hata: Dosya bulunamadı: {:?}", file);
         process::exit(1);
@@ -253,9 +257,9 @@ fn run_file(file: &PathBuf, debug: bool, trace: bool) {
     // Debug: Bytecode'u disassemble et - KALDIRILDI
     // print!("{}", chunk.disassemble());
     
-    // VM
+    // VM - CLI argümanlarını ve dosya bilgilerini geçir
     let functions = compiler.get_functions().clone();
-    let mut vm = Vm::new_with_functions(functions);
+    let mut vm = Vm::new_with_file_info(functions, args.clone(), file.to_string_lossy().to_string());
     match vm.run(chunk) {
         Ok(result) => {
             if debug {
