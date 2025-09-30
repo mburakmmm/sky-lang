@@ -11,6 +11,15 @@ use crate::compiler::diag::{Diagnostic, Span};
 pub struct Compiler {
     chunk: Chunk,
     functions: Vec<Chunk>,
+    loop_stack: Vec<LoopContext>, // Loop context stack
+}
+
+/// Loop context bilgisi
+#[derive(Debug, Clone)]
+struct LoopContext {
+    start_pos: usize,    // Loop başlangıç pozisyonu
+    break_positions: Vec<usize>, // Break statement'larının pozisyonları
+    continue_positions: Vec<usize>, // Continue statement'larının pozisyonları
 }
 
 impl Compiler {
@@ -18,6 +27,7 @@ impl Compiler {
         Self {
             chunk: Chunk::new(),
             functions: Vec::new(),
+            loop_stack: Vec::new(),
         }
     }
 
@@ -39,12 +49,26 @@ impl Compiler {
             BoundStmt::VarDecl { value, symbol, .. } => {
                 self.compile_expression(value)?;
                 
-                match symbol.slot {
-                    crate::compiler::binder::symbols::Slot::Local(idx) => {
-                        self.chunk.write_op(OpCode::StoreLocal(idx.try_into().unwrap()), 0);
+                // Tip kontrolü ile store işlemi
+                if let Some(ty) = &symbol.ty {
+                    let type_code = ty.to_bytecode_type();
+                    match symbol.slot {
+                        crate::compiler::binder::symbols::Slot::Local(idx) => {
+                            self.chunk.write_op(OpCode::StoreLocalTyped(idx.try_into().unwrap(), type_code), 0);
+                        }
+                        crate::compiler::binder::symbols::Slot::Global(idx) => {
+                            self.chunk.write_op(OpCode::StoreGlobalTyped(idx.try_into().unwrap(), type_code), 0);
+                        }
                     }
-                    crate::compiler::binder::symbols::Slot::Global(idx) => {
-                        self.chunk.write_op(OpCode::StoreGlobal(idx.try_into().unwrap()), 0);
+                } else {
+                    // Tip bilgisi yoksa normal store
+                    match symbol.slot {
+                        crate::compiler::binder::symbols::Slot::Local(idx) => {
+                            self.chunk.write_op(OpCode::StoreLocal(idx.try_into().unwrap()), 0);
+                        }
+                        crate::compiler::binder::symbols::Slot::Global(idx) => {
+                            self.chunk.write_op(OpCode::StoreGlobal(idx.try_into().unwrap()), 0);
+                        }
                     }
                 }
             }
@@ -112,10 +136,12 @@ impl Compiler {
                 let mut end_jump_offset = self.chunk.len();
                 self.chunk.write_op(OpCode::Jump(0), 0); // Placeholder - sonra düzeltilecek
                 
-                // Then branch jump offset'ini düzelt (elif/else'e atla)
-                let elif_start_pos = self.chunk.len();
-                let offset_bytes = elif_start_pos.to_le_bytes();
-                self.chunk.code[jump_offset + 1..jump_offset + 3].copy_from_slice(&offset_bytes[..2]);
+                // Then branch jump offset'ini düzelt (if statement'ın sonuna atla)
+                let if_end_pos = self.chunk.len();
+                let offset = if_end_pos as i32 - (jump_offset + 3) as i32;
+                if offset >= 0 && offset <= u16::MAX as i32 {
+                    self.chunk.code[jump_offset + 1..jump_offset + 3].copy_from_slice(&(offset as u16).to_le_bytes());
+                }
                 
                 // Elif branches
                 for (elif_condition, elif_body) in elif_branches {
@@ -173,17 +199,25 @@ impl Compiler {
                 // 3. Loop başlangıç pozisyonu
                 let loop_start = self.chunk.len();
                 
-                // 4. Iterator'dan sonraki elemanı al
+                // 4. Loop context'i stack'e ekle
+                let loop_context = LoopContext {
+                    start_pos: loop_start,
+                    break_positions: Vec::new(),
+                    continue_positions: Vec::new(),
+                };
+                self.loop_stack.push(loop_context);
+                
+                // 5. Iterator'dan sonraki elemanı al
                 self.chunk.write_op(OpCode::IterNext, 0);
                 
-                // 5. Iterator bitti mi kontrol et
+                // 6. Iterator bitti mi kontrol et
                 self.chunk.write_op(OpCode::IterDone, 0);
                 
-                // 6. Eğer bitmişse döngüden çık
+                // 7. Eğer bitmişse döngüden çık
                 self.chunk.write_op(OpCode::JumpIfFalse(0), 0); // Placeholder - sonra düzeltilecek
                 let loop_end_offset = self.chunk.len() - 3;
                 
-                // 7. Variable'a ata (symbol'dan slot al)
+                // 8. Variable'a ata (symbol'dan slot al)
                 match &symbol.slot {
                     crate::compiler::binder::symbols::Slot::Local(slot) => {
                         self.chunk.write_op(OpCode::StoreLocal((*slot) as u16), 0);
@@ -193,22 +227,50 @@ impl Compiler {
                     }
                 }
                 
-                // 8. Loop body'sini compile et
+                // 9. Loop body'sini compile et
                 for body_stmt in body {
                     self.compile_statement(body_stmt)?;
                 }
                 
-                // 9. Loop'a geri dön
-                self.chunk.write_op(OpCode::Jump(loop_start as u16), 0);
+                // 10. Continue statement'larını patch et
+                if let Some(loop_context) = self.loop_stack.last_mut() {
+                    let continue_target = loop_context.start_pos;
+                    for &continue_pos in &loop_context.continue_positions {
+                        self.chunk.patch_jump(continue_pos, continue_target);
+                    }
+                }
                 
-                // 10. Loop end jump offset'ini düzelt
+                // 11. Loop'a geri dön
+                let back_jump_pos = self.chunk.len();
+                self.chunk.write_op(OpCode::Jump(0), 0); // Placeholder
+                self.chunk.patch_jump(back_jump_pos, loop_start);
+                
+                // 12. Loop end jump offset'ini düzelt - for loop'un sonuna jump et
                 let end_pos = self.chunk.len();
-                let offset_bytes = end_pos.to_le_bytes();
-                self.chunk.code[loop_end_offset + 1..loop_end_offset + 3].copy_from_slice(&offset_bytes[..2]);
+                let jump_target = end_pos; // for loop'un sonu
+                let offset = jump_target as i32 - (loop_end_offset + 3) as i32;
+                if offset >= 0 && offset <= u16::MAX as i32 {
+                    self.chunk.code[loop_end_offset + 1..loop_end_offset + 3].copy_from_slice(&(offset as u16).to_le_bytes());
+                }
+                
+                // 13. Break statement'larını patch et
+                if let Some(loop_context) = self.loop_stack.pop() {
+                    for &break_pos in &loop_context.break_positions {
+                        self.chunk.patch_jump(break_pos, end_pos); // Loop'un sonuna jump et
+                    }
+                }
             }
             
             BoundStmt::While { condition, body, .. } => {
                 let loop_start = self.chunk.len();
+                
+                // Loop context'i stack'e ekle
+                let loop_context = LoopContext {
+                    start_pos: loop_start,
+                    break_positions: Vec::new(),
+                    continue_positions: Vec::new(),
+                };
+                self.loop_stack.push(loop_context);
                 
                 // Koşulu derle
                 self.compile_expression(condition)?;
@@ -222,13 +284,33 @@ impl Compiler {
                     self.compile_statement(stmt)?;
                 }
                 
-                // Loop'a geri dön
-                self.chunk.write_op(OpCode::Jump(loop_start as u16), 0);
+                // Continue statement'larını patch et
+                if let Some(loop_context) = self.loop_stack.last_mut() {
+                    let continue_target = loop_context.start_pos;
+                    for &continue_pos in &loop_context.continue_positions {
+                        self.chunk.patch_jump(continue_pos, continue_target);
+                    }
+                }
                 
-                // Exit jump offset'ini düzelt
+                // Loop'a geri dön
+                let back_jump_pos = self.chunk.len();
+                self.chunk.write_op(OpCode::Jump(0), 0); // Placeholder
+                self.chunk.patch_jump(back_jump_pos, loop_start);
+                
+                // Exit jump offset'ini düzelt - while loop'un sonuna jump et
                 let end_pos = self.chunk.len();
-                let offset_bytes = end_pos.to_le_bytes();
-                self.chunk.code[jump_offset + 1..jump_offset + 3].copy_from_slice(&offset_bytes[..2]);
+                let jump_target = end_pos; // while loop'un sonu
+                let offset = jump_target as i32 - (jump_offset + 3) as i32;
+                if offset >= 0 && offset <= u16::MAX as i32 {
+                    self.chunk.code[jump_offset + 1..jump_offset + 3].copy_from_slice(&(offset as u16).to_le_bytes());
+                }
+                
+                // Break statement'larını patch et - while loop'un sonuna jump et
+                if let Some(loop_context) = self.loop_stack.pop() {
+                    for &break_pos in &loop_context.break_positions {
+                        self.chunk.patch_jump(break_pos, end_pos);
+                    }
+                }
             }
             
             BoundStmt::Return { value, .. } => {
@@ -244,15 +326,24 @@ impl Compiler {
             BoundStmt::Break { .. } => {
                 // Break implementation - loop'tan çık
                 let jump_offset = self.chunk.len();
-                self.chunk.write_op(OpCode::Jump(0), stmt.span().start_line()); // Placeholder - sonra düzeltilecek
-                self.chunk.patch_jump(jump_offset, self.chunk.len());
+                self.chunk.write_op(OpCode::Jump(0), 0); // Placeholder - sonra düzeltilecek
+                
+                // Loop context'e break pozisyonunu ekle
+                if let Some(loop_context) = self.loop_stack.last_mut() {
+                    loop_context.break_positions.push(jump_offset);
+                }
+                // Break statement'ı hemen patch etme - while loop'un sonunda patch edilecek
             }
             
             BoundStmt::Continue { .. } => {
                 // Continue implementation - loop başına dön
                 let jump_offset = self.chunk.len();
-                self.chunk.write_op(OpCode::Jump(0), stmt.span().start_line()); // Placeholder - sonra düzeltilecek
-                self.chunk.patch_jump(jump_offset, self.chunk.len());
+                self.chunk.write_op(OpCode::Jump(0), 0); // Placeholder - sonra düzeltilecek
+                
+                // Loop context'e continue pozisyonunu ekle
+                if let Some(loop_context) = self.loop_stack.last_mut() {
+                    loop_context.continue_positions.push(jump_offset);
+                }
             }
             
             BoundStmt::Import { ref module, .. } => {
@@ -415,16 +506,37 @@ impl Compiler {
                         // Değeri duplicate et çünkü assignment sonuç döndürmeli
                         self.chunk.write_op(OpCode::Dup, 0);
                         
-                        match symbol.slot {
-                            Slot::Local(slot) => {
-                                self.chunk.write_op(OpCode::StoreLocal(slot as u16), 0);
+                        // Tip kontrolü ile store işlemi
+                        if let Some(ty) = &symbol.ty {
+                            let type_code = ty.to_bytecode_type();
+                            match symbol.slot {
+                                Slot::Local(slot) => {
+                                    self.chunk.write_op(OpCode::StoreLocalTyped(slot as u16, type_code), 0);
+                                }
+                                Slot::Global(slot) => {
+                                    self.chunk.write_op(OpCode::StoreGlobalTyped(slot as u16, type_code), 0);
+                                }
                             }
-                            Slot::Global(slot) => {
-                                self.chunk.write_op(OpCode::StoreGlobal(slot as u16), 0);
+                        } else {
+                            // Tip bilgisi yoksa normal store
+                            match symbol.slot {
+                                Slot::Local(slot) => {
+                                    self.chunk.write_op(OpCode::StoreLocal(slot as u16), 0);
+                                }
+                                Slot::Global(slot) => {
+                                    self.chunk.write_op(OpCode::StoreGlobal(slot as u16), 0);
+                                }
                             }
                         }
+                    } else if let BoundExpr::Index { object, index, .. } = *left {
+                        // Index assignment: object[index] = value
+                        // SET_INDEX bekliyor: value, index, container
+                        // Önce value'yu compile et (zaten stack'te)
+                        self.compile_expression(*object)?;  // container
+                        self.compile_expression(*index)?;   // index
+                        self.chunk.write_op(OpCode::SetIndex, 0);
                     } else {
-                        return Err(Diagnostic::error("E0001", "Assignment target must be an identifier", Span::new(0, 0, 0)));
+                        return Err(Diagnostic::error("E0001", "Assignment target must be an identifier or index", Span::new(0, 0, 0)));
                     }
                 }
                     _ => {
@@ -491,8 +603,8 @@ impl Compiler {
             BoundExpr::Index { object, index, .. } => {
                 self.compile_expression(*object)?;
                 self.compile_expression(*index)?;
-                // Index access opcode (şimdilik basit implementasyon)
-                self.chunk.write_op(OpCode::GetAttr, 0);
+                // Index access opcode
+                self.chunk.write_op(OpCode::GetIndex, 0);
             }
         }
         

@@ -171,6 +171,11 @@ impl Value {
         }
     }
 
+    /// Değerin türünü döndür (kind() ile aynı)
+    pub fn get_type(&self) -> ValueKind {
+        self.kind()
+    }
+
     /// Değerin truthy olup olmadığını kontrol et
     pub fn is_truthy(&self) -> bool {
         match self {
@@ -273,10 +278,10 @@ impl Value {
             (Self::Float(a), Self::Int(b)) => Ok(Self::Float(a + *b as f64)),
             (Self::String(a), Self::String(b)) => Ok(Self::String(a.clone() + b)),
             (Self::String(a), Self::Int(b)) => Ok(Self::String(a.clone() + &b.to_string())),
-            (Self::Int(a), Self::String(b)) => Ok(Self::String(a.to_string() + b)),
             (Self::String(a), Self::Float(b)) => Ok(Self::String(a.clone() + &b.to_string())),
-            (Self::Float(a), Self::String(b)) => Ok(Self::String(a.to_string() + b)),
             (Self::String(a), Self::Bool(b)) => Ok(Self::String(a.clone() + &b.to_string())),
+            (Self::Int(a), Self::String(b)) => Ok(Self::String(a.to_string() + b)),
+            (Self::Float(a), Self::String(b)) => Ok(Self::String(a.to_string() + b)),
             (Self::Bool(a), Self::String(b)) => Ok(Self::String(a.to_string() + b)),
             _ => Err(RuntimeError::InvalidOperation {
                 op: "add".to_string(),

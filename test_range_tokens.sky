@@ -1,3 +1,0 @@
-print(1..5)
-print(range(1..10))
-int x = 2..8

@@ -100,7 +100,7 @@ enum Commands {
         disassemble: bool,
         
         /// Bytecode'u hex olarak göster
-        #[arg(short, long)]
+        #[arg(long)]
         hex: bool,
     },
     
@@ -250,8 +250,8 @@ fn run_file(file: &PathBuf, debug: bool, trace: bool) {
         }
     };
     
-    // Debug: Bytecode'u disassemble et
-    print!("{}", chunk.disassemble());
+    // Debug: Bytecode'u disassemble et - KALDIRILDI
+    // print!("{}", chunk.disassemble());
     
     // VM
     let functions = compiler.get_functions().clone();

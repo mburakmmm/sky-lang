@@ -16,6 +16,10 @@ pub struct Parser {
 }
 
 impl Parser {
+    /// Built-in fonksiyonların listesi
+    fn is_builtin_function(&self, name: &str) -> bool {
+        matches!(name, "print" | "stringify" | "now" | "python_import" | "js_eval")
+    }
     pub fn new(tokens: Vec<Token>) -> Self {
         Self {
             tokens,
@@ -38,6 +42,39 @@ impl Parser {
 
     fn is_at_end(&self) -> bool {
         self.peek().kind == TokenKind::Eof
+    }
+
+    fn current_indent_level(&self) -> usize {
+        // Mevcut indent seviyesini hesapla
+        if self.current >= self.tokens.len() {
+            return 0;
+        }
+        
+        // Önceki token'ları kontrol et ve en son Indent token'ının değerini bul
+        let mut current_level = 0;
+        for i in (0..self.current).rev() {
+            match self.tokens[i].kind {
+                TokenKind::Indent => {
+                    if let Some(indent_value) = self.tokens[i].indent_value {
+                        current_level = indent_value;
+                        break;
+                    }
+                }
+                TokenKind::Dedent => {
+                    // Dedent token'ı bulundu, seviyeyi azalt
+                    if let Some(indent_value) = self.tokens[i].indent_value {
+                        current_level = indent_value;
+                        break;
+                    }
+                }
+                _ => {
+                    // Diğer token'lar için devam et
+                    continue;
+                }
+            }
+        }
+        
+        current_level
     }
 
     fn peek(&self) -> &Token {
@@ -222,6 +259,11 @@ impl Parser {
 
         self.consume(TokenKind::RightParen, "Expected ')' after parameters")?;
 
+        // Newline token'ını atla
+        if self.check(TokenKind::Newline) {
+            self.advance();
+        }
+
         // Fonksiyon gövdesi - context'i önce kaydet
         let old_async = {
             let temp = self.in_async_context;
@@ -307,11 +349,6 @@ impl Parser {
             return self.statement();
         }
         
-        // Elif ve Else token'larını skip et - bunlar sadece if statement içinde kullanılır
-        if self.check(TokenKind::Elif) || self.check(TokenKind::Else) {
-            self.advance();
-            return self.statement();
-        }
         
         if self.match_token(&[TokenKind::If]) {
             self.if_statement()
@@ -333,6 +370,10 @@ impl Parser {
     }
 
     fn block(&mut self) -> Result<Vec<Stmt>, Diagnostic> {
+        self.block_with_indent(self.current_indent_level())
+    }
+
+    fn block_with_indent(&mut self, initial_indent: usize) -> Result<Vec<Stmt>, Diagnostic> {
         let mut statements = Vec::new();
 
         // Indent token'ını atla
@@ -347,6 +388,10 @@ impl Parser {
         let mut stuck_count = 0;
 
         while !self.check(TokenKind::Dedent) && !self.is_at_end() {
+            // Eğer aynı seviyede bir statement varsa (indent seviyesi başlangıç seviyesi), döngüyü bitir
+            if self.current_indent_level() <= initial_indent && !self.check(TokenKind::Newline) && !self.check(TokenKind::Comment) {
+                break;
+            }
             loop_count += 1;
             
             // Panic recovery: Aynı token'da takılırsa panic et
@@ -438,24 +483,38 @@ impl Parser {
 
     fn if_statement(&mut self) -> Result<Stmt, Diagnostic> {
         let condition = self.expression()?;
-        self.consume(TokenKind::Colon, "Expected ':' after if condition")?;
+        
+        // Newline token'ını atla
+        if self.check(TokenKind::Newline) {
+            self.advance();
+        }
+        
         let then_branch = self.block()?;
 
         let mut elif_branches = Vec::new();
         while self.match_token(&[TokenKind::Elif]) {
             let elif_condition = self.expression()?;
-            self.consume(TokenKind::Colon, "Expected ':' after elif condition")?;
-            let elif_branch = self.block()?;
+            
+            // Newline token'ını atla
+            if self.check(TokenKind::Newline) {
+                self.advance();
+            }
+            
+            // Elif block'u için özel block parsing - elif'in indent seviyesini kullan
+            let elif_branch = self.block_with_indent(self.current_indent_level() - 1)?;
             elif_branches.push((elif_condition, elif_branch));
         }
 
         let else_branch = if self.match_token(&[TokenKind::Else]) {
-            self.consume(TokenKind::Colon, "Expected ':' after else")?;
-            Some(self.block()?)
+            // Newline token'ını atla
+            if self.check(TokenKind::Newline) {
+                self.advance();
+            }
+            
+            Some(self.block_with_indent(self.current_indent_level() - 1)?)
         } else {
             None
         };
-
         let condition_span = condition.span();
         Ok(Stmt::If {
             condition,
@@ -477,43 +536,18 @@ impl Parser {
 
         let iterable = self.expression()?;
         
-        // Indent token'ını atla
-        if self.check(TokenKind::Indent) {
+        // Newline token'ını atla
+        if self.check(TokenKind::Newline) {
             self.advance();
         }
         
-        let mut statements = Vec::new();
-        while !self.check(TokenKind::Dedent) && !self.is_at_end() {
-            // Newline token'larını atla
-            if self.check(TokenKind::Newline) {
-                self.advance();
-                continue;
-            }
-            
-            // Indent token'ını atla
-            if self.check(TokenKind::Indent) {
-                self.advance();
-                continue;
-            }
-            
-            // Statement'ı parse et
-            if let Ok(stmt) = self.statement() {
-                statements.push(stmt);
-            } else {
-                self.synchronize();
-            }
-        }
-        
-        // Dedent token'ını atla
-        if self.check(TokenKind::Dedent) {
-            self.advance();
-        }
-        
+        // For döngüsü body'si için block() fonksiyonunu kullan
+        let body = self.block()?;
 
         Ok(Stmt::For {
             variable,
             iterable,
-            body: statements,
+            body,
             span: var_span,
         })
     }
@@ -521,43 +555,17 @@ impl Parser {
     fn while_statement(&mut self) -> Result<Stmt, Diagnostic> {
         let condition = self.expression()?;
         
-        // Indent token'ını atla
-        if self.check(TokenKind::Indent) {
+        // Newline token'ını atla
+        if self.check(TokenKind::Newline) {
             self.advance();
         }
         
-        let mut statements = Vec::new();
-        while !self.check(TokenKind::Dedent) && !self.is_at_end() {
-            // Newline token'larını atla
-            if self.check(TokenKind::Newline) {
-                self.advance();
-                continue;
-            }
-            
-            // Indent token'ını atla
-            if self.check(TokenKind::Indent) {
-                self.advance();
-                continue;
-            }
-            
-            // Statement'ı parse et
-            if let Ok(stmt) = self.statement() {
-                statements.push(stmt);
-            } else {
-                self.synchronize();
-            }
-        }
-        
-        // Dedent token'ını atla
-        if self.check(TokenKind::Dedent) {
-            self.advance();
-        }
-        
+        let body = self.block()?;
 
         let condition_span = condition.span();
         Ok(Stmt::While {
             condition,
-            body: statements,
+            body,
             span: condition_span,
         })
     }
@@ -696,6 +704,41 @@ impl Parser {
     }
 
     fn parse_primary_with_calls(&mut self) -> Result<Expr, Diagnostic> {
+        let mut expr = self.parse_primary()?;
+        
+        // Dot notation ve fonksiyon çağrıları için loop
+        loop {
+            if self.match_token(&[TokenKind::Dot]) {
+                let name = self.consume(TokenKind::Identifier, "Expect property name after '.'.")?;
+                let name_span = name.span;
+                let name_str = self.source[name_span.start..name_span.end].to_string();
+                let expr_span = expr.span();
+                expr = Expr::Attr {
+                    object: Box::new(expr),
+                    attr: name_str,
+                    span: expr_span,
+                };
+            } else if self.match_token(&[TokenKind::LeftBracket]) {
+                let index = self.expression()?;
+                self.consume(TokenKind::RightBracket, "Expect ']' after index.")?;
+                let expr_span = expr.span();
+                expr = Expr::Index {
+                    object: Box::new(expr),
+                    index: Box::new(index),
+                    span: expr_span,
+                };
+            } else if self.check(TokenKind::LeftParen) {
+                self.advance(); // LeftParen'i consume et
+                expr = self.finish_call(expr)?;
+            } else {
+                break;
+            }
+        }
+        
+        Ok(expr)
+    }
+
+    fn parse_primary(&mut self) -> Result<Expr, Diagnostic> {
         if self.match_token(&[TokenKind::True]) {
             Ok(Expr::Lit(Literal::Bool(true)))
         } else if self.match_token(&[TokenKind::False]) {
@@ -742,8 +785,16 @@ impl Parser {
             let name = token.text(&source_clone).to_string();
             let span = token.span;
             
-            // Fonksiyon çağrısı kontrol et
-            if self.match_token(&[TokenKind::LeftParen]) {
+            // Built-in fonksiyonlar için parantez zorunlu
+            if self.is_builtin_function(&name) {
+                if !self.match_token(&[TokenKind::LeftParen]) {
+                    return Err(Diagnostic::error(
+                        "E0204",
+                        &format!("Function '{}' requires parentheses", name),
+                        span,
+                    ));
+                }
+                
                 let mut args = Vec::new();
                 
                 if !self.check(TokenKind::RightParen) {
@@ -763,11 +814,39 @@ impl Parser {
                     span,
                 })
             } else {
+                // Normal identifier - parantez yoksa sadece identifier
                 Ok(Expr::Ident(name, span))
             }
         } else {
             Err(Diagnostic::error("E0000", "Expected expression", self.peek().span))
         }
+    }
+
+    fn finish_call(&mut self, callee: Expr) -> Result<Expr, Diagnostic> {
+        let mut args = Vec::new();
+        
+        if !self.check(TokenKind::RightParen) {
+            loop {
+                args.push(self.expression()?);
+                if !self.match_token(&[TokenKind::Comma]) {
+                    break;
+                }
+            }
+        }
+
+        // Debug: RightParen'i consume etmeden önce mevcut token'ı kontrol et
+        if !self.check(TokenKind::RightParen) {
+            return Err(Diagnostic::error("E0000", &format!("Expected ')' after arguments, found {:?}", self.peek().kind), self.peek().span));
+        }
+        
+        self.consume(TokenKind::RightParen, "Expected ')' after arguments")?;
+        
+        let expr_span = callee.span();
+        Ok(Expr::Call {
+            callee: Box::new(callee),
+            args,
+            span: expr_span,
+        })
     }
 
     fn parse_list(&mut self) -> Result<Expr, Diagnostic> {
@@ -791,9 +870,14 @@ impl Parser {
 
         if !self.check(TokenKind::RightBrace) {
             loop {
-                let source_clone = self.source.clone();
                 let key_token = self.consume(TokenKind::String, "Expected string key")?;
-                let key = key_token.text(&source_clone).to_string(); // String parsing
+                let key = if let Some(value) = &key_token.value {
+                    value.clone()
+                } else {
+                    // Fallback: eğer value yoksa span'den al
+                    let span = key_token.span;
+                    self.source[span.start+1..span.end-1].to_string() // Tırnak işaretlerini çıkar
+                };
                 self.consume(TokenKind::Colon, "Expected ':' after key")?;
                 let value = self.expression()?;
                 pairs.push((key, value));
@@ -982,9 +1066,14 @@ mod tests {
                 loop {
                     // Key (string literal veya identifier)
                     let key = if self.match_token(&[TokenKind::String]) {
-                        let source_clone = self.source.clone();
                         let token = self.previous();
-                        token.text(&source_clone).to_string()
+                        if let Some(value) = &token.value {
+                            value.clone()
+                        } else {
+                            // Fallback: eğer value yoksa span'den al
+                            let span = token.span;
+                            self.source[span.start+1..span.end-1].to_string() // Tırnak işaretlerini çıkar
+                        }
                     } else if self.match_token(&[TokenKind::Identifier]) {
                         let source_clone = self.source.clone();
                         let token = self.previous();
@@ -1015,8 +1104,16 @@ mod tests {
             let name = token.text(&source_clone).to_string();
             let span = token.span;
             
-            // Fonksiyon çağrısı kontrol et
-            if self.match_token(&[TokenKind::LeftParen]) {
+            // Built-in fonksiyonlar için parantez zorunlu
+            if self.is_builtin_function(&name) {
+                if !self.match_token(&[TokenKind::LeftParen]) {
+                    return Err(Diagnostic::error(
+                        "E0204",
+                        &format!("Function '{}' requires parentheses", name),
+                        span,
+                    ));
+                }
+                
                 let mut args = Vec::new();
                 
                 if !self.check(TokenKind::RightParen) {
@@ -1036,7 +1133,29 @@ mod tests {
                     span,
                 })
             } else {
-                Ok(Expr::Ident(name, span))
+                // Normal fonksiyon çağrısı kontrol et
+                if self.match_token(&[TokenKind::LeftParen]) {
+                let mut args = Vec::new();
+                
+                if !self.check(TokenKind::RightParen) {
+                    loop {
+                        args.push(self.expression()?);
+                        if !self.match_token(&[TokenKind::Comma]) {
+                            break;
+                        }
+                    }
+                }
+                
+                self.consume(TokenKind::RightParen, "Expected ')' after arguments")?;
+                
+                Ok(Expr::Call {
+                    callee: Box::new(Expr::Ident(name, span)),
+                    args,
+                    span,
+                })
+                } else {
+                    Ok(Expr::Ident(name, span))
+                }
             }
         } else {
             Err(Diagnostic::error("E0000", "Expected expression", self.peek().span))

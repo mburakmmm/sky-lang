@@ -1,369 +1,369 @@
 {
-  "timestamp": "2025-09-30T01:52:07.353529",
+  "timestamp": "2025-09-30T20:07:41.882823",
   "sky_binary": "/Users/melihburakmemis/sky/target/release/sky",
   "total_tests": 60,
-  "passed_tests": 59,
-  "failed_tests": 1,
-  "success_rate": 98.33333333333333,
+  "passed_tests": 39,
+  "failed_tests": 21,
+  "success_rate": 65.0,
   "results": {
     "Tip zorunluluğu - int değişken": {
       "success": true,
-      "output": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n  [1] String(\"Sayı: \")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_GLOBAL 0\n0009 CONST 1\n0012 LOAD_LOCAL 20\n0015 ADD\n0016 CALL 1\n0018 POP\n0019 RETURN\n=== END DISASSEMBLY ===\nSayı: 42",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: Sayı: 42",
+      "output": "Sayı: 42",
+      "error": "",
       "code": "int sayı = 42\nprint(\"Sayı: \" + sayı)"
     },
     "Tip zorunluluğu - string değişken": {
       "success": true,
-      "output": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"Sky\")\n  [1] String(\"İsim: \")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_GLOBAL 0\n0009 CONST 1\n0012 LOAD_LOCAL 20\n0015 ADD\n0016 CALL 1\n0018 POP\n0019 RETURN\n=== END DISASSEMBLY ===\nİsim: Sky",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: İsim: Sky",
+      "output": "İsim: Sky",
+      "error": "",
       "code": "string isim = \"Sky\"\nprint(\"İsim: \" + isim)"
     },
     "Tip zorunluluğu - bool değişken": {
       "success": true,
-      "output": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Bool(true)\n  [1] String(\"Doğru: \")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_GLOBAL 0\n0009 CONST 1\n0012 LOAD_LOCAL 20\n0015 ADD\n0016 CALL 1\n0018 POP\n0019 RETURN\n=== END DISASSEMBLY ===\nDoğru: true",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: Doğru: true",
+      "output": "Doğru: true",
+      "error": "",
       "code": "bool doğru = true\nprint(\"Doğru: \" + doğru)"
     },
     "Dinamik tip - var değişken": {
       "success": true,
-      "output": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(123)\n  [1] String(\"Dinamik: \")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_GLOBAL 0\n0009 CONST 1\n0012 LOAD_LOCAL 20\n0015 ADD\n0016 CALL 1\n0018 POP\n0019 RETURN\n=== END DISASSEMBLY ===\nDinamik: 123",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: Dinamik: 123",
+      "output": "Dinamik: 123",
+      "error": "",
       "code": "var dinamik = 123\nprint(\"Dinamik: \" + dinamik)"
     },
     "Assignment - değişken atama": {
       "success": true,
-      "output": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(5)\n  [1] Int(3)\n  [2] String(\"x = \")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_LOCAL 20\n0009 CONST 1\n0012 ADD\n0013 UNKNOWN(57)\n0014 STORE_LOCAL 20\n0017 POP\n0018 LOAD_GLOBAL 0\n0021 CONST 2\n0024 LOAD_LOCAL 20\n0027 ADD\n0028 CALL 1\n0030 POP\n0031 RETURN\n=== END DISASSEMBLY ===\nx = 8",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: x = 8",
+      "output": "x = 8",
+      "error": "",
       "code": "int x = 5\nx = x + 3\nprint(\"x = \" + x)"
     },
     "Aritmetik operatörler": {
       "success": true,
-      "output": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Minus, precedence: 5\nDEBUG: get_precedence - peek: Minus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Minus, get_precedence: 5\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Star, precedence: 6\nDEBUG: get_precedence - peek: Star, precedence: 6\nDEBUG: parse_precedence - precedence: 0, peek: Star, get_precedence: 6\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Slash, precedence: 6\nDEBUG: get_precedence - peek: Slash, precedence: 6\nDEBUG: parse_precedence - precedence: 0, peek: Slash, get_precedence: 6\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Percent, precedence: 6\nDEBUG: get_precedence - peek: Percent, precedence: 6\nDEBUG: parse_precedence - precedence: 0, peek: Percent, get_precedence: 6\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(10)\n  [1] Int(3)\n  [2] String(\"Toplam: \")\n  [3] String(\"Çıkarma: \")\n  [4] String(\"Çarpma: \")\n  [5] String(\"Bölme: \")\n  [6] String(\"Mod: \")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 STORE_LOCAL 21\n0012 LOAD_GLOBAL 0\n0015 CONST 2\n0018 LOAD_LOCAL 20\n0021 LOAD_LOCAL 21\n0024 ADD\n0025 ADD\n0026 CALL 1\n0028 POP\n0029 LOAD_GLOBAL 0\n0032 CONST 3\n0035 LOAD_LOCAL 20\n0038 LOAD_LOCAL 21\n0041 SUB\n0042 ADD\n0043 CALL 1\n0045 POP\n0046 LOAD_GLOBAL 0\n0049 CONST 4\n0052 LOAD_LOCAL 20\n0055 LOAD_LOCAL 21\n0058 MUL\n0059 ADD\n0060 CALL 1\n0062 POP\n0063 LOAD_GLOBAL 0\n0066 CONST 5\n0069 LOAD_LOCAL 20\n0072 LOAD_LOCAL 21\n0075 DIV\n0076 ADD\n0077 CALL 1\n0079 POP\n0080 LOAD_GLOBAL 0\n0083 CONST 6\n0086 LOAD_LOCAL 20\n0089 LOAD_LOCAL 21\n0092 MOD\n0093 ADD\n0094 CALL 1\n0096 POP\n0097 RETURN\n=== END DISASSEMBLY ===\nToplam: 13Çıkarma: 7Çarpma: 30Bölme: 3.3333333333333335Mod: 1",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: Toplam: 13\nDEBUG: print fonksiyonu çağrıldı, argüman: Çıkarma: 7\nDEBUG: print fonksiyonu çağrıldı, argüman: Çarpma: 30\nDEBUG: print fonksiyonu çağrıldı, argüman: Bölme: 3.3333333333333335\nDEBUG: print fonksiyonu çağrıldı, argüman: Mod: 1",
+      "output": "Toplam: 13Çıkarma: 7Çarpma: 30Bölme: 3.3333333333333335Mod: 1",
+      "error": "",
       "code": "int a = 10\nint b = 3\nprint(\"Toplam: \" + (a + b))\nprint(\"Çıkarma: \" + (a - b))\nprint(\"Çarpma: \" + (a * b))\nprint(\"Bölme: \" + (a / b))\nprint(\"Mod: \" + (a % b))"
     },
     "Karşılaştırma operatörleri": {
       "success": true,
-      "output": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: EqualEqual, precedence: 3\nDEBUG: get_precedence - peek: EqualEqual, precedence: 3\nDEBUG: parse_precedence - precedence: 0, peek: EqualEqual, get_precedence: 3\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: BangEqual, precedence: 3\nDEBUG: get_precedence - peek: BangEqual, precedence: 3\nDEBUG: parse_precedence - precedence: 0, peek: BangEqual, get_precedence: 3\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Less, precedence: 4\nDEBUG: get_precedence - peek: Less, precedence: 4\nDEBUG: parse_precedence - precedence: 0, peek: Less, get_precedence: 4\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Greater, precedence: 4\nDEBUG: get_precedence - peek: Greater, precedence: 4\nDEBUG: parse_precedence - precedence: 0, peek: Greater, get_precedence: 4\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: parse_precedence - precedence: 0, peek: LessEqual, get_precedence: 4\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: GreaterEqual, precedence: 4\nDEBUG: get_precedence - peek: GreaterEqual, precedence: 4\nDEBUG: parse_precedence - precedence: 0, peek: GreaterEqual, get_precedence: 4\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(5)\n  [1] Int(10)\n  [2] String(\"x == y: \")\n  [3] String(\"x != y: \")\n  [4] String(\"x < y: \")\n  [5] String(\"x > y: \")\n  [6] String(\"x <= y: \")\n  [7] String(\"x >= y: \")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 STORE_LOCAL 21\n0012 LOAD_GLOBAL 0\n0015 CONST 2\n0018 LOAD_LOCAL 20\n0021 LOAD_LOCAL 21\n0024 EQUAL\n0025 ADD\n0026 CALL 1\n0028 POP\n0029 LOAD_GLOBAL 0\n0032 CONST 3\n0035 LOAD_LOCAL 20\n0038 LOAD_LOCAL 21\n0041 NOT_EQUAL\n0042 ADD\n0043 CALL 1\n0045 POP\n0046 LOAD_GLOBAL 0\n0049 CONST 4\n0052 LOAD_LOCAL 20\n0055 LOAD_LOCAL 21\n0058 LESS\n0059 ADD\n0060 CALL 1\n0062 POP\n0063 LOAD_GLOBAL 0\n0066 CONST 5\n0069 LOAD_LOCAL 20\n0072 LOAD_LOCAL 21\n0075 GREATER\n0076 ADD\n0077 CALL 1\n0079 POP\n0080 LOAD_GLOBAL 0\n0083 CONST 6\n0086 LOAD_LOCAL 20\n0089 LOAD_LOCAL 21\n0092 LESS_EQUAL\n0093 ADD\n0094 CALL 1\n0096 POP\n0097 LOAD_GLOBAL 0\n0100 CONST 7\n0103 LOAD_LOCAL 20\n0106 LOAD_LOCAL 21\n0109 GREATER_EQUAL\n0110 ADD\n0111 CALL 1\n0113 POP\n0114 RETURN\n=== END DISASSEMBLY ===\nx == y: falsex != y: truex < y: truex > y: falsex <= y: truex >= y: false",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: x == y: false\nDEBUG: print fonksiyonu çağrıldı, argüman: x != y: true\nDEBUG: print fonksiyonu çağrıldı, argüman: x < y: true\nDEBUG: print fonksiyonu çağrıldı, argüman: x > y: false\nDEBUG: print fonksiyonu çağrıldı, argüman: x <= y: true\nDEBUG: print fonksiyonu çağrıldı, argüman: x >= y: false",
+      "output": "x == y: falsex != y: truex < y: truex > y: falsex <= y: truex >= y: false",
+      "error": "",
       "code": "int x = 5\nint y = 10\nprint(\"x == y: \" + (x == y))\nprint(\"x != y: \" + (x != y))\nprint(\"x < y: \" + (x < y))\nprint(\"x > y: \" + (x > y))\nprint(\"x <= y: \" + (x <= y))\nprint(\"x >= y: \" + (x >= y))"
     },
     "Mantıksal operatörler": {
       "success": true,
-      "output": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: And, precedence: 2\nDEBUG: get_precedence - peek: And, precedence: 2\nDEBUG: parse_precedence - precedence: 0, peek: And, get_precedence: 2\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Or, precedence: 1\nDEBUG: get_precedence - peek: Or, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Or, get_precedence: 1\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Bool(true)\n  [1] Bool(false)\n  [2] String(\"a and b: \")\n  [3] String(\"a or b: \")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 STORE_LOCAL 21\n0012 LOAD_GLOBAL 0\n0015 CONST 2\n0018 LOAD_LOCAL 20\n0021 LOAD_LOCAL 21\n0024 AND\n0025 ADD\n0026 CALL 1\n0028 POP\n0029 LOAD_GLOBAL 0\n0032 CONST 3\n0035 LOAD_LOCAL 20\n0038 LOAD_LOCAL 21\n0041 OR\n0042 ADD\n0043 CALL 1\n0045 POP\n0046 RETURN\n=== END DISASSEMBLY ===\na and b: falsea or b: true",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: a and b: false\nDEBUG: print fonksiyonu çağrıldı, argüman: a or b: true",
+      "output": "a and b: falsea or b: true",
+      "error": "",
       "code": "bool a = true\nbool b = false\nprint(\"a and b: \" + (a and b))\nprint(\"a or b: \" + (a or b))"
     },
     "Basit fonksiyon - parametresiz": {
-      "success": true,
-      "output": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n\nCode:\n0000 MAKE_FUNCTION 0 0\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 0\n0010 LOAD_GLOBAL 20\n0013 CALL 0\n0015 CALL 1\n0017 POP\n0018 RETURN\n=== END DISASSEMBLY ===\nMerhaba Sky",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: Merhaba Sky",
+      "success": false,
+      "output": "error[E0101]: Inconsistent indentation - expected 2-space increments",
+      "error": "",
       "code": "function selam()\n    return \"Merhaba Sky\"\n\nprint(selam())"
     },
     "Parametreli fonksiyon": {
-      "success": true,
-      "output": "DEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Comma, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"Toplam: \")\n  [1] Int(5)\n  [2] Int(3)\n\nCode:\n0000 MAKE_FUNCTION 0 2\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 0\n0010 CONST 0\n0013 LOAD_GLOBAL 20\n0016 CONST 1\n0019 CONST 2\n0022 CALL 2\n0024 ADD\n0025 CALL 1\n0027 POP\n0028 RETURN\n=== END DISASSEMBLY ===\nToplam: 8",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: Toplam: 8",
+      "success": false,
+      "output": "error[E0101]: Inconsistent indentation - expected 2-space increments",
+      "error": "",
       "code": "function topla(a: int, b: int)\n    return a + b\n\nprint(\"Toplam: \" + topla(5, 3))"
     },
     "Recursive fonksiyon - faktöriyel": {
-      "success": true,
-      "output": "DEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: parse_precedence - precedence: 0, peek: LessEqual, get_precedence: 4\nDEBUG: get_precedence - peek: Colon, precedence: 0\nDEBUG: get_precedence - peek: Colon, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Star, precedence: 6\nDEBUG: get_precedence - peek: Star, precedence: 6\nDEBUG: parse_precedence - precedence: 0, peek: Star, get_precedence: 6\nDEBUG: get_precedence - peek: Minus, precedence: 5\nDEBUG: get_precedence - peek: Minus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Minus, get_precedence: 5\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"5! = \")\n  [1] Int(5)\n\nCode:\n0000 MAKE_FUNCTION 0 1\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 0\n0010 CONST 0\n0013 LOAD_GLOBAL 20\n0016 CONST 1\n0019 CALL 1\n0021 ADD\n0022 CALL 1\n0024 POP\n0025 RETURN\n=== END DISASSEMBLY ===\n5! = 120",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: 5! = 120",
+      "success": false,
+      "output": "error[E0101]: Inconsistent indentation - expected 2-space increments",
+      "error": "",
       "code": "function faktoriyel(n: int)\n    if n <= 1:\n        return 1\n    else:\n        return n * faktoriyel(n - 1)\n\nprint(\"5! = \" + faktoriyel(5))"
     },
     "String parametreli fonksiyon": {
-      "success": true,
-      "output": "DEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"sky\")\n\nCode:\n0000 MAKE_FUNCTION 0 1\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 0\n0010 LOAD_GLOBAL 20\n0013 CONST 0\n0016 CALL 1\n0018 CALL 1\n0020 POP\n0021 RETURN\n=== END DISASSEMBLY ===\nBÜYÜK: sky",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: BÜYÜK: sky",
+      "success": false,
+      "output": "error[E0101]: Inconsistent indentation - expected 2-space increments",
+      "error": "",
       "code": "function büyük_harf(s: string)\n    return \"BÜYÜK: \" + s\n\nprint(büyük_harf(\"sky\"))"
     },
     "If-else statement": {
-      "success": true,
-      "output": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Greater, precedence: 4\nDEBUG: get_precedence - peek: Greater, precedence: 4\nDEBUG: parse_precedence - precedence: 0, peek: Greater, get_precedence: 4\nDEBUG: get_precedence - peek: Colon, precedence: 0\nDEBUG: get_precedence - peek: Colon, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Dedent, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(10)\n  [1] Int(5)\n  [2] String(\"x 5'ten büyük\")\n  [3] String(\"x 5'ten küçük veya eşit\")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_LOCAL 20\n0009 CONST 1\n0012 GREATER\n0013 JUMP_IF_FALSE 28\n0016 LOAD_GLOBAL 0\n0019 CONST 2\n0022 CALL 1\n0024 POP\n0025 JUMP 37\n0028 LOAD_GLOBAL 0\n0031 CONST 3\n0034 CALL 1\n0036 POP\n0037 RETURN\n=== END DISASSEMBLY ===\nx 5'ten büyük",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: x 5'ten büyük",
+      "success": false,
+      "output": "error[E0101]: Inconsistent indentation - expected 2-space increments",
+      "error": "",
       "code": "int x = 10\nif x > 5:\n    print(\"x 5'ten büyük\")\nelse:\n    print(\"x 5'ten küçük veya eşit\")"
     },
     "If-elif-else zinciri": {
-      "success": true,
-      "output": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: GreaterEqual, precedence: 4\nDEBUG: get_precedence - peek: GreaterEqual, precedence: 4\nDEBUG: parse_precedence - precedence: 0, peek: GreaterEqual, get_precedence: 4\nDEBUG: get_precedence - peek: Colon, precedence: 0\nDEBUG: get_precedence - peek: Colon, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: GreaterEqual, precedence: 4\nDEBUG: get_precedence - peek: GreaterEqual, precedence: 4\nDEBUG: parse_precedence - precedence: 0, peek: GreaterEqual, get_precedence: 4\nDEBUG: get_precedence - peek: Colon, precedence: 0\nDEBUG: get_precedence - peek: Colon, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: GreaterEqual, precedence: 4\nDEBUG: get_precedence - peek: GreaterEqual, precedence: 4\nDEBUG: parse_precedence - precedence: 0, peek: GreaterEqual, get_precedence: 4\nDEBUG: get_precedence - peek: Colon, precedence: 0\nDEBUG: get_precedence - peek: Colon, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Dedent, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(85)\n  [1] Int(90)\n  [2] String(\"A\")\n  [3] Int(80)\n  [4] String(\"B\")\n  [5] Int(70)\n  [6] String(\"C\")\n  [7] String(\"F\")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_LOCAL 20\n0009 CONST 1\n0012 GREATER_EQUAL\n0013 JUMP_IF_FALSE 28\n0016 LOAD_GLOBAL 0\n0019 CONST 2\n0022 CALL 1\n0024 POP\n0025 JUMP 50\n0028 LOAD_LOCAL 20\n0031 CONST 3\n0034 GREATER_EQUAL\n0035 JUMP_IF_FALSE 50\n0038 LOAD_GLOBAL 0\n0041 CONST 4\n0044 CALL 1\n0046 POP\n0047 JUMP 72\n0050 LOAD_LOCAL 20\n0053 CONST 5\n0056 GREATER_EQUAL\n0057 JUMP_IF_FALSE 72\n0060 LOAD_GLOBAL 0\n0063 CONST 6\n0066 CALL 1\n0068 POP\n0069 JUMP 81\n0072 LOAD_GLOBAL 0\n0075 CONST 7\n0078 CALL 1\n0080 POP\n0081 RETURN\n=== END DISASSEMBLY ===\nB",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: B",
+      "success": false,
+      "output": "error[E0101]: Inconsistent indentation - expected 2-space increments",
+      "error": "",
       "code": "int puan = 85\nif puan >= 90:\n    print(\"A\")\nelif puan >= 80:\n    print(\"B\")\nelif puan >= 70:\n    print(\"C\")\nelse:\n    print(\"F\")"
     },
     "While döngüsü": {
-      "success": true,
-      "output": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: parse_precedence - precedence: 0, peek: LessEqual, get_precedence: 4\nDEBUG: get_precedence - peek: Colon, precedence: 0\nDEBUG: get_precedence - peek: Colon, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Dedent, precedence: 0\nDEBUG: get_precedence - peek: Dedent, precedence: 0\nDEBUG: get_precedence - peek: Dedent, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(1)\n  [1] Int(3)\n  [2] String(\"Sayaç: \")\n  [3] Int(1)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_LOCAL 20\n0009 CONST 1\n0012 LESS_EQUAL\n0013 JUMP_IF_FALSE 44\n0016 LOAD_GLOBAL 0\n0019 CONST 2\n0022 LOAD_LOCAL 20\n0025 ADD\n0026 CALL 1\n0028 POP\n0029 LOAD_LOCAL 20\n0032 CONST 3\n0035 ADD\n0036 UNKNOWN(57)\n0037 STORE_LOCAL 20\n0040 POP\n0041 JUMP 6\n0044 RETURN\n=== END DISASSEMBLY ===\nSayaç: 1",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: Sayaç: 1",
+      "success": false,
+      "output": "error[E0101]: Inconsistent indentation - expected 2-space increments",
+      "error": "",
       "code": "int sayac = 1\nwhile sayac <= 3:\n    print(\"Sayaç: \" + sayac)\n    sayac = sayac + 1"
     },
     "For döngüsü - liste": {
-      "success": true,
-      "output": "DEBUG: get_precedence - peek: Comma, precedence: 0\nDEBUG: get_precedence - peek: Comma, precedence: 0\nDEBUG: get_precedence - peek: RightBracket, precedence: 0\nDEBUG: get_precedence - peek: Colon, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Dedent, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] List([Int(1), Int(2), Int(3)])\n  [1] String(\"For döngüsü: \")\n\nCode:\n0000 CONST 0\n0003 UNKNOWN(B0)\n0004 UNKNOWN(B1)\n0005 UNKNOWN(B2)\n0006 JUMP_IF_FALSE 28\n0009 STORE_LOCAL 20\n0012 LOAD_GLOBAL 0\n0015 CONST 1\n0018 LOAD_LOCAL 20\n0021 ADD\n0022 CALL 1\n0024 POP\n0025 JUMP 4\n0028 RETURN\n=== END DISASSEMBLY ===\nFor döngüsü: 1",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: For döngüsü: 1",
+      "success": false,
+      "output": "error[E0101]: Inconsistent indentation - expected 2-space increments",
+      "error": "",
       "code": "for i: var in [1, 2, 3]:\n    print(\"For döngüsü: \" + i)"
     },
     "İç içe for döngüleri": {
-      "success": true,
-      "output": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Comma, precedence: 0\nDEBUG: get_precedence - peek: RightBracket, precedence: 0\nDEBUG: get_precedence - peek: Colon, precedence: 0\nDEBUG: get_precedence - peek: Comma, precedence: 0\nDEBUG: get_precedence - peek: RightBracket, precedence: 0\nDEBUG: get_precedence - peek: Colon, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(0)\n  [1] List([Int(1), Int(2)])\n  [2] List([Int(3), Int(4)])\n  [3] String(\"Toplam: \")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 UNKNOWN(B0)\n0010 UNKNOWN(B1)\n0011 UNKNOWN(B2)\n0012 JUMP_IF_FALSE 52\n0015 STORE_LOCAL 21\n0018 CONST 2\n0021 UNKNOWN(B0)\n0022 UNKNOWN(B1)\n0023 UNKNOWN(B2)\n0024 JUMP_IF_FALSE 49\n0027 STORE_LOCAL 22\n0030 LOAD_LOCAL 20\n0033 LOAD_LOCAL 21\n0036 ADD\n0037 LOAD_LOCAL 22\n0040 ADD\n0041 UNKNOWN(57)\n0042 STORE_LOCAL 20\n0045 POP\n0046 JUMP 22\n0049 JUMP 10\n0052 LOAD_GLOBAL 0\n0055 CONST 3\n0058 LOAD_LOCAL 20\n0061 ADD\n0062 CALL 1\n0064 POP\n0065 RETURN\n=== END DISASSEMBLY ===",
+      "success": false,
+      "output": "error[E0101]: Inconsistent indentation - expected 2-space increments",
       "error": "",
       "code": "int toplam = 0\nfor i: var in [1, 2]:\n    for j: var in [3, 4]:\n        toplam = toplam + i + j\nprint(\"Toplam: \" + toplam)"
     },
     "Türkçe karakterli değişkenler": {
       "success": true,
-      "output": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n  [1] String(\"test\")\n  [2] Bool(true)\n  [3] String(\"Çorba: \")\n  [4] String(\"Öğe: \")\n  [5] String(\"Şeker: \")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 STORE_LOCAL 21\n0012 CONST 2\n0015 STORE_LOCAL 22\n0018 LOAD_GLOBAL 0\n0021 CONST 3\n0024 LOAD_LOCAL 20\n0027 ADD\n0028 CALL 1\n0030 POP\n0031 LOAD_GLOBAL 0\n0034 CONST 4\n0037 LOAD_LOCAL 21\n0040 ADD\n0041 CALL 1\n0043 POP\n0044 LOAD_GLOBAL 0\n0047 CONST 5\n0050 LOAD_LOCAL 22\n0053 ADD\n0054 CALL 1\n0056 POP\n0057 RETURN\n=== END DISASSEMBLY ===\nÇorba: 42Öğe: testŞeker: true",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: Çorba: 42\nDEBUG: print fonksiyonu çağrıldı, argüman: Öğe: test\nDEBUG: print fonksiyonu çağrıldı, argüman: Şeker: true",
+      "output": "Çorba: 42Öğe: testŞeker: true",
+      "error": "",
       "code": "int çorba = 42\nstring öğe = \"test\"\nbool şeker = true\nprint(\"Çorba: \" + çorba)\nprint(\"Öğe: \" + öğe)\nprint(\"Şeker: \" + şeker)"
     },
     "Türkçe karakterli fonksiyon": {
-      "success": true,
-      "output": "DEBUG: get_precedence - peek: Star, precedence: 6\nDEBUG: get_precedence - peek: Star, precedence: 6\nDEBUG: parse_precedence - precedence: 0, peek: Star, get_precedence: 6\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"Çorba fiyatı: \")\n  [1] Int(10)\n\nCode:\n0000 MAKE_FUNCTION 0 1\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 0\n0010 CONST 0\n0013 LOAD_GLOBAL 20\n0016 CONST 1\n0019 CALL 1\n0021 ADD\n0022 CALL 1\n0024 POP\n0025 RETURN\n=== END DISASSEMBLY ===\nÇorba fiyatı: 20",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: Çorba fiyatı: 20",
+      "success": false,
+      "output": "error[E0101]: Inconsistent indentation - expected 2-space increments",
+      "error": "",
       "code": "function hesapla_çorba(fiyat: int)\n    return fiyat * 2\n\nprint(\"Çorba fiyatı: \" + hesapla_çorba(10))"
     },
     "List - indeksleme": {
-      "success": true,
-      "output": "DEBUG: get_precedence - peek: Comma, precedence: 0\nDEBUG: get_precedence - peek: Comma, precedence: 0\nDEBUG: get_precedence - peek: Comma, precedence: 0\nDEBUG: get_precedence - peek: Comma, precedence: 0\nDEBUG: get_precedence - peek: RightBracket, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: LeftBracket, precedence: 0\nDEBUG: get_precedence - peek: LeftBracket, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: LeftBracket, precedence: 0\nDEBUG: get_precedence - peek: LeftBracket, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] List([Int(1), Int(2), Int(3), Int(4), Int(5)])\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 RETURN\n=== END DISASSEMBLY ===",
+      "success": false,
+      "output": "error[E0000]: Expected ')' after arguments",
       "error": "",
       "code": "list sayılar = [1, 2, 3, 4, 5]\nprint(\"İlk sayı: \" + sayılar[0])\nprint(\"Son sayı: \" + sayılar[4])"
     },
     "Map - anahtar-değer": {
-      "success": true,
-      "output": "DEBUG: get_precedence - peek: Comma, precedence: 0\nDEBUG: get_precedence - peek: RightBrace, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: LeftBracket, precedence: 0\nDEBUG: get_precedence - peek: LeftBracket, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: LeftBracket, precedence: 0\nDEBUG: get_precedence - peek: LeftBracket, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Map([(\"\\\"ad\\\"\", String(\"Sky\")), (\"\\\"yaş\\\"\", Int(1))])\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 RETURN\n=== END DISASSEMBLY ===",
+      "success": false,
+      "output": "error[E0000]: Expected ')' after arguments",
       "error": "",
       "code": "map sözlük = {\"ad\": \"Sky\", \"yaş\": 1}\nprint(\"Ad: \" + sözlük[\"ad\"])\nprint(\"Yaş: \" + sözlük[\"yaş\"])"
     },
     "String concatenation": {
       "success": true,
-      "output": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"Sky\")\n  [1] String(\"Dili\")\n  [2] String(\"Tam ad: \")\n  [3] String(\" \")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 STORE_LOCAL 21\n0012 LOAD_GLOBAL 0\n0015 CONST 2\n0018 LOAD_LOCAL 20\n0021 ADD\n0022 CONST 3\n0025 ADD\n0026 LOAD_LOCAL 21\n0029 ADD\n0030 CALL 1\n0032 POP\n0033 RETURN\n=== END DISASSEMBLY ===\nTam ad: Sky Dili",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: Tam ad: Sky Dili",
+      "output": "Tam ad: Sky Dili",
+      "error": "",
       "code": "string ad = \"Sky\"\nstring soyad = \"Dili\"\nprint(\"Tam ad: \" + ad + \" \" + soyad)"
     },
     "Dart tarzı - $ident": {
       "success": true,
-      "output": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"Sky\")\n  [1] String(\"Merhaba $ad\")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_GLOBAL 0\n0009 CONST 1\n0012 CALL 1\n0014 POP\n0015 RETURN\n=== END DISASSEMBLY ===\nMerhaba $ad",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: Merhaba $ad",
+      "output": "Merhaba $ad",
+      "error": "",
       "code": "string ad = \"Sky\"\nprint(\"Merhaba $ad\")"
     },
     "Dart tarzı - ${expr}": {
       "success": true,
-      "output": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(5)\n  [1] String(\"Sonuç: ${x + 3}\")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_GLOBAL 0\n0009 CONST 1\n0012 CALL 1\n0014 POP\n0015 RETURN\n=== END DISASSEMBLY ===\nSonuç: ${x + 3}",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: Sonuç: ${x + 3}",
+      "output": "Sonuç: ${x + 3}",
+      "error": "",
       "code": "int x = 5\nprint(\"Sonuç: ${x + 3}\")"
     },
     "Karmaşık Dart interpolation": {
       "success": true,
-      "output": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"Sky\")\n  [1] Int(2024)\n  [2] String(\"Merhaba $isim, ${yıl + 1} yılına hazır mısın?\")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 STORE_LOCAL 21\n0012 LOAD_GLOBAL 0\n0015 CONST 2\n0018 CALL 1\n0020 POP\n0021 RETURN\n=== END DISASSEMBLY ===\nMerhaba $isim, ${yıl + 1} yılına hazır mısın?",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: Merhaba $isim, ${yıl + 1} yılına hazır mısın?",
+      "output": "Merhaba $isim, ${yıl + 1} yılına hazır mısın?",
+      "error": "",
       "code": "string isim = \"Sky\"\nint yıl = 2024\nprint(\"Merhaba $isim, ${yıl + 1} yılına hazır mısın?\")"
     },
     "Python f-string tarzı": {
-      "success": true,
-      "output": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: String, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(10)\n  [1] Int(5)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 STORE_LOCAL 21\n0012 RETURN\n=== END DISASSEMBLY ===",
+      "success": false,
+      "output": "error[E0000]: Expected ')' after arguments",
       "error": "",
       "code": "int a = 10\nint b = 5\nprint(f\"Toplam {a + b} TL\")"
     },
     "F-string süslü parantez kaçışı": {
-      "success": true,
-      "output": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: String, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(1)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 RETURN\n=== END DISASSEMBLY ===",
+      "success": false,
+      "output": "error[E0000]: Expected ')' after arguments",
       "error": "",
       "code": "int x = 1\nprint(f\"{{literal}} {x}\")"
     },
     "İç içe expression'lar": {
       "success": true,
-      "output": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"Sky\")\n  [1] Int(3)\n  [2] String(\"${ad} uzunluğu ${uzunluk} harf\")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 STORE_LOCAL 21\n0012 LOAD_GLOBAL 0\n0015 CONST 2\n0018 CALL 1\n0020 POP\n0021 RETURN\n=== END DISASSEMBLY ===\n${ad} uzunluğu ${uzunluk} harf",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: ${ad} uzunluğu ${uzunluk} harf",
+      "output": "${ad} uzunluğu ${uzunluk} harf",
+      "error": "",
       "code": "string ad = \"Sky\"\nint uzunluk = 3\nprint(\"${ad} uzunluğu ${uzunluk} harf\")"
     },
     "Farklı tip interpolation": {
       "success": true,
-      "output": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n  [1] Bool(true)\n  [2] String(\"test\")\n  [3] String(\"Sayı: $sayı, Doğru: $doğru, Metin: $metin\")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 CONST 1\n0009 STORE_LOCAL 21\n0012 CONST 2\n0015 STORE_LOCAL 22\n0018 LOAD_GLOBAL 0\n0021 CONST 3\n0024 CALL 1\n0026 POP\n0027 RETURN\n=== END DISASSEMBLY ===\nSayı: $sayı, Doğru: $doğru, Metin: $metin",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: Sayı: $sayı, Doğru: $doğru, Metin: $metin",
+      "output": "Sayı: $sayı, Doğru: $doğru, Metin: $metin",
+      "error": "",
       "code": "int sayı = 42\nbool doğru = true\nstring metin = \"test\"\nprint(\"Sayı: $sayı, Doğru: $doğru, Metin: $metin\")"
     },
     "Async fonksiyon tanımlama": {
       "success": true,
-      "output": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"Async fonksiyon tanımlandı\")\n\nCode:\n0000 MAKE_FUNCTION 0 0\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 0\n0010 CONST 0\n0013 CALL 1\n0015 POP\n0016 RETURN\n=== END DISASSEMBLY ===\nAsync fonksiyon tanımlandı",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: Async fonksiyon tanımlandı",
+      "output": "Async fonksiyon tanımlandı",
+      "error": "",
       "code": "async function test()\n  return \"async test\"\nprint(\"Async fonksiyon tanımlandı\")"
     },
     "Await kullanımı (async içinde)": {
       "success": true,
-      "output": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"Await testi\")\n\nCode:\n0000 MAKE_FUNCTION 0 0\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 0\n0010 CONST 0\n0013 CALL 1\n0015 POP\n0016 RETURN\n=== END DISASSEMBLY ===\nAwait testi",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: Await testi",
+      "output": "Await testi",
+      "error": "",
       "code": "async function beklet()\n  return \"beklendi\"\nprint(\"Await testi\")"
     },
     "Sleep fonksiyonu": {
       "success": true,
-      "output": "DEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"Sleep testi başlıyor\")\n  [1] String(\"Sleep testi bitti\")\n\nCode:\n0000 LOAD_GLOBAL 0\n0003 CONST 0\n0006 CALL 1\n0008 POP\n0009 LOAD_GLOBAL 0\n0012 CONST 1\n0015 CALL 1\n0017 POP\n0018 RETURN\n=== END DISASSEMBLY ===\nSleep testi başlıyorSleep testi bitti",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: Sleep testi başlıyor\nDEBUG: print fonksiyonu çağrıldı, argüman: Sleep testi bitti",
+      "output": "Sleep testi başlıyorSleep testi bitti",
+      "error": "",
       "code": "print(\"Sleep testi başlıyor\")\nprint(\"Sleep testi bitti\")"
     },
     "HTTP get mock": {
       "success": true,
-      "output": "DEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"HTTP test mock\")\n\nCode:\n0000 LOAD_GLOBAL 0\n0003 CONST 0\n0006 CALL 1\n0008 POP\n0009 RETURN\n=== END DISASSEMBLY ===\nHTTP test mock",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: HTTP test mock",
+      "output": "HTTP test mock",
+      "error": "",
       "code": "print(\"HTTP test mock\")"
     },
     "Async zincirleme": {
       "success": true,
-      "output": "DEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"Async zincir testi\")\n\nCode:\n0000 LOAD_GLOBAL 0\n0003 CONST 0\n0006 CALL 1\n0008 POP\n0009 RETURN\n=== END DISASSEMBLY ===\nAsync zincir testi",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: Async zincir testi",
+      "output": "Async zincir testi",
+      "error": "",
       "code": "print(\"Async zincir testi\")"
     },
     "Coop fonksiyon tanımlama": {
       "success": true,
-      "output": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"Coop fonksiyon tanımlandı\")\n\nCode:\n0000 MAKE_COOP_FUNCTION 0 0\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 0\n0010 CONST 0\n0013 CALL 1\n0015 POP\n0016 RETURN\n=== END DISASSEMBLY ===\nCoop fonksiyon tanımlandı",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: Coop fonksiyon tanımlandı",
+      "output": "Coop fonksiyon tanımlandı",
+      "error": "",
       "code": "coop function test()\n  yield \"test\"\n  return \"bitti\"\nprint(\"Coop fonksiyon tanımlandı\")"
     },
     "Coroutine oluşturma ve resume": {
       "success": true,
-      "output": "DEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"Coroutine testi\")\n\nCode:\n0000 LOAD_GLOBAL 0\n0003 CONST 0\n0006 CALL 1\n0008 POP\n0009 RETURN\n=== END DISASSEMBLY ===\nCoroutine testi",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: Coroutine testi",
+      "output": "Coroutine testi",
+      "error": "",
       "code": "print(\"Coroutine testi\")"
     },
     "Coroutine done kontrolü": {
       "success": true,
-      "output": "DEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"Done kontrolü testi\")\n\nCode:\n0000 LOAD_GLOBAL 0\n0003 CONST 0\n0006 CALL 1\n0008 POP\n0009 RETURN\n=== END DISASSEMBLY ===\nDone kontrolü testi",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: Done kontrolü testi",
+      "output": "Done kontrolü testi",
+      "error": "",
       "code": "print(\"Done kontrolü testi\")"
     },
     "Python import": {
       "success": true,
-      "output": "DEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"Python bridge testi\")\n\nCode:\n0000 LOAD_GLOBAL 0\n0003 CONST 0\n0006 CALL 1\n0008 POP\n0009 RETURN\n=== END DISASSEMBLY ===\nPython bridge testi",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: Python bridge testi",
+      "output": "Python bridge testi",
+      "error": "",
       "code": "print(\"Python bridge testi\")"
     },
     "Python fonksiyon çağrısı": {
       "success": true,
-      "output": "DEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"Python fonksiyon testi\")\n\nCode:\n0000 LOAD_GLOBAL 0\n0003 CONST 0\n0006 CALL 1\n0008 POP\n0009 RETURN\n=== END DISASSEMBLY ===\nPython fonksiyon testi",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: Python fonksiyon testi",
+      "output": "Python fonksiyon testi",
+      "error": "",
       "code": "print(\"Python fonksiyon testi\")"
     },
     "JS eval": {
       "success": true,
-      "output": "DEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"JavaScript bridge testi\")\n\nCode:\n0000 LOAD_GLOBAL 0\n0003 CONST 0\n0006 CALL 1\n0008 POP\n0009 RETURN\n=== END DISASSEMBLY ===\nJavaScript bridge testi",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: JavaScript bridge testi",
+      "output": "JavaScript bridge testi",
+      "error": "",
       "code": "print(\"JavaScript bridge testi\")"
     },
     "JS fonksiyon çağrısı": {
       "success": true,
-      "output": "DEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"JavaScript fonksiyon testi\")\n\nCode:\n0000 LOAD_GLOBAL 0\n0003 CONST 0\n0006 CALL 1\n0008 POP\n0009 RETURN\n=== END DISASSEMBLY ===\nJavaScript fonksiyon testi",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: JavaScript fonksiyon testi",
+      "output": "JavaScript fonksiyon testi",
+      "error": "",
       "code": "print(\"JavaScript fonksiyon testi\")"
     },
     "Math import": {
       "success": true,
-      "output": "DEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"Import testi\")\n\nCode:\n0000 LOAD_GLOBAL 0\n0003 CONST 0\n0006 CALL 1\n0008 POP\n0009 RETURN\n=== END DISASSEMBLY ===\nImport testi",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: Import testi",
+      "output": "Import testi",
+      "error": "",
       "code": "print(\"Import testi\")"
     },
     "HTTP import": {
       "success": true,
-      "output": "DEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"HTTP import testi\")\n\nCode:\n0000 LOAD_GLOBAL 0\n0003 CONST 0\n0006 CALL 1\n0008 POP\n0009 RETURN\n=== END DISASSEMBLY ===\nHTTP import testi",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: HTTP import testi",
+      "output": "HTTP import testi",
+      "error": "",
       "code": "print(\"HTTP import testi\")"
     },
     "E0001 - Tip eksik": {
-      "success": true,
-      "output": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(5)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_GLOBAL 0\n0009 LOAD_LOCAL 20\n0012 CALL 1\n0014 POP\n0015 RETURN\n=== END DISASSEMBLY ===\n5",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: 5",
+      "success": false,
+      "output": "error[E0000]: Expected expression",
+      "error": "",
       "code": "# Bu test hata vermeli: x = 3\nint y = 5\nprint(y)"
     },
     "E1001 - Tip uyumsuzluğu": {
-      "success": true,
-      "output": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(42)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_GLOBAL 0\n0009 LOAD_LOCAL 20\n0012 CALL 1\n0014 POP\n0015 RETURN\n=== END DISASSEMBLY ===\n42",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: 42",
+      "success": false,
+      "output": "error[E0000]: Expected expression",
+      "error": "",
       "code": "# Bu test hata vermeli: int s = \"aa\"\nint y = 42\nprint(y)"
     },
     "E2001 - Coroutine finished": {
       "success": true,
-      "output": "DEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"Coroutine hata testi\")\n\nCode:\n0000 LOAD_GLOBAL 0\n0003 CONST 0\n0006 CALL 1\n0008 POP\n0009 RETURN\n=== END DISASSEMBLY ===\nCoroutine hata testi",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: Coroutine hata testi",
+      "output": "Coroutine hata testi",
+      "error": "",
       "code": "print(\"Coroutine hata testi\")"
     },
     "Tab yasağı": {
       "success": true,
-      "output": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(5)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_GLOBAL 0\n0009 LOAD_LOCAL 20\n0012 CALL 1\n0014 POP\n0015 RETURN\n=== END DISASSEMBLY ===\n5",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: 5",
+      "output": "5",
+      "error": "",
       "code": "int x = 5\nprint(x)"
     },
     "Girinti kontrolü": {
       "success": true,
-      "output": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"Girinti testi\")\n\nCode:\n0000 MAKE_FUNCTION 0 0\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 0\n0010 CONST 0\n0013 CALL 1\n0015 POP\n0016 RETURN\n=== END DISASSEMBLY ===\nGirinti testi",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: Girinti testi",
+      "output": "Girinti testi",
+      "error": "",
       "code": "function test()\n  int x = 10\n  return x\nprint(\"Girinti testi\")"
     },
     "F-string kaçış kuralları": {
       "success": true,
-      "output": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(1)\n  [1] String(\"F-string kaçış testi\")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_GLOBAL 0\n0009 CONST 1\n0012 CALL 1\n0014 POP\n0015 RETURN\n=== END DISASSEMBLY ===\nF-string kaçış testi",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: F-string kaçış testi",
+      "output": "F-string kaçış testi",
+      "error": "",
       "code": "int x = 1\nprint(\"F-string kaçış testi\")"
     },
     "Nested interpolation yasağı": {
       "success": true,
-      "output": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(2)\n  [1] String(\"Nested testi\")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_GLOBAL 0\n0009 CONST 1\n0012 CALL 1\n0014 POP\n0015 RETURN\n=== END DISASSEMBLY ===\nNested testi",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: Nested testi",
+      "output": "Nested testi",
+      "error": "",
       "code": "int x = 2\nprint(\"Nested testi\")"
     },
     "Unterminated interpolation": {
       "success": true,
-      "output": "DEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"Unterminated testi\")\n\nCode:\n0000 LOAD_GLOBAL 0\n0003 CONST 0\n0006 CALL 1\n0008 POP\n0009 RETURN\n=== END DISASSEMBLY ===\nUnterminated testi",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: Unterminated testi",
+      "output": "Unterminated testi",
+      "error": "",
       "code": "print(\"Unterminated testi\")"
     },
     "Stringify kuralları": {
       "success": true,
-      "output": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Bool(true)\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_GLOBAL 0\n0009 LOAD_LOCAL 20\n0012 CALL 1\n0014 POP\n0015 RETURN\n=== END DISASSEMBLY ===\ntrue",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: true",
+      "output": "true",
+      "error": "",
       "code": "bool b = true\nprint(b)"
     },
     "Hesap makinesi - if-elif-else": {
-      "success": true,
-      "output": "DEBUG: get_precedence - peek: EqualEqual, precedence: 3\nDEBUG: get_precedence - peek: EqualEqual, precedence: 3\nDEBUG: parse_precedence - precedence: 0, peek: EqualEqual, get_precedence: 3\nDEBUG: get_precedence - peek: Colon, precedence: 0\nDEBUG: get_precedence - peek: Colon, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: EqualEqual, precedence: 3\nDEBUG: get_precedence - peek: EqualEqual, precedence: 3\nDEBUG: parse_precedence - precedence: 0, peek: EqualEqual, get_precedence: 3\nDEBUG: get_precedence - peek: Colon, precedence: 0\nDEBUG: get_precedence - peek: Colon, precedence: 0\nDEBUG: get_precedence - peek: Minus, precedence: 5\nDEBUG: get_precedence - peek: Minus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Minus, get_precedence: 5\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: EqualEqual, precedence: 3\nDEBUG: get_precedence - peek: EqualEqual, precedence: 3\nDEBUG: parse_precedence - precedence: 0, peek: EqualEqual, get_precedence: 3\nDEBUG: get_precedence - peek: Colon, precedence: 0\nDEBUG: get_precedence - peek: Colon, precedence: 0\nDEBUG: get_precedence - peek: Star, precedence: 6\nDEBUG: get_precedence - peek: Star, precedence: 6\nDEBUG: parse_precedence - precedence: 0, peek: Star, get_precedence: 6\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: EqualEqual, precedence: 3\nDEBUG: get_precedence - peek: EqualEqual, precedence: 3\nDEBUG: parse_precedence - precedence: 0, peek: EqualEqual, get_precedence: 3\nDEBUG: get_precedence - peek: Colon, precedence: 0\nDEBUG: get_precedence - peek: Colon, precedence: 0\nDEBUG: get_precedence - peek: Slash, precedence: 6\nDEBUG: get_precedence - peek: Slash, precedence: 6\nDEBUG: parse_precedence - precedence: 0, peek: Slash, get_precedence: 6\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Comma, precedence: 0\nDEBUG: get_precedence - peek: Comma, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Comma, precedence: 0\nDEBUG: get_precedence - peek: Comma, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Comma, precedence: 0\nDEBUG: get_precedence - peek: Comma, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Comma, precedence: 0\nDEBUG: get_precedence - peek: Comma, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"10 + 5 = \")\n  [1] Int(10)\n  [2] Int(5)\n  [3] String(\"+\")\n  [4] String(\"10 - 5 = \")\n  [5] Int(10)\n  [6] Int(5)\n  [7] String(\"-\")\n  [8] String(\"10 * 5 = \")\n  [9] Int(10)\n  [10] Int(5)\n  [11] String(\"*\")\n  [12] String(\"10 / 5 = \")\n  [13] Int(10)\n  [14] Int(5)\n  [15] String(\"/\")\n\nCode:\n0000 MAKE_FUNCTION 0 3\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 0\n0010 CONST 0\n0013 LOAD_GLOBAL 20\n0016 CONST 1\n0019 CONST 2\n0022 CONST 3\n0025 CALL 3\n0027 ADD\n0028 CALL 1\n0030 POP\n0031 LOAD_GLOBAL 0\n0034 CONST 4\n0037 LOAD_GLOBAL 20\n0040 CONST 5\n0043 CONST 6\n0046 CONST 7\n0049 CALL 3\n0051 ADD\n0052 CALL 1\n0054 POP\n0055 LOAD_GLOBAL 0\n0058 CONST 8\n0061 LOAD_GLOBAL 20\n0064 CONST 9\n0067 CONST 10\n0070 CONST 11\n0073 CALL 3\n0075 ADD\n0076 CALL 1\n0078 POP\n0079 LOAD_GLOBAL 0\n0082 CONST 12\n0085 LOAD_GLOBAL 20\n0088 CONST 13\n0091 CONST 14\n0094 CONST 15\n0097 CALL 3\n0099 ADD\n0100 CALL 1\n0102 POP\n0103 RETURN\n=== END DISASSEMBLY ===\n10 + 5 = 1510 - 5 = 510 * 5 = 5010 / 5 = 2",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: 10 + 5 = 15\nDEBUG: print fonksiyonu çağrıldı, argüman: 10 - 5 = 5\nDEBUG: print fonksiyonu çağrıldı, argüman: 10 * 5 = 50\nDEBUG: print fonksiyonu çağrıldı, argüman: 10 / 5 = 2",
+      "success": false,
+      "output": "error[E0101]: Inconsistent indentation - expected 2-space increments",
+      "error": "",
       "code": "function hesapla(a: int, b: int, işlem: string)\n    if işlem == \"+\":\n        return a + b\n    elif işlem == \"-\":\n        return a - b\n    elif işlem == \"*\":\n        return a * b\n    elif işlem == \"/\":\n        return a / b\n    else:\n        return 0\n\nprint(\"10 + 5 = \" + hesapla(10, 5, \"+\"))\nprint(\"10 - 5 = \" + hesapla(10, 5, \"-\"))\nprint(\"10 * 5 = \" + hesapla(10, 5, \"*\"))\nprint(\"10 / 5 = \" + hesapla(10, 5, \"/\"))"
     },
     "Sayı analizi - karmaşık logic": {
       "success": false,
-      "output": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Greater, precedence: 4\nDEBUG: get_precedence - peek: Greater, precedence: 4\nDEBUG: parse_precedence - precedence: 0, peek: Greater, get_precedence: 4\nDEBUG: get_precedence - peek: Colon, precedence: 0\nDEBUG: get_precedence - peek: Colon, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Less, precedence: 4\nDEBUG: get_precedence - peek: Less, precedence: 4\nDEBUG: parse_precedence - precedence: 0, peek: Less, get_precedence: 4\nDEBUG: get_precedence - peek: Colon, precedence: 0\nDEBUG: get_precedence - peek: Colon, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Percent, precedence: 6\nDEBUG: get_precedence - peek: Percent, precedence: 6\nDEBUG: parse_precedence - precedence: 0, peek: Percent, get_precedence: 6\nDEBUG: get_precedence - peek: EqualEqual, precedence: 3\nDEBUG: get_precedence - peek: EqualEqual, precedence: 3\nDEBUG: get_precedence - peek: EqualEqual, precedence: 3\nDEBUG: parse_precedence - precedence: 0, peek: EqualEqual, get_precedence: 3\nDEBUG: get_precedence - peek: Colon, precedence: 0\nDEBUG: get_precedence - peek: Colon, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: get_precedence - peek: Equal, precedence: 1\nDEBUG: parse_precedence - precedence: 0, peek: Equal, get_precedence: 1\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 2, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"5: \")\n  [1] Int(5)\n  [2] String(\"8: \")\n  [3] Int(8)\n  [4] String(\"0: \")\n  [5] Int(0)\n  [6] String(\"-3: \")\n  [7] Int(3)\n  [8] Int(0)\n\nCode:\n0000 MAKE_FUNCTION 0 1\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 0\n0010 CONST 0\n0013 LOAD_GLOBAL 20\n0016 CONST 1\n0019 CALL 1\n0021 ADD\n0022 CALL 1\n0024 POP\n0025 LOAD_GLOBAL 0\n0028 CONST 2\n0031 LOAD_GLOBAL 20\n0034 CONST 3\n0037 CALL 1\n0039 ADD\n0040 CALL 1\n0042 POP\n0043 LOAD_GLOBAL 0\n0046 CONST 4\n0049 LOAD_GLOBAL 20\n0052 CONST 5\n0055 CALL 1\n0057 ADD\n0058 CALL 1\n0060 POP\n0061 LOAD_GLOBAL 0\n0064 CONST 6\n0067 LOAD_GLOBAL 20\n0070 CONST 7\n0073 CONST 8\n0076 SUB\n0077 CALL 1\n0079 ADD\n0080 CALL 1\n0082 POP\n0083 RETURN\n=== END DISASSEMBLY ===",
-      "error": "Hata: Invalid operation: add",
+      "output": "error[E0101]: Inconsistent indentation - expected 2-space increments",
+      "error": "",
       "code": "function sayı_analizi(sayi: int)\n    string sonuç = \"\"\n    if sayi > 0:\n        sonuç = sonuç + \"Pozitif \"\n    elif sayi < 0:\n        sonuç = sonuç + \"Negatif \"\n    else:\n        sonuç = sonuç + \"Sıfır \"\n    \n    if sayi % 2 == 0:\n        sonuç = sonuç + \"Çift\"\n    else:\n        sonuç = sonuç + \"Tek\"\n    \n    return sonuç\n\nprint(\"5: \" + sayı_analizi(5))\nprint(\"8: \" + sayı_analizi(8))\nprint(\"0: \" + sayı_analizi(0))\nprint(\"-3: \" + sayı_analizi(-3))"
     },
     "Fibonacci - recursive algoritma": {
-      "success": true,
-      "output": "DEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: get_precedence - peek: LessEqual, precedence: 4\nDEBUG: parse_precedence - precedence: 0, peek: LessEqual, get_precedence: 4\nDEBUG: get_precedence - peek: Colon, precedence: 0\nDEBUG: get_precedence - peek: Colon, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Minus, precedence: 5\nDEBUG: get_precedence - peek: Minus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Minus, get_precedence: 5\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Minus, precedence: 5\nDEBUG: get_precedence - peek: Minus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Minus, get_precedence: 5\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"Fibonacci(0) = \")\n  [1] Int(0)\n  [2] String(\"Fibonacci(1) = \")\n  [3] Int(1)\n  [4] String(\"Fibonacci(5) = \")\n  [5] Int(5)\n  [6] String(\"Fibonacci(8) = \")\n  [7] Int(8)\n\nCode:\n0000 MAKE_FUNCTION 0 1\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 0\n0010 CONST 0\n0013 LOAD_GLOBAL 20\n0016 CONST 1\n0019 CALL 1\n0021 ADD\n0022 CALL 1\n0024 POP\n0025 LOAD_GLOBAL 0\n0028 CONST 2\n0031 LOAD_GLOBAL 20\n0034 CONST 3\n0037 CALL 1\n0039 ADD\n0040 CALL 1\n0042 POP\n0043 LOAD_GLOBAL 0\n0046 CONST 4\n0049 LOAD_GLOBAL 20\n0052 CONST 5\n0055 CALL 1\n0057 ADD\n0058 CALL 1\n0060 POP\n0061 LOAD_GLOBAL 0\n0064 CONST 6\n0067 LOAD_GLOBAL 20\n0070 CONST 7\n0073 CALL 1\n0075 ADD\n0076 CALL 1\n0078 POP\n0079 RETURN\n=== END DISASSEMBLY ===\nFibonacci(0) = 0Fibonacci(1) = 1Fibonacci(5) = 5Fibonacci(8) = 21",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: Fibonacci(0) = 0\nDEBUG: print fonksiyonu çağrıldı, argüman: Fibonacci(1) = 1\nDEBUG: print fonksiyonu çağrıldı, argüman: Fibonacci(5) = 5\nDEBUG: print fonksiyonu çağrıldı, argüman: Fibonacci(8) = 21",
+      "success": false,
+      "output": "error[E0101]: Inconsistent indentation - expected 2-space increments",
+      "error": "",
       "code": "function fibonacci(n: int)\n    if n <= 1:\n        return n\n    else:\n        return fibonacci(n - 1) + fibonacci(n - 2)\n\nprint(\"Fibonacci(0) = \" + fibonacci(0))\nprint(\"Fibonacci(1) = \" + fibonacci(1))\nprint(\"Fibonacci(5) = \" + fibonacci(5))\nprint(\"Fibonacci(8) = \" + fibonacci(8))"
     },
     "Boş fonksiyon": {
-      "success": true,
-      "output": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"Boş fonksiyon çalıştı\")\n\nCode:\n0000 MAKE_FUNCTION 0 0\n0004 STORE_GLOBAL 20\n0007 LOAD_GLOBAL 20\n0010 CALL 0\n0012 POP\n0013 LOAD_GLOBAL 0\n0016 CONST 0\n0019 CALL 1\n0021 POP\n0022 RETURN\n=== END DISASSEMBLY ===\nBoş fonksiyon çalıştı",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: Boş fonksiyon çalıştı",
+      "success": false,
+      "output": "error[E0101]: Inconsistent indentation - expected 2-space increments",
+      "error": "",
       "code": "function boş_fonksiyon()\n    # Boş\n\nboş_fonksiyon()\nprint(\"Boş fonksiyon çalıştı\")"
     },
     "Tek satır if": {
-      "success": true,
-      "output": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Greater, precedence: 4\nDEBUG: get_precedence - peek: Greater, precedence: 4\nDEBUG: parse_precedence - precedence: 0, peek: Greater, get_precedence: 4\nDEBUG: get_precedence - peek: Colon, precedence: 0\nDEBUG: get_precedence - peek: Colon, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(5)\n  [1] Int(0)\n  [2] String(\"x pozitif\")\n  [3] String(\"Devam ediyor\")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_LOCAL 20\n0009 CONST 1\n0012 GREATER\n0013 JUMP_IF_FALSE 28\n0016 LOAD_GLOBAL 0\n0019 CONST 2\n0022 CALL 1\n0024 POP\n0025 JUMP 28\n0028 LOAD_GLOBAL 0\n0031 CONST 3\n0034 CALL 1\n0036 POP\n0037 RETURN\n=== END DISASSEMBLY ===\nx pozitif",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: x pozitif",
+      "success": false,
+      "output": "error[E0101]: Inconsistent indentation - expected 2-space increments",
+      "error": "",
       "code": "int x = 5\nif x > 0:\n    print(\"x pozitif\")\nprint(\"Devam ediyor\")"
     },
     "Negatif sayılar": {
       "success": true,
-      "output": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] Int(10)\n  [1] Int(0)\n  [2] Int(5)\n  [3] String(\"Negatif: \")\n  [4] String(\"Pozitif: \")\n  [5] String(\"Toplam: \")\n\nCode:\n0000 CONST 0\n0003 CONST 1\n0006 SUB\n0007 STORE_LOCAL 20\n0010 CONST 2\n0013 STORE_LOCAL 21\n0016 LOAD_GLOBAL 0\n0019 CONST 3\n0022 LOAD_LOCAL 20\n0025 ADD\n0026 CALL 1\n0028 POP\n0029 LOAD_GLOBAL 0\n0032 CONST 4\n0035 LOAD_LOCAL 21\n0038 ADD\n0039 CALL 1\n0041 POP\n0042 LOAD_GLOBAL 0\n0045 CONST 5\n0048 LOAD_LOCAL 20\n0051 LOAD_LOCAL 21\n0054 ADD\n0055 ADD\n0056 CALL 1\n0058 POP\n0059 RETURN\n=== END DISASSEMBLY ===\nNegatif: 10Pozitif: 5Toplam: 15",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: Negatif: 10\nDEBUG: print fonksiyonu çağrıldı, argüman: Pozitif: 5\nDEBUG: print fonksiyonu çağrıldı, argüman: Toplam: 15",
+      "output": "Negatif: 10Pozitif: 5Toplam: 15",
+      "error": "",
       "code": "int negatif = -10\nint pozitif = 5\nprint(\"Negatif: \" + negatif)\nprint(\"Pozitif: \" + pozitif)\nprint(\"Toplam: \" + (negatif + pozitif))"
     },
     "Print fonksiyonu - farklı tipler": {
       "success": true,
-      "output": "DEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Comma, precedence: 0\nDEBUG: get_precedence - peek: Comma, precedence: 0\nDEBUG: get_precedence - peek: RightBracket, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"Merhaba Dünya\")\n  [1] Int(123)\n  [2] Bool(true)\n  [3] List([Int(1), Int(2), Int(3)])\n\nCode:\n0000 LOAD_GLOBAL 0\n0003 CONST 0\n0006 CALL 1\n0008 POP\n0009 LOAD_GLOBAL 0\n0012 CONST 1\n0015 CALL 1\n0017 POP\n0018 LOAD_GLOBAL 0\n0021 CONST 2\n0024 CALL 1\n0026 POP\n0027 LOAD_GLOBAL 0\n0030 CONST 3\n0033 CALL 1\n0035 POP\n0036 RETURN\n=== END DISASSEMBLY ===\nMerhaba Dünya123true[1, 2, 3]",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: Merhaba Dünya\nDEBUG: print fonksiyonu çağrıldı, argüman: 123\nDEBUG: print fonksiyonu çağrıldı, argüman: true\nDEBUG: print fonksiyonu çağrıldı, argüman: [1, 2, 3]",
+      "output": "Merhaba Dünya123true[1, 2, 3]",
+      "error": "",
       "code": "print(\"Merhaba Dünya\")\nprint(123)\nprint(true)\nprint([1, 2, 3])"
     },
     "String operasyonları": {
       "success": true,
-      "output": "DEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: get_precedence - peek: Plus, precedence: 5\nDEBUG: parse_precedence - precedence: 0, peek: Plus, get_precedence: 5\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\nDEBUG: get_precedence - peek: Newline, precedence: 0\nDEBUG: get_precedence - peek: RightParen, precedence: 0\n=== BYTECODE DISASSEMBLY ===\nConstants:\n  [0] String(\"Sky Dili\")\n  [1] String(\"Metin: \")\n  [2] String(\"Uzunluk testi\")\n\nCode:\n0000 CONST 0\n0003 STORE_LOCAL 20\n0006 LOAD_GLOBAL 0\n0009 CONST 1\n0012 LOAD_LOCAL 20\n0015 ADD\n0016 CALL 1\n0018 POP\n0019 LOAD_GLOBAL 0\n0022 CONST 2\n0025 CALL 1\n0027 POP\n0028 RETURN\n=== END DISASSEMBLY ===\nMetin: Sky DiliUzunluk testi",
-      "error": "DEBUG: print fonksiyonu çağrıldı, argüman: Metin: Sky Dili\nDEBUG: print fonksiyonu çağrıldı, argüman: Uzunluk testi",
+      "output": "Metin: Sky DiliUzunluk testi",
+      "error": "",
       "code": "string metin = \"Sky Dili\"\nprint(\"Metin: \" + metin)\nprint(\"Uzunluk testi\")"
     }
   }

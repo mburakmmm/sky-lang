@@ -12,7 +12,6 @@ pub fn print(args: &[Value]) -> Result<Value, RuntimeError> {
         });
     }
 
-    eprintln!("DEBUG: print fonksiyonu çağrıldı, argüman: {}", args[0].to_string());
     print!("{}", args[0].to_string());
     std::io::Write::flush(&mut std::io::stdout())
         .map_err(|_| RuntimeError::InvalidOperation {

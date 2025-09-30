@@ -10,7 +10,7 @@ use crate::compiler::diag::{Diagnostic, Span, codes};
 
 /// Ana lexer fonksiyonu
 pub fn lex(src: &str) -> Result<Vec<Token>, Diagnostic> {
-    let mut tokens = Vec::new();
+    let mut tokens: Vec<Token> = Vec::new();
     let mut indent_tracker = IndentTracker::new();
     let mut chars = src.char_indices().peekable();
     
@@ -35,17 +35,35 @@ pub fn lex(src: &str) -> Result<Vec<Token>, Diagnostic> {
         
         // Satır başında girinti tokenları üret
         if in_line {
-            let indent_level = pos - line_start;
-            match indent_tracker.process_indent(indent_level) {
-                Ok(Some(indent_tokens)) => {
-                    tokens.extend(indent_tokens);
+            // Satır başındaki boşluk sayısını hesapla
+            let mut indent_level = 0;
+            let mut temp_pos = line_start;
+            while temp_pos < pos && temp_pos < src.len() {
+                let byte_at_temp = src.as_bytes().get(temp_pos);
+                match byte_at_temp {
+                    Some(b' ') => indent_level += 1,
+                    Some(b'\t') => {
+                        return Err(Diagnostic::error(
+                            codes::INVALID_INDENTATION,
+                            "Use spaces for indentation",
+                            Span::new(0, temp_pos, temp_pos + 1)
+                        ));
+                    }
+                    _ => break,
                 }
-                Ok(None) => {
-                }
-                Err(e) => {
-                    return Err(e);
-                }
+                temp_pos += 1;
             }
+            
+        match indent_tracker.process_indent(indent_level) {
+            Ok(Some(indent_tokens)) => {
+                tokens.extend(indent_tokens);
+            }
+            Ok(None) => {
+            }
+            Err(e) => {
+                return Err(e);
+            }
+        }
             in_line = false;
         }
         
@@ -201,8 +219,8 @@ pub fn lex(src: &str) -> Result<Vec<Token>, Diagnostic> {
                     chars.next();
                     tokens.push(Token::new(token::TokenKind::Range, Span::new(0, pos, pos + 2)));
                 } else {
-                    // Tek nokta - float parsing'de işlenir
-                    continue;
+                    // Tek nokta - Dot token'ı
+                    tokens.push(Token::new(token::TokenKind::Dot, Span::new(0, pos, pos + 1)));
                 }
             }
             
@@ -217,6 +235,10 @@ pub fn lex(src: &str) -> Result<Vec<Token>, Diagnostic> {
                 while let Some((_, next_ch)) = chars.peek() {
                     if next_ch.is_alphanumeric() || *next_ch == '_' {
                         chars.next();
+                    } else if *next_ch == '.' {
+                        // Dot karakteri için özel istisna - identifier parsing'i durdur
+                        // Dot token'ı main loop'ta oluşturulacak
+                        break;
                     } else {
                         break;
                     }

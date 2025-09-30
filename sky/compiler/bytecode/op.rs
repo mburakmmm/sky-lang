@@ -13,6 +13,10 @@ pub enum OpCode {
     LoadLocal(u16),  // Yerel değişken yükle
     StoreLocal(u16), // Yerel değişkene yaz
     
+    // Type-checked variable operations
+    StoreLocalTyped(u16, u8), // Yerel değişkene tip kontrolü ile yaz (slot, type)
+    StoreGlobalTyped(u16, u8), // Global değişkene tip kontrolü ile yaz (slot, type)
+    
     // Arithmetic
     Add,             // Toplama
     Sub,             // Çıkarma
@@ -88,6 +92,7 @@ impl OpCode {
         match self {
             Self::Const(_) | Self::LoadGlobal(_) | Self::StoreGlobal(_) |
             Self::LoadLocal(_) | Self::StoreLocal(_) |
+            Self::StoreLocalTyped(_, _) | Self::StoreGlobalTyped(_, _) |
             Self::MakeFunction(_, _) | Self::MakeCoopFunction(_, _) |
             Self::Jump(_) | Self::JumpIfFalse(_) => 4, // 1 byte opcode + 2 byte chunk index + 1 byte param count
             
@@ -102,6 +107,7 @@ impl OpCode {
         matches!(self,
             Self::Const(_) | Self::LoadGlobal(_) | Self::StoreGlobal(_) |
             Self::LoadLocal(_) | Self::StoreLocal(_) |
+            Self::StoreLocalTyped(_, _) | Self::StoreGlobalTyped(_, _) |
             Self::MakeFunction(_, _) | Self::MakeCoopFunction(_, _) |
             Self::Jump(_) | Self::JumpIfFalse(_) | Self::Call(_)
         )
@@ -121,7 +127,8 @@ impl OpCode {
     pub fn is_variable(&self) -> bool {
         matches!(self,
             Self::LoadGlobal(_) | Self::StoreGlobal(_) |
-            Self::LoadLocal(_) | Self::StoreLocal(_)
+            Self::LoadLocal(_) | Self::StoreLocal(_) |
+            Self::StoreLocalTyped(_, _) | Self::StoreGlobalTyped(_, _)
         )
     }
 }
@@ -134,6 +141,8 @@ impl std::fmt::Display for OpCode {
             Self::StoreGlobal(idx) => write!(f, "STORE_GLOBAL {}", idx),
             Self::LoadLocal(idx) => write!(f, "LOAD_LOCAL {}", idx),
             Self::StoreLocal(idx) => write!(f, "STORE_LOCAL {}", idx),
+            Self::StoreLocalTyped(slot, ty) => write!(f, "STORE_LOCAL_TYPED {} {}", slot, ty),
+            Self::StoreGlobalTyped(slot, ty) => write!(f, "STORE_GLOBAL_TYPED {} {}", slot, ty),
             Self::Add => write!(f, "ADD"),
             Self::Sub => write!(f, "SUB"),
             Self::Mul => write!(f, "MUL"),

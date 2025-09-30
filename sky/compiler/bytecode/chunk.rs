@@ -93,6 +93,46 @@ impl Chunk {
                     output.push_str(&format!("STORE_LOCAL {}\n", index));
                     ip += 3;
                 }
+                0x06 => { // StoreLocalTyped
+                    let index = if ip + 2 < self.code.len() {
+                        u16::from_le_bytes([self.code[ip + 1], self.code[ip + 2]])
+                    } else { 0 };
+                    let type_code = if ip + 3 < self.code.len() {
+                        self.code[ip + 3]
+                    } else { 0 };
+                    let type_name = match type_code {
+                        0 => "var",
+                        1 => "int",
+                        2 => "float",
+                        3 => "bool",
+                        4 => "string",
+                        5 => "list",
+                        6 => "map",
+                        _ => "unknown",
+                    };
+                    output.push_str(&format!("STORE_LOCAL_TYPED {} {}\n", index, type_name));
+                    ip += 4;
+                }
+                0x07 => { // StoreGlobalTyped
+                    let index = if ip + 2 < self.code.len() {
+                        u16::from_le_bytes([self.code[ip + 1], self.code[ip + 2]])
+                    } else { 0 };
+                    let type_code = if ip + 3 < self.code.len() {
+                        self.code[ip + 3]
+                    } else { 0 };
+                    let type_name = match type_code {
+                        0 => "var",
+                        1 => "int",
+                        2 => "float",
+                        3 => "bool",
+                        4 => "string",
+                        5 => "list",
+                        6 => "map",
+                        _ => "unknown",
+                    };
+                    output.push_str(&format!("STORE_GLOBAL_TYPED {} {}\n", index, type_name));
+                    ip += 4;
+                }
                 0x10 => { // Add
                     output.push_str("ADD\n");
                     ip += 1;
@@ -150,17 +190,29 @@ impl Chunk {
                     ip += 1;
                 }
                 0x40 => { // Jump
-                    let offset = if ip + 2 < self.code.len() {
+                    let offset_u16 = if ip + 2 < self.code.len() {
                         u16::from_le_bytes([self.code[ip + 1], self.code[ip + 2]])
                     } else { 0 };
-                    output.push_str(&format!("JUMP {}\n", offset));
+                    
+                    // Backward jump için 2's complement çözümleme
+                    let offset = if offset_u16 > (i16::MAX as u16) {
+                        // Backward jump - 2's complement
+                        -((!(offset_u16 - 1)) as i16) as isize
+                    } else {
+                        // Forward jump
+                        offset_u16 as isize
+                    };
+                    
+                    let target = (ip as isize + 3 + offset) as usize;
+                    output.push_str(&format!("JUMP {} -> {}\n", offset_u16, target));
                     ip += 3;
                 }
                 0x41 => { // JumpIfFalse
                     let offset = if ip + 2 < self.code.len() {
                         u16::from_le_bytes([self.code[ip + 1], self.code[ip + 2]])
                     } else { 0 };
-                    output.push_str(&format!("JUMP_IF_FALSE {}\n", offset));
+                    let target = ip + 3 + offset as usize;
+                    output.push_str(&format!("JUMP_IF_FALSE {} -> {}\n", offset, target));
                     ip += 3;
                 }
                 0x50 => { // Pop
@@ -240,8 +292,24 @@ impl Chunk {
                     output.push_str("MAKE_RANGE\n");
                     ip += 1;
                 }
+                0x82 => { // IterNew
+                    output.push_str("ITER_NEW\n");
+                    ip += 1;
+                }
+                0x83 => { // IterNext
+                    output.push_str("ITER_NEXT\n");
+                    ip += 1;
+                }
+                0x84 => { // IterDone
+                    output.push_str("ITER_DONE\n");
+                    ip += 1;
+                }
                 0x90 => { // Print
                     output.push_str("PRINT\n");
+                    ip += 1;
+                }
+                0x57 => { // Dup
+                    output.push_str("DUP\n");
                     ip += 1;
                 }
                 0xA0 => { // Dup
@@ -290,6 +358,16 @@ impl Chunk {
             OpCode::StoreLocal(idx) => {
                 self.code.push(0x05); // STORE_LOCAL opcode
                 self.code.extend_from_slice(&idx.to_le_bytes());
+            }
+            OpCode::StoreLocalTyped(idx, ty) => {
+                self.code.push(0x06); // STORE_LOCAL_TYPED opcode
+                self.code.extend_from_slice(&idx.to_le_bytes());
+                self.code.push(ty);
+            }
+            OpCode::StoreGlobalTyped(idx, ty) => {
+                self.code.push(0x07); // STORE_GLOBAL_TYPED opcode
+                self.code.extend_from_slice(&idx.to_le_bytes());
+                self.code.push(ty);
             }
             OpCode::Add => self.code.push(0x10),
             OpCode::Sub => self.code.push(0x11),
@@ -345,9 +423,9 @@ impl Chunk {
             OpCode::Print => self.code.push(0x90),
             OpCode::Swap => self.code.push(0xA1),
             OpCode::Nop => self.code.push(0xFF),
-            OpCode::IterNew => self.code.push(0xB0),
-            OpCode::IterNext => self.code.push(0xB1),
-            OpCode::IterDone => self.code.push(0xB2),
+            OpCode::IterNew => self.code.push(0x82),
+            OpCode::IterNext => self.code.push(0x83),
+            OpCode::IterDone => self.code.push(0x84),
         }
         
         let end_offset = self.code.len();
@@ -382,8 +460,19 @@ impl Chunk {
     /// Jump offset'ini patch et
     pub fn patch_jump(&mut self, jump_offset: usize, target_offset: usize) {
         if jump_offset + 3 <= self.code.len() {
-            let offset = (target_offset - jump_offset - 3) as u16;
-            self.code[jump_offset + 1..jump_offset + 3].copy_from_slice(&offset.to_le_bytes());
+            // Offset hesaplaması: target_offset - jump_offset - 3
+            // jump_offset + 3 = opcode + 2 byte offset'ten sonraki pozisyon
+            let offset = target_offset as i32 - (jump_offset + 3) as i32;
+            
+            
+            if offset >= 0 && offset <= u16::MAX as i32 {
+                // Forward jump
+                self.code[jump_offset + 1..jump_offset + 3].copy_from_slice(&(offset as u16).to_le_bytes());
+            } else if offset < 0 && offset >= -(u16::MAX as i32) {
+                // Backward jump için 2's complement
+                let backward_offset = (!(offset.abs() as u16)).wrapping_add(1);
+                self.code[jump_offset + 1..jump_offset + 3].copy_from_slice(&backward_offset.to_le_bytes());
+            }
         }
     }
 

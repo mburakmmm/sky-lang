@@ -14,7 +14,7 @@ pub fn new(args: &[Value]) -> Result<Value, RuntimeError> {
         });
     }
 
-    let function = match &args[0] {
+    let _function = match &args[0] {
         Value::Function(_) => args[0].clone(),
         _ => return Err(RuntimeError::InvalidOperation {
             op: "coop.new expects function argument".to_string(),
@@ -202,7 +202,7 @@ pub fn generator(args: &[Value]) -> Result<Value, RuntimeError> {
         });
     }
 
-    let function = match &args[0] {
+    let _function = match &args[0] {
         Value::Function(_) => args[0].clone(),
         _ => return Err(RuntimeError::InvalidOperation {
             op: "coop.generator expects function argument".to_string(),

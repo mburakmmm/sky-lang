@@ -81,7 +81,7 @@ pub fn is_compatible(declared: &TypeDecl, actual: &ValueKind) -> bool {
     match declared {
         TypeDecl::Var => true, // var her türü kabul eder
         TypeDecl::Int => matches!(actual, ValueKind::Int),
-        TypeDecl::Float => matches!(actual, ValueKind::Float),
+        TypeDecl::Float => matches!(actual, ValueKind::Float | ValueKind::Int), // Int'i Float'a otomatik dönüştür
         TypeDecl::Bool => matches!(actual, ValueKind::Bool),
         TypeDecl::String => matches!(actual, ValueKind::String),
         TypeDecl::List => matches!(actual, ValueKind::List),

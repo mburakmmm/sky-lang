@@ -29,41 +29,44 @@ pub fn disassemble_instruction(chunk: &Chunk, offset: usize, output: &mut String
     let instruction = chunk.get_byte(offset).unwrap_or(0xFF);
     
     match instruction {
-        0x01 => simple_instruction("CONST", offset, output, 1),
-        0x02 => simple_instruction("LOAD_GLOBAL", offset, output, 1),
-        0x03 => simple_instruction("STORE_GLOBAL", offset, output, 1),
-        0x04 => simple_instruction("LOAD_LOCAL", offset, output, 1),
-        0x05 => simple_instruction("STORE_LOCAL", offset, output, 1),
-        0x10 => simple_instruction("ADD", offset, output, 0),
-        0x11 => simple_instruction("SUB", offset, output, 0),
-        0x12 => simple_instruction("MUL", offset, output, 0),
-        0x13 => simple_instruction("DIV", offset, output, 0),
-        0x14 => simple_instruction("MOD", offset, output, 0),
-        0x20 => simple_instruction("EQUAL", offset, output, 0),
-        0x21 => simple_instruction("NOT_EQUAL", offset, output, 0),
-        0x22 => simple_instruction("LESS", offset, output, 0),
-        0x23 => simple_instruction("LESS_EQUAL", offset, output, 0),
-        0x24 => simple_instruction("GREATER", offset, output, 0),
-        0x25 => simple_instruction("GREATER_EQUAL", offset, output, 0),
-        0x30 => simple_instruction("AND", offset, output, 0),
-        0x31 => simple_instruction("OR", offset, output, 0),
-        0x32 => simple_instruction("NOT", offset, output, 0),
+        0x01 => simple_instruction("CONST", offset, output, 2, chunk),
+        0x02 => simple_instruction("LOAD_GLOBAL", offset, output, 2, chunk),
+        0x03 => simple_instruction("STORE_GLOBAL", offset, output, 2, chunk),
+        0x04 => simple_instruction("LOAD_LOCAL", offset, output, 2, chunk),
+        0x05 => simple_instruction("STORE_LOCAL", offset, output, 2, chunk),
+        0x06 => typed_store_instruction("STORE_LOCAL_TYPED", offset, chunk, output),
+        0x07 => typed_store_instruction("STORE_GLOBAL_TYPED", offset, chunk, output),
+        0x10 => simple_instruction("ADD", offset, output, 0, chunk),
+        0x11 => simple_instruction("SUB", offset, output, 0, chunk),
+        0x12 => simple_instruction("MUL", offset, output, 0, chunk),
+        0x13 => simple_instruction("DIV", offset, output, 0, chunk),
+        0x14 => simple_instruction("MOD", offset, output, 0, chunk),
+        0x20 => simple_instruction("EQUAL", offset, output, 0, chunk),
+        0x21 => simple_instruction("NOT_EQUAL", offset, output, 0, chunk),
+        0x22 => simple_instruction("LESS", offset, output, 0, chunk),
+        0x23 => simple_instruction("LESS_EQUAL", offset, output, 0, chunk),
+        0x24 => simple_instruction("GREATER", offset, output, 0, chunk),
+        0x25 => simple_instruction("GREATER_EQUAL", offset, output, 0, chunk),
+        0x30 => simple_instruction("AND", offset, output, 0, chunk),
+        0x31 => simple_instruction("OR", offset, output, 0, chunk),
+        0x32 => simple_instruction("NOT", offset, output, 0, chunk),
         0x40 => jump_instruction("JUMP", offset, chunk, output),
         0x41 => jump_instruction("JUMP_IF_FALSE", offset, chunk, output),
-        0x50 => simple_instruction("POP", offset, output, 0),
-        0x60 => simple_instruction("MAKE_FUNCTION", offset, output, 1),
+        0x50 => simple_instruction("POP", offset, output, 0, chunk),
+        0x57 => simple_instruction("DUP", offset, output, 0, chunk),
+        0x60 => simple_instruction("MAKE_FUNCTION", offset, output, 2, chunk),
         0x61 => call_instruction(offset, chunk, output),
-        0x62 => simple_instruction("RETURN", offset, output, 0),
-        0x70 => simple_instruction("MAKE_COOP_FUNCTION", offset, output, 1),
-        0x71 => simple_instruction("COOP_NEW", offset, output, 0),
-        0x72 => simple_instruction("YIELD", offset, output, 0),
-        0x73 => simple_instruction("COOP_RESUME", offset, output, 0),
-        0x74 => simple_instruction("COOP_IS_DONE", offset, output, 0),
-        0x80 => simple_instruction("AWAIT", offset, output, 0),
-        0x90 => simple_instruction("PRINT", offset, output, 0),
-        0xA0 => simple_instruction("DUP", offset, output, 0),
-        0xA1 => simple_instruction("SWAP", offset, output, 0),
-        0xFF => simple_instruction("NOP", offset, output, 0),
+        0x62 => simple_instruction("RETURN", offset, output, 0, chunk),
+        0x70 => simple_instruction("MAKE_COOP_FUNCTION", offset, output, 2, chunk),
+        0x71 => simple_instruction("COOP_NEW", offset, output, 0, chunk),
+        0x72 => simple_instruction("YIELD", offset, output, 0, chunk),
+        0x73 => simple_instruction("COOP_RESUME", offset, output, 0, chunk),
+        0x74 => simple_instruction("COOP_IS_DONE", offset, output, 0, chunk),
+        0x80 => simple_instruction("AWAIT", offset, output, 0, chunk),
+        0x90 => simple_instruction("PRINT", offset, output, 0, chunk),
+        0xA0 => simple_instruction("DUP", offset, output, 0, chunk),
+        0xA1 => simple_instruction("SWAP", offset, output, 0, chunk),
+        0xFF => simple_instruction("NOP", offset, output, 0, chunk),
         _ => {
             output.push_str(&format!("Unknown opcode: 0x{:02X}\n", instruction));
             offset + 1
@@ -71,22 +74,22 @@ pub fn disassemble_instruction(chunk: &Chunk, offset: usize, output: &mut String
     }
 }
 
-fn simple_instruction(name: &str, offset: usize, output: &mut String, operand_bytes: usize) -> usize {
+fn simple_instruction(name: &str, offset: usize, output: &mut String, operand_bytes: usize, chunk: &Chunk) -> usize {
     if operand_bytes == 0 {
         output.push_str(&format!("{}\n", name));
         offset + 1
     } else {
         let operand: u16 = if operand_bytes == 1 {
             // 8-bit operand
-            if offset + 1 < output.len() {
-                output.as_bytes()[offset + 1] as u16
+            if let Some(byte) = chunk.get_byte(offset + 1) {
+                byte as u16
             } else {
                 0
             }
         } else if operand_bytes == 2 {
             // 16-bit operand
-            if let Some(bytes) = output.as_bytes().get(offset + 1..offset + 3) {
-                u16::from_le_bytes([bytes[0], bytes[1]])
+            if let Some(operand) = chunk.get_u16(offset + 1) {
+                operand
             } else {
                 0
             }
@@ -94,12 +97,7 @@ fn simple_instruction(name: &str, offset: usize, output: &mut String, operand_by
             0
         };
         
-        if name == "CONST" {
-            output.push_str(&format!("{} {}\n", name, operand));
-        } else {
-            output.push_str(&format!("{} {}\n", name, operand));
-        }
-        
+        output.push_str(&format!("{} {}\n", name, operand));
         offset + 1 + operand_bytes
     }
 }
@@ -121,6 +119,29 @@ fn call_instruction(offset: usize, chunk: &Chunk, output: &mut String) -> usize 
         output.push_str("CALL [invalid]\n");
     }
     offset + 2
+}
+
+fn typed_store_instruction(name: &str, offset: usize, chunk: &Chunk, output: &mut String) -> usize {
+    if let Some(slot) = chunk.get_u16(offset + 1) {
+        if let Some(type_code) = chunk.get_byte(offset + 3) {
+            let type_name = match type_code {
+                0 => "var",
+                1 => "int",
+                2 => "float",
+                3 => "bool",
+                4 => "string",
+                5 => "list",
+                6 => "map",
+                _ => "unknown",
+            };
+            output.push_str(&format!("{} {} {}\n", name, slot, type_name));
+        } else {
+            output.push_str(&format!("{} {} [invalid type]\n", name, slot));
+        }
+    } else {
+        output.push_str(&format!("{} [invalid]\n", name));
+    }
+    offset + 4
 }
 
 /// Sabit değeri formatla

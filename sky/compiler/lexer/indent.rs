@@ -6,7 +6,7 @@ use super::token::{Token, TokenKind};
 use crate::compiler::diag::Span;
 
 pub struct IndentTracker {
-    stack: Vec<usize>,
+    pub stack: Vec<usize>,
 }
 
 impl IndentTracker {
@@ -21,9 +21,22 @@ impl IndentTracker {
         let current = *self.stack.last().unwrap();
         
         if indent_level > current {
-            // Yeni girinti seviyesi - INDENT token üret
-            self.stack.push(indent_level);
-            Ok(Some(vec![Token::new(TokenKind::Indent, Span::new(0, 0, 0))]))
+            // Girinti artışı kontrolü - sadece bir seviye artış olmalı
+            // Sky'da girinti seviyeleri 2'nin katları olmalı (2, 4, 6, 8...)
+            let expected_next = current + 2; // Bir sonraki geçerli seviye
+            
+            if indent_level == expected_next {
+                // Geçerli girinti artışı - INDENT token üret
+                self.stack.push(indent_level);
+                Ok(Some(vec![Token::new_with_indent(TokenKind::Indent, Span::new(0, 0, 0), indent_level)]))
+            } else {
+                // Tutarsız girinti artışı
+                Err(Diagnostic::error(
+                    codes::INVALID_INDENTATION,
+                    "Inconsistent indentation - expected 2-space increments",
+                    Span::new(0, 0, 0)
+                ))
+            }
         } else if indent_level < current {
             // Girinti azaldı - DEDENT tokenları üret
             let mut tokens = Vec::new();

@@ -123,12 +123,40 @@ impl Vm {
                     self.advance_ip(); // local index low
                     self.advance_ip(); // local index high
                 }
+                0x06 => { 
+                    self.write_local_typed()?;   // STORE_LOCAL_TYPED
+                    // STORE_LOCAL_TYPED 4 byte ilerlet (opcode + u16 local index + u8 type)
+                    self.advance_ip(); // opcode
+                    self.advance_ip(); // local index low
+                    self.advance_ip(); // local index high
+                    self.advance_ip(); // type
+                }
+                0x07 => { 
+                    self.write_global_typed()?;   // STORE_GLOBAL_TYPED
+                    // STORE_GLOBAL_TYPED 4 byte ilerlet (opcode + u16 global index + u8 type)
+                    self.advance_ip(); // opcode
+                    self.advance_ip(); // global index low
+                    self.advance_ip(); // global index high
+                    self.advance_ip(); // type
+                }
                 0x10 => { self.binary_op(Value::add)?; self.advance_ip(); }, // ADD
                 0x11 => { self.binary_op(Value::sub)?; self.advance_ip(); }, // SUB
                 0x12 => { self.binary_op(Value::mul)?; self.advance_ip(); }, // MUL
                 0x13 => { self.binary_op(Value::div)?; self.advance_ip(); }, // DIV
                 0x14 => { self.binary_op(Value::mod_op)?; self.advance_ip(); }, // MOD
-                0x20 => { self.binary_op(|a, b| Ok(Value::Bool(a.is_equal(b))))?; self.advance_ip(); }, // EQUAL
+                0x20 => { 
+                    self.binary_op(|a, b| {
+                        // Tip kontrolü yap
+                        if a.kind() != b.kind() {
+                            return Err(RuntimeError::InvalidOperation {
+                                op: "equal".to_string(),
+                                span: crate::compiler::diag::Span::new(0, 0, 0),
+                            });
+                        }
+                        Ok(Value::Bool(a.is_equal(b)))
+                    })?; 
+                    self.advance_ip(); 
+                }, // EQUAL
                 0x21 => { self.binary_op(|a, b| Ok(Value::Bool(!a.is_equal(b))))?; self.advance_ip(); }, // NOT_EQUAL
                 0x22 => { self.binary_op(Value::less)?; self.advance_ip(); }, // LESS
                 0x23 => { self.binary_op(|a, b| a.less(b).map(|v| Value::Bool(v.is_equal(&Value::Bool(true)) || a.is_equal(b))))?; self.advance_ip(); }, // LESS_EQUAL
@@ -167,12 +195,12 @@ impl Vm {
                 0x74 => { self.coop_is_done()?; self.advance_ip(); },           // COOP_IS_DONE
                 0x80 => { self.await_future()?; self.advance_ip(); },           // AWAIT
                 0x81 => { self.make_range()?; self.advance_ip(); },              // MAKE_RANGE
+                0x82 => { self.iter_new()?; self.advance_ip(); },               // ITER_NEW
+                0x83 => { self.iter_next()?; self.advance_ip(); },              // ITER_NEXT
+                0x84 => { self.iter_done()?; self.advance_ip(); },              // ITER_DONE
                 0x90 => { self.print_value()?; self.advance_ip(); },            // PRINT
                 0xA0 => { self.dup_value()?; self.advance_ip(); },              // DUP
                 0xA1 => { self.swap_values()?; self.advance_ip(); },            // SWAP
-                0xB0 => { self.iter_new()?; self.advance_ip(); },               // ITER_NEW
-                0xB1 => { self.iter_next()?; self.advance_ip(); },              // ITER_NEXT
-                0xB2 => { self.iter_done()?; self.advance_ip(); },              // ITER_DONE
                 0xFF => { self.advance_ip(); },                             // NOP
                 _ => return Err(RuntimeError::InvalidOperation {
                     op: format!("Unknown opcode: 0x{:02X}", instruction),
@@ -280,6 +308,49 @@ impl Vm {
         Ok(())
     }
 
+    fn write_global_typed(&mut self) -> Result<(), RuntimeError> {
+        let frame = self.frames.last_mut().unwrap();
+        frame.advance_ip();
+        let index = frame.chunk.get_u16(frame.ip).unwrap_or(0);
+        frame.advance_ip();
+        frame.advance_ip();
+        let type_code = frame.chunk.get_byte(frame.ip).unwrap_or(0);
+        
+        let value = self.stack.pop()?;
+        
+        // Tip kontrolü yap
+        if let Some(expected_type) = crate::compiler::types::TypeDecl::from_bytecode_type(type_code) {
+            if !expected_type.is_dynamic() {
+                // null assignment'ı için özel durum - null herhangi bir tipe atanabilir
+                if matches!(value, Value::Null) {
+                    // Global array'i genişlet gerekirse
+                    while self.globals.len() <= index as usize {
+                        self.globals.push(Value::Null);
+                    }
+                    self.globals[index as usize] = value;
+                    return Ok(());
+                }
+                
+                let actual_type = value.get_type();
+                if !crate::compiler::types::is_compatible(&expected_type, &actual_type) {
+                    return Err(RuntimeError::TypeMismatch {
+                        expected: expected_type.to_string(),
+                        actual: actual_type.to_string(),
+                        span: crate::compiler::diag::Span::new(0, 0, 0),
+                    });
+                }
+            }
+        }
+        
+        // Global array'i genişlet gerekirse
+        while self.globals.len() <= index as usize {
+            self.globals.push(Value::Null);
+        }
+        
+        self.globals[index as usize] = value;
+        Ok(())
+    }
+
     fn read_local(&mut self) -> Result<(), RuntimeError> {
         let frame = self.frames.last_mut().unwrap();
         let index = frame.chunk.get_u16(frame.ip + 1).unwrap_or(0);
@@ -297,6 +368,51 @@ impl Vm {
         let index = frame.chunk.get_u16(frame.ip + 1).unwrap_or(0);
         
         let value = self.stack.pop()?;
+        
+        // Local array'i genişlet gerekirse
+        while frame.locals.len() <= index as usize {
+            frame.add_local(Value::Null);
+        }
+        
+        frame.set_local(index as usize, value);
+        Ok(())
+    }
+
+    fn write_local_typed(&mut self) -> Result<(), RuntimeError> {
+        let frame = self.frames.last_mut().unwrap();
+        let index = frame.chunk.get_u16(frame.ip + 1).unwrap_or(0);
+        let type_code = frame.chunk.get_byte(frame.ip + 3).unwrap_or(0);
+        
+        let value = self.stack.pop()?;
+        
+        // Tip kontrolü yap ve gerekirse dönüştür
+        if let Some(expected_type) = crate::compiler::types::TypeDecl::from_bytecode_type(type_code) {
+            if !expected_type.is_dynamic() {
+                // null assignment'ı için özel durum - null herhangi bir tipe atanabilir
+                if matches!(value, Value::Null) {
+                    frame.set_local(index as usize, value);
+                    return Ok(());
+                }
+                
+                let actual_type = value.get_type();
+                if !crate::compiler::types::is_compatible(&expected_type, &actual_type) {
+                    return Err(RuntimeError::TypeMismatch {
+                        expected: expected_type.to_string(),
+                        actual: actual_type.to_string(),
+                        span: crate::compiler::diag::Span::new(0, 0, 0),
+                    });
+                }
+                
+                // Int'i Float'a dönüştür
+                if matches!(expected_type, crate::compiler::types::TypeDecl::Float) && matches!(actual_type, crate::compiler::types::ValueKind::Int) {
+                    if let Value::Int(int_val) = value {
+                        let converted_value = Value::Float(int_val as f64);
+                        frame.set_local(index as usize, converted_value);
+                        return Ok(());
+                    }
+                }
+            }
+        }
         
         // Local array'i genişlet gerekirse
         while frame.locals.len() <= index as usize {
@@ -330,15 +446,24 @@ impl Vm {
 
     fn jump(&mut self) -> Result<(), RuntimeError> {
         let frame = self.frames.last_mut().unwrap();
-        frame.advance_ip();
-        let offset = if frame.ip >= 2 {
-            frame.chunk.get_u16(frame.ip - 2).unwrap_or(0)
-        } else {
-            0
-        };
-        frame.advance_ip();
+        let jump_start_pos = frame.ip; // Jump opcode'unun pozisyonu
+        frame.advance_ip(); // opcode'u geç
+        let offset_u16 = frame.chunk.get_u16(frame.ip).unwrap_or(0);
+        frame.advance_ip(); // ilk byte
+        frame.advance_ip(); // ikinci byte
         
-        frame.jump_ip(offset as isize);
+        // Offset hesaplaması: offset_u16 byte cinsinden
+        // Backward jump için 2's complement çözümleme
+        let offset = if offset_u16 > (i16::MAX as u16) {
+            // Backward jump - 2's complement
+            (offset_u16 as i16) as isize
+        } else {
+            // Forward jump
+            offset_u16 as isize
+        };
+        
+        
+        frame.jump_ip(offset);
         Ok(())
     }
 
@@ -351,7 +476,8 @@ impl Vm {
         
         let condition = self.stack.pop()?;
         if !condition.is_truthy() {
-            frame.ip = offset as usize;
+            // JUMP_IF_FALSE offset: offset kadar ileriye jump et
+            frame.ip = frame.ip + offset as usize;
         }
         Ok(())
     }
@@ -395,7 +521,6 @@ impl Vm {
     fn call_function(&mut self) -> Result<(), RuntimeError> {
         let frame = self.frames.last_mut().unwrap();
         let arg_count = frame.chunk.get_byte(frame.ip + 1).unwrap_or(0);
-
         
         // Eski frame'in IP'sini advance et (opcode + arg_count = 2 byte)
         frame.advance_ip(); // opcode
@@ -403,7 +528,7 @@ impl Vm {
         
         // Önce argümanları pop et (stack'te en üstte olan)
         let mut args = Vec::new();
-        for i in 0..arg_count {
+        for _i in 0..arg_count {
             let arg = self.stack.pop()?;
             args.push(arg);
         }
@@ -419,9 +544,26 @@ impl Vm {
                     let chunk_index = func_value.chunk_index;
                     let param_count = func_value.arity;
                     
+                    // Parametre sayısı kontrolü
+                    if args.len() < param_count as usize {
+                        return Err(RuntimeError::InvalidOperation {
+                            op: format!("Expected {} arguments, but got {}", param_count, args.len()),
+                            span: crate::compiler::diag::Span::new(0, 0, 0),
+                        });
+                    }
+                    
+                    if args.len() > param_count as usize {
+                        return Err(RuntimeError::InvalidOperation {
+                            op: format!("Expected {} arguments, but got {}", param_count, args.len()),
+                            span: crate::compiler::diag::Span::new(0, 0, 0),
+                        });
+                    }
+                    
                     if chunk_index < self.functions.len() {
                         let chunk = self.functions[chunk_index].clone();
-                        let stack_start = self.stack.len().saturating_sub(arg_count as usize);
+                        // stack_start: Fonksiyon ve argümanlar zaten pop edildi, 
+                        // mevcut stack uzunluğu yeni frame'in başlangıç noktası
+                        let stack_start = self.stack.len();
                         let mut new_frame = CallFrame::new_function_with_params(
                             chunk, 
                             stack_start,
@@ -480,20 +622,32 @@ impl Vm {
     }
 
     fn return_function(&mut self) -> Result<(), RuntimeError> {
-        let result = if !self.stack.is_empty() {
-            self.stack.pop()?
+        // Mevcut frame'i al
+        let current_frame = self.frames.last().unwrap();
+        let stack_start = current_frame.stack_start;
+        
+        // Frame'in stack_start'ından sonraki tüm değerleri temizle ve son değeri return et
+        let result = if self.stack.len() > stack_start {
+            // Stack'te bu frame'e ait değerler var
+            // En üstteki değeri return değeri olarak al, diğerlerini temizle
+            let result = self.stack.pop()?;
+            
+            // Frame'in stack_start'ına kadar olan tüm değerleri temizle
+            while self.stack.len() > stack_start {
+                self.stack.pop()?;
+            }
+            
+            result
         } else {
+            // Frame'de hiçbir değer yok, Null return et
             Value::Null
         };
         
-        
+        // Frame'i kaldır
         self.frames.pop();
         
+        // Eğer hala frame'ler varsa (caller frame varsa), result'ı push et
         if !self.frames.is_empty() {
-            let caller_ip = self.frames.last().unwrap().ip;
-            if caller_ip < self.frames.last().unwrap().chunk.code.len() {
-                let opcode_at_ip = self.frames.last().unwrap().chunk.code[caller_ip];
-            }
             self.stack.push(result)?;
         }
         
@@ -879,14 +1033,21 @@ impl Vm {
                 if idx < list.len() {
                     list[idx].clone()
                 } else {
-                    Value::Null
+                    return Err(RuntimeError::InvalidOperation {
+                        op: "Index out of bounds".to_string(),
+                        span: crate::compiler::diag::Span::new(0, 0, 0),
+                    });
                 }
             },
             (Value::Map(map), Value::String(key)) => {
-                map.iter()
-                    .find(|(k, _)| **k == *key)
-                    .map(|(_, value)| value.clone())
-                    .unwrap_or(Value::Null)
+                if let Some((_, value)) = map.iter().find(|(k, _)| **k == *key) {
+                    value.clone()
+                } else {
+                    return Err(RuntimeError::InvalidOperation {
+                        op: "Key not found".to_string(),
+                        span: crate::compiler::diag::Span::new(0, 0, 0),
+                    });
+                }
             },
             _ => Value::Null,
         };
@@ -897,14 +1058,40 @@ impl Vm {
     
     /// Array/map index assignment
     fn set_index(&mut self) -> Result<(), RuntimeError> {
-        let value = self.stack.pop()?;
         let index = self.stack.pop()?;
         let mut container = self.stack.pop()?;
+        let value = self.stack.pop()?;
+        
         
         match (&mut container, &index) {
             (Value::List(list), Value::Int(i)) => {
                 let idx = *i as usize;
                 if idx < list.len() {
+                    // Tip kontrolü: mevcut elemanın tipi ile yeni değerin tipi aynı olmalı
+                    let existing_type = match &list[idx] {
+                        Value::Int(_) => "int",
+                        Value::Float(_) => "float",
+                        Value::String(_) => "string",
+                        Value::Bool(_) => "bool",
+                        Value::List(_) => "list",
+                        Value::Map(_) => "map",
+                        _ => "any",
+                    };
+                    let new_type = match &value {
+                        Value::Int(_) => "int",
+                        Value::Float(_) => "float",
+                        Value::String(_) => "string",
+                        Value::Bool(_) => "bool",
+                        Value::List(_) => "list",
+                        Value::Map(_) => "map",
+                        _ => "any",
+                    };
+                    if existing_type != "any" && new_type != "any" && existing_type != new_type {
+                        return Err(RuntimeError::InvalidOperation {
+                            op: format!("Type mismatch: cannot assign {} to list element of type {}", new_type, existing_type),
+                            span: crate::compiler::diag::Span::new(0, 0, 0),
+                        });
+                    }
                     list[idx] = value;
                 } else {
                     // Extend list with null values if needed
@@ -913,14 +1100,43 @@ impl Vm {
                     }
                     list[idx] = value;
                 }
+                // Container'ı geri stack'e koy
+                self.stack.push(container)?;
             },
             (Value::Map(map), Value::String(key)) => {
                 // Update existing key or add new one
                 if let Some((_, existing_value)) = map.iter_mut().find(|(k, _)| **k == *key) {
+                    // Tip kontrolü: mevcut değerin tipi ile yeni değerin tipi aynı olmalı
+                    let existing_type = match existing_value {
+                        Value::Int(_) => "int",
+                        Value::Float(_) => "float",
+                        Value::String(_) => "string",
+                        Value::Bool(_) => "bool",
+                        Value::List(_) => "list",
+                        Value::Map(_) => "map",
+                        _ => "any",
+                    };
+                    let new_type = match &value {
+                        Value::Int(_) => "int",
+                        Value::Float(_) => "float",
+                        Value::String(_) => "string",
+                        Value::Bool(_) => "bool",
+                        Value::List(_) => "list",
+                        Value::Map(_) => "map",
+                        _ => "any",
+                    };
+                    if existing_type != "any" && new_type != "any" && existing_type != new_type {
+                        return Err(RuntimeError::InvalidOperation {
+                            op: format!("Type mismatch: cannot assign {} to map value of type {}", new_type, existing_type),
+                            span: crate::compiler::diag::Span::new(0, 0, 0),
+                        });
+                    }
                     *existing_value = value;
                 } else {
                     map.insert(key.clone(), value);
                 }
+                // Container'ı geri stack'e koy
+                self.stack.push(container)?;
             },
             _ => {
                 return Err(RuntimeError::InvalidOperation {
@@ -930,7 +1146,6 @@ impl Vm {
             }
         };
         
-        self.stack.push(container)?;
         Ok(())
     }
     

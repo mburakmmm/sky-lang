@@ -167,6 +167,8 @@ pub struct Binder {
     scopes: ScopeStack,
     symbols: Vec<SymbolInfo>,
     next_slot: u32,
+    in_function: bool, // Fonksiyon bağlamında mı?
+    in_loop: bool, // Döngü bağlamında mı?
 }
 
 impl Binder {
@@ -175,6 +177,8 @@ impl Binder {
             scopes: ScopeStack::new(),
             symbols: Vec::new(),
             next_slot: 0,
+            in_function: false,
+            in_loop: false,
         };
         
         // Global scope oluştur
@@ -461,12 +465,19 @@ impl Binder {
                     bound_params.push(Param::new(param.name.clone(), TypeDecl::from(param.ty.clone()), param.span));
                 }
                 
+                // Fonksiyon bağlamını işaretle
+                let old_in_function = self.in_function;
+                self.in_function = true;
+                
                 // Fonksiyon gövdesini bağla
                 let mut bound_body = Vec::new();
                 for body_stmt in body {
                     let bound_stmt = self.bind_statement(body_stmt)?;
                     bound_body.push(bound_stmt);
                 }
+                
+                // Fonksiyon bağlamını geri yükle
+                self.in_function = old_in_function;
                 
                 self.scopes.pop();
                 
@@ -533,10 +544,19 @@ impl Binder {
                 self.scopes.push(Scope::new());
                 let symbol = self.declare_variable(&variable, &TypeDecl::Var, span)?;
                 
+                // Döngü bağlamını işaretle
+                let old_in_loop = self.in_loop;
+                self.in_loop = true;
+                
                 let mut bound_body = Vec::new();
                 for stmt in body {
-                    bound_body.push(self.bind_statement(stmt)?);
+                    let bound_stmt = self.bind_statement(stmt)?;
+                    bound_body.push(bound_stmt);
                 }
+                
+                // Döngü bağlamını geri yükle
+                self.in_loop = old_in_loop;
+                
                 self.scopes.pop();
                 
                 Ok(BoundStmt::For {
@@ -552,10 +572,20 @@ impl Binder {
                 let bound_condition = self.bind_expression(condition)?;
                 
                 self.scopes.push(Scope::new());
+                
+                // Döngü bağlamını işaretle
+                let old_in_loop = self.in_loop;
+                self.in_loop = true;
+                
                 let mut bound_body = Vec::new();
                 for stmt in body {
-                    bound_body.push(self.bind_statement(stmt)?);
+                    let bound_stmt = self.bind_statement(stmt)?;
+                    bound_body.push(bound_stmt);
                 }
+                
+                // Döngü bağlamını geri yükle
+                self.in_loop = old_in_loop;
+                
                 self.scopes.pop();
                 
                 Ok(BoundStmt::While {
@@ -566,6 +596,15 @@ impl Binder {
             }
             
             Stmt::Return { value, span } => {
+                // Return sadece fonksiyon içinde kullanılabilir
+                if !self.in_function {
+                    return Err(Diagnostic::error(
+                        "E0203",
+                        "return statement outside function",
+                        span,
+                    ));
+                }
+                
                 let bound_value = if let Some(value) = value {
                     Some(self.bind_expression(value)?)
                 } else {
@@ -578,8 +617,30 @@ impl Binder {
                 })
             }
             
-            Stmt::Break { span } => Ok(BoundStmt::Break { span }),
-            Stmt::Continue { span } => Ok(BoundStmt::Continue { span }),
+            Stmt::Break { span } => {
+                // Break sadece döngü içinde kullanılabilir
+                if !self.in_loop {
+                    return Err(Diagnostic::error(
+                        "E0204",
+                        "break statement outside loop",
+                        span,
+                    ));
+                }
+                
+                Ok(BoundStmt::Break { span })
+            },
+            Stmt::Continue { span } => {
+                // Continue sadece döngü içinde kullanılabilir
+                if !self.in_loop {
+                    return Err(Diagnostic::error(
+                        "E0205",
+                        "continue statement outside loop",
+                        span,
+                    ));
+                }
+                
+                Ok(BoundStmt::Continue { span })
+            },
             
             Stmt::Import { module, span } => Ok(BoundStmt::Import { module, span }),
             

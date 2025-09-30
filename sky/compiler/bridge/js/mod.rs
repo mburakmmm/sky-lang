@@ -294,7 +294,8 @@ impl JSBridge {
             },
             JsValue::Bool(b) => Ok(Value::Bool(b)),
             JsValue::String(s) => Ok(Value::String(s)),
-            JsValue::Null | JsValue::Undefined => Ok(Value::Null),
+            JsValue::Null => Ok(Value::Null),
+            JsValue::Undefined => Ok(Value::Null),
             JsValue::Array(arr) => {
                 let mut sky_list = Vec::new();
                 for item in arr {
@@ -309,7 +310,7 @@ impl JSBridge {
                 }
                 Ok(Value::Map(sky_map))
             },
-            JsValue::Function(func) => {
+            JsValue::Function(_func) => {
                 // JavaScript fonksiyonunu Sky NativeFunction'a wrap et
                 let func_name = format!("js_func_{}", self.eval_count);
                 let native_func = Value::NativeFn(NativeFunction::new(
@@ -331,7 +332,6 @@ impl JSBridge {
                 ));
                 Ok(native_func)
             },
-            _ => Ok(Value::String("Unknown JavaScript value".to_string())),
         }
     }
 }

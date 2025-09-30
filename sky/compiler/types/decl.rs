@@ -44,6 +44,33 @@ impl TypeDecl {
     pub fn is_collection(&self) -> bool {
         matches!(self, Self::List | Self::Map)
     }
+    
+    /// Tip bildirimini bytecode için u8'e çevir
+    pub fn to_bytecode_type(&self) -> u8 {
+        match self {
+            Self::Var => 0,
+            Self::Int => 1,
+            Self::Float => 2,
+            Self::Bool => 3,
+            Self::String => 4,
+            Self::List => 5,
+            Self::Map => 6,
+        }
+    }
+    
+    /// Bytecode tip kodundan TypeDecl oluştur
+    pub fn from_bytecode_type(code: u8) -> Option<Self> {
+        match code {
+            0 => Some(Self::Var),
+            1 => Some(Self::Int),
+            2 => Some(Self::Float),
+            3 => Some(Self::Bool),
+            4 => Some(Self::String),
+            5 => Some(Self::List),
+            6 => Some(Self::Map),
+            _ => None,
+        }
+    }
 }
 
 impl std::fmt::Display for TypeDecl {

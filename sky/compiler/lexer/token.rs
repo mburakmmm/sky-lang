@@ -72,6 +72,7 @@ pub enum TokenKind {
     // Punctuation
     Colon,
     Comma,
+    Dot,  // .
     LeftParen,
     RightParen,
     LeftBracket,
@@ -162,15 +163,20 @@ pub struct Token {
     pub kind: TokenKind,
     pub span: Span,
     pub value: Option<String>, // String değerleri için (StringText, InterpDartIdent, etc.)
+    pub indent_value: Option<usize>, // Indent seviyesi için
 }
 
 impl Token {
     pub fn new(kind: TokenKind, span: Span) -> Self {
-        Self { kind, span, value: None }
+        Self { kind, span, value: None, indent_value: None }
     }
     
     pub fn new_with_value(kind: TokenKind, span: Span, value: String) -> Self {
-        Self { kind, span, value: Some(value) }
+        Self { kind, span, value: Some(value), indent_value: None }
+    }
+    
+    pub fn new_with_indent(kind: TokenKind, span: Span, indent_value: usize) -> Self {
+        Self { kind, span, value: None, indent_value: Some(indent_value) }
     }
     
     /// Token'ın kaynak metindeki değerini döndür

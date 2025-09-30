@@ -88,7 +88,7 @@ impl Coroutine {
     }
     
     /// Frame state'i restore et
-    fn restore_frame_state(&mut self, frame: &mut CallFrame) -> Result<(), RuntimeError> {
+    fn restore_frame_state(&mut self, _frame: &mut CallFrame) -> Result<(), RuntimeError> {
         // Stack snapshot, local variables, IP position restore et
         // Gerçek implementasyonda:
         // - Stack state'i restore et

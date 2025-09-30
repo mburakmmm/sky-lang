@@ -51,7 +51,7 @@ impl PythonBridge {
                     let mut math_module = HashMap::new();
                     
                     // sqrt fonksiyonu - kalıcı çözüm
-                    let sqrt_fn = math.getattr("sqrt")?;
+                    let _sqrt_fn = math.getattr("sqrt")?;
                     math_module.insert("sqrt".to_string(), Value::NativeFn(NativeFunction::new(
                         "sqrt".to_string(), 1, Box::new(move |args: &[Value]| {
                             if args.len() != 1 {
@@ -73,8 +73,8 @@ impl PythonBridge {
                             // Her çağrıda fresh Python context oluştur
                             Python::with_gil(|py| {
                                 let math = py.import_bound("math")?;
-                                let sqrt_fn = math.getattr("sqrt")?;
-                                let result = sqrt_fn.call1((num,))?;
+                                let _sqrt_fn = math.getattr("sqrt")?;
+                                let result = _sqrt_fn.call1((num,))?;
                                 let result_value: f64 = result.extract()?;
                                 Ok(Value::Float(result_value))
                             }).map_err(|e: pyo3::PyErr| RuntimeError::InvalidOperation {
@@ -119,7 +119,7 @@ impl PythonBridge {
                     let mut json_module = HashMap::new();
                     
                     // json.dumps fonksiyonu - kalıcı çözüm
-                    let dumps_fn = json.getattr("dumps")?;
+                    let _dumps_fn = json.getattr("dumps")?;
                     json_module.insert("dumps".to_string(), Value::NativeFn(NativeFunction::new(
                         "dumps".to_string(), 1, Box::new(move |args: &[Value]| {
                             if args.len() != 1 {
@@ -132,10 +132,10 @@ impl PythonBridge {
                             // Her çağrıda fresh Python context oluştur
                             Python::with_gil(|py| {
                                 let json = py.import_bound("json")?;
-                                let dumps_fn = json.getattr("dumps")?;
+                                let _dumps_fn = json.getattr("dumps")?;
                                 let sky_value = &args[0];
                                 let py_value = sky_value_to_python(py, sky_value)?;
-                                let result = dumps_fn.call1((py_value,))?;
+                                let result = _dumps_fn.call1((py_value,))?;
                                 let result_str: String = result.extract()?;
                                 Ok(Value::String(result_str))
                             }).map_err(|e: pyo3::PyErr| RuntimeError::InvalidOperation {
