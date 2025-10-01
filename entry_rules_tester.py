@@ -35,8 +35,8 @@ class SkyTester:
             if should_fail:
                 if result.returncode == 0:
                     return False, f"Expected failure but got success. Output: {result.stdout}"
-                if expected_error and expected_error not in result.stderr:
-                    return False, f"Expected error '{expected_error}' not found in stderr: {result.stderr}"
+                if expected_error and expected_error not in result.stdout and expected_error not in result.stderr:
+                    return False, f"Expected error '{expected_error}' not found in stdout/stderr. stdout: '{result.stdout}', stderr: '{result.stderr}'"
                 return True, "Failed as expected"
             else:
                 if result.returncode != 0:
@@ -91,7 +91,7 @@ class SkyTester:
             """function main()
   print("Main çalıştı")""",
             should_fail=True,
-            expected_error="main function body must be brace-delimited"
+            expected_error="E6003"
         )
         
         # Diğer fonksiyonlar girintili blok kullanmalı
@@ -114,7 +114,7 @@ function main()
   print("Test çalıştı")
 }""",
             should_fail=True,
-            expected_error="only main function may use brace-delimited body"
+            expected_error="E6002"
         )
         
         # Main parametresi: args: list[string] (başarılı)
@@ -135,7 +135,7 @@ function main()
   print("Test")
 }""",
             should_fail=True,
-            expected_error="main function parameter must be 'args: list[string]'"
+            expected_error="E6001"
         )
         
         # Main parametresi: çoklu parametre (hata)
@@ -146,7 +146,7 @@ function main()
   print("Test")
 }""",
             should_fail=True,
-            expected_error="main function must have no parameters or exactly one"
+            expected_error="E6001"
         )
         
         # 2. List Tip Parametreleri Tests

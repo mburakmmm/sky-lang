@@ -1,0 +1,20 @@
+# Sky dilinde yorum satırları örneği
+# Bu dosya yorum satırlarının nasıl çalıştığını gösterir
+
+# Değişken tanımlamaları
+int sayı = 42
+string mesaj = "Merhaba Sky!"
+
+# Fonksiyon tanımlaması
+function main()
+{
+  # Fonksiyon içinde yorum
+  print("Sayı: " + sayı)
+  print("Mesaj: " + mesaj)
+  
+  # Matematik işlemleri
+  int toplam = sayı + 8
+  print("Toplam: " + toplam)
+}
+
+# Dosya sonu yorumu

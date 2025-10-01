@@ -157,8 +157,8 @@ impl Parser {
 
         while !self.is_at_end() {
             
-            // Newline token'larını skip et
-            if self.match_token(&[TokenKind::Newline]) {
+            // Newline ve Comment token'larını skip et
+            if self.match_token(&[TokenKind::Newline, TokenKind::Comment]) {
                 continue;
             }
             
@@ -194,11 +194,20 @@ impl Parser {
     }
 
     fn is_type_declaration(&self) -> bool {
-        let is_type = matches!(self.peek().kind,
+        let current = self.peek();
+        let is_type = matches!(current.kind,
             TokenKind::Var | TokenKind::IntType | TokenKind::FloatType |
-            TokenKind::BoolType | TokenKind::StringType | TokenKind::ListType |
-            TokenKind::MapType
+            TokenKind::BoolType | TokenKind::StringType | TokenKind::MapType
         );
+        
+        // ListType için özel kontrol - list[int] gibi generic type'ları destekle
+        if current.kind == TokenKind::ListType {
+            // Sonraki token'ı kontrol et
+            if let Some(next) = self.peek_ahead(1) {
+                return next.kind == TokenKind::LeftBracket;
+            }
+        }
+        
         is_type
     }
 
@@ -373,12 +382,23 @@ impl Parser {
                 continue;
             }
             
+            // Skip COMMENT tokens
+            if self.check(TokenKind::Comment) {
+                self.advance();
+                continue;
+            }
+            
             // In brace blocks, we parse statements, not declarations
             if self.is_type_declaration() {
                 let stmt = self.var_declaration()?;
                 statements.push(stmt);
             } else if self.check(TokenKind::Function) || self.check(TokenKind::Async) || self.check(TokenKind::Coop) {
                 let stmt = self.declaration()?;
+                statements.push(stmt);
+            } else if self.check(TokenKind::If) || self.check(TokenKind::For) || self.check(TokenKind::While) || 
+                      self.check(TokenKind::Return) || self.check(TokenKind::Break) || self.check(TokenKind::Continue) {
+                // Control flow statements in brace blocks
+                let stmt = self.statement()?;
                 statements.push(stmt);
             } else {
                 // For expression statements in brace blocks
@@ -452,6 +472,12 @@ impl Parser {
             return self.statement();
         }
         
+        // Newline token'larını da atla
+        if self.check(TokenKind::Newline) {
+            self.advance();
+            return self.statement();
+        }
+        
         
         if self.match_token(&[TokenKind::If]) {
             self.if_statement()
@@ -491,8 +517,8 @@ impl Parser {
         let mut stuck_count = 0;
 
         while !self.check(TokenKind::Dedent) && !self.is_at_end() {
-            // Eğer aynı seviyede bir statement varsa (indent seviyesi başlangıç seviyesi), döngüyü bitir
-            if self.current_indent_level() <= initial_indent && !self.check(TokenKind::Newline) && !self.check(TokenKind::Comment) {
+            // Eğer aynı seviyede bir statement varsa (indent seviyesi başlangıç seviyesinden küçük), döngüyü bitir
+            if self.current_indent_level() < initial_indent && !self.check(TokenKind::Newline) && !self.check(TokenKind::Comment) {
                 break;
             }
             loop_count += 1;
@@ -521,7 +547,6 @@ impl Parser {
                 stuck_count = 0;
                 continue;
             }
-            
             
             // Newline token'larını atla
             if self.check(TokenKind::Newline) {
@@ -936,7 +961,7 @@ impl Parser {
                 }
             }
         }
-
+        
         // Debug: RightParen'i consume etmeden önce mevcut token'ı kontrol et
         if !self.check(TokenKind::RightParen) {
             return Err(Diagnostic::error("E0000", &format!("Expected ')' after arguments, found {:?}", self.peek().kind), self.peek().span));

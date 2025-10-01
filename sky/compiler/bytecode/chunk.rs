@@ -2,7 +2,6 @@
 // VM'in yürüteceği bytecode, sabitler ve debug bilgileri
 
 use super::op::OpCode;
-use crate::compiler::diag::Span;
 
 /// Bytecode chunk'ı
 #[derive(Debug, Clone, PartialEq)]
@@ -128,6 +127,7 @@ impl Chunk {
                         4 => "string",
                         5 => "list",
                         6 => "map",
+                        7 => "list[param]",
                         _ => "unknown",
                     };
                     output.push_str(&format!("STORE_GLOBAL_TYPED {} {}\n", index, type_name));

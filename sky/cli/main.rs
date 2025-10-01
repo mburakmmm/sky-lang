@@ -242,9 +242,17 @@ fn run_file(file: &PathBuf, debug: bool, trace: bool, args: &Vec<String>) {
     let chunk = match compiler.compile_ast(bound_ast) {
         Ok(chunk) => {
             if debug {
-                println!("=== Bytecode ===");
+                println!("=== Bytecode (Main Chunk) ===");
                 println!("{}", chunk.disassemble());
                 println!();
+                
+                // Fonksiyon chunk'larını da göster
+                let functions = compiler.get_functions();
+                for (i, func_chunk) in functions.iter().enumerate() {
+                    println!("=== Function {} Bytecode ===", i);
+                    println!("{}", func_chunk.disassemble());
+                    println!();
+                }
             }
             chunk
         }
@@ -259,7 +267,9 @@ fn run_file(file: &PathBuf, debug: bool, trace: bool, args: &Vec<String>) {
     
     // VM - CLI argümanlarını ve dosya bilgilerini geçir
     let functions = compiler.get_functions().clone();
-    let mut vm = Vm::new_with_file_info(functions, args.clone(), file.to_string_lossy().to_string());
+    let function_info = compiler.get_function_info().clone();
+    let global_types = compiler.get_global_types().clone();
+    let mut vm = Vm::new_with_function_info(functions, function_info, args.clone(), file.to_string_lossy().to_string(), global_types);
     match vm.run(chunk) {
         Ok(result) => {
             if debug {

@@ -2,11 +2,26 @@
 // Bytecode'u okunabilir formata dönüştürür
 
 use super::chunk::{Chunk, Value};
-use super::op::OpCode;
 
 /// Chunk'ı disassemble et
 pub fn disassemble_chunk(chunk: &Chunk, name: &str) -> String {
     let mut output = format!("=== {} ===\n", name);
+    
+    // Hex dump ekle
+    output.push_str("=== HEX DUMP ===\n");
+    for (i, byte) in chunk.code.iter().enumerate() {
+        if i % 16 == 0 {
+            output.push_str(&format!("{:04x}: ", i));
+        }
+        output.push_str(&format!("{:02x} ", byte));
+        if i % 16 == 15 {
+            output.push_str("\n");
+        }
+    }
+    if chunk.code.len() % 16 != 0 {
+        output.push_str("\n");
+    }
+    output.push_str("=== END HEX DUMP ===\n\n");
     
     let mut offset = 0;
     while offset < chunk.len() {
@@ -122,8 +137,17 @@ fn call_instruction(offset: usize, chunk: &Chunk, output: &mut String) -> usize 
 }
 
 fn typed_store_instruction(name: &str, offset: usize, chunk: &Chunk, output: &mut String) -> usize {
+    eprintln!("DEBUG DIS: typed_store_instruction called, offset={}, chunk.code.len()={}", offset, chunk.code.len());
+    if offset + 3 < chunk.code.len() {
+        eprintln!("DEBUG DIS: chunk.code[{}]={}, chunk.code[{}]={}, chunk.code[{}]={}, chunk.code[{}]={}", 
+            offset, chunk.code[offset],
+            offset+1, chunk.code[offset+1],
+            offset+2, chunk.code[offset+2],
+            offset+3, chunk.code[offset+3]);
+    }
     if let Some(slot) = chunk.get_u16(offset + 1) {
         if let Some(type_code) = chunk.get_byte(offset + 3) {
+            eprintln!("DEBUG DIS: offset={}, slot={}, type_code={}", offset, slot, type_code);
             let type_name = match type_code {
                 0 => "var",
                 1 => "int",
@@ -132,10 +156,12 @@ fn typed_store_instruction(name: &str, offset: usize, chunk: &Chunk, output: &mu
                 4 => "string",
                 5 => "list",
                 6 => "map",
+                7 => "list[param]",
                 _ => "unknown",
             };
             output.push_str(&format!("{} {} {}\n", name, slot, type_name));
         } else {
+            eprintln!("DEBUG DIS: offset={}, slot={}, NO type_code at offset+3", offset, slot);
             output.push_str(&format!("{} {} [invalid type]\n", name, slot));
         }
     } else {

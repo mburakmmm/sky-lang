@@ -3,7 +3,6 @@
 
 use colored::*;
 use std::collections::HashMap;
-use std::fmt;
 
 /// Dosya içindeki konum bilgisi
 #[derive(Debug, Clone, Copy, PartialEq)]

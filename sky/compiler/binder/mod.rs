@@ -837,7 +837,12 @@ impl Binder {
             ));
         }
 
-        let slot = Slot::Local(self.next_slot);
+        // Global scope'ta ise Global slot kullan, değilse Local slot kullan
+        let slot = if self.scopes.is_global_scope() {
+            Slot::Global(self.next_slot)
+        } else {
+            Slot::Local(self.next_slot)
+        };
         self.next_slot += 1;
 
         let symbol = SymbolInfo::new(

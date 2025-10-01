@@ -7,8 +7,6 @@ pub mod call;
 pub mod vm;
 pub mod coroutine;
 
-use crate::compiler::bytecode::chunk::Chunk;
-use crate::compiler::diag::Diagnostic;
 
 // Re-exports
 pub use value::Value;
@@ -55,6 +53,10 @@ pub enum RuntimeError {
         message: String,
         span: crate::compiler::diag::Span,
     },
+    InvalidOpcode {
+        opcode: u8,
+        span: crate::compiler::diag::Span,
+    },
 }
 
 impl std::fmt::Display for RuntimeError {
@@ -76,6 +78,7 @@ impl std::fmt::Display for RuntimeError {
             Self::PythonBridgeError { message, .. } => write!(f, "Python bridge error: {}", message),
             Self::JSBridgeError { message, .. } => write!(f, "JS bridge error: {}", message),
             Self::TypeError { expected, found, .. } => write!(f, "Type error: expected {}, found {}", expected, found),
+            Self::InvalidOpcode { opcode, .. } => write!(f, "Invalid opcode: 0x{:02X}", opcode),
         }
     }
 }

@@ -269,6 +269,65 @@ impl Value {
         }
     }
 
+    /// Equal işlemi (binary_op için)
+    pub fn equal(&self, other: &Value) -> Result<Value, RuntimeError> {
+        Ok(Value::Bool(self.is_equal(other)))
+    }
+
+    /// Not equal işlemi (binary_op için)
+    pub fn not_equal(&self, other: &Value) -> Result<Value, RuntimeError> {
+        Ok(Value::Bool(!self.is_equal(other)))
+    }
+
+    /// Less equal işlemi (binary_op için)
+    pub fn less_equal(&self, other: &Value) -> Result<Value, RuntimeError> {
+        match (self, other) {
+            (Self::Int(a), Self::Int(b)) => Ok(Self::Bool(a <= b)),
+            (Self::Float(a), Self::Float(b)) => Ok(Self::Bool(a <= b)),
+            _ => Err(RuntimeError::InvalidOperation {
+                op: "less_equal".to_string(),
+                span: crate::compiler::diag::Span::new(0, 0, 0),
+            }),
+        }
+    }
+
+    /// Greater equal işlemi (binary_op için)
+    pub fn greater_equal(&self, other: &Value) -> Result<Value, RuntimeError> {
+        match (self, other) {
+            (Self::Int(a), Self::Int(b)) => Ok(Self::Bool(a >= b)),
+            (Self::Float(a), Self::Float(b)) => Ok(Self::Bool(a >= b)),
+            _ => Err(RuntimeError::InvalidOperation {
+                op: "greater_equal".to_string(),
+                span: crate::compiler::diag::Span::new(0, 0, 0),
+            }),
+        }
+    }
+
+    /// And işlemi (binary_op için)
+    pub fn and(&self, other: &Value) -> Result<Value, RuntimeError> {
+        self.and_op(other)
+    }
+
+    /// Or işlemi (binary_op için)
+    pub fn or(&self, other: &Value) -> Result<Value, RuntimeError> {
+        self.or_op(other)
+    }
+
+    /// Not işlemi (unary_op için)
+    pub fn not(&self) -> Result<Value, RuntimeError> {
+        self.not_op()
+    }
+
+    /// Concat işlemi (binary_op için)
+    pub fn concat(&self, other: &Value) -> Result<Value, RuntimeError> {
+        self.add(other) // String concatenation için add kullan
+    }
+
+    /// To string işlemi (unary_op için)
+    pub fn to_string_op(&self) -> Result<Value, RuntimeError> {
+        Ok(Value::String(self.to_string()))
+    }
+
     /// Aritmetik işlemler
     pub fn add(&self, other: &Value) -> Result<Value, RuntimeError> {
         match (self, other) {

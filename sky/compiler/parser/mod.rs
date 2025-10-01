@@ -4,11 +4,10 @@
 pub mod ast;
 pub mod grammar;
 
-use ast::*;
 use grammar::Parser;
 pub use ast::Ast;
 use crate::compiler::lexer::token::Token;
-use crate::compiler::diag::{Diagnostic, codes};
+use crate::compiler::diag::Diagnostic;
 
 /// Ana parse fonksiyonu
 pub fn parse(tokens: Vec<Token>) -> Result<Ast, Diagnostic> {

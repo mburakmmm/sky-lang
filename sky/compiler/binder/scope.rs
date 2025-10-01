@@ -82,6 +82,11 @@ impl ScopeStack {
     pub fn is_empty(&self) -> bool {
         self.scopes.is_empty()
     }
+
+    /// Global scope'ta olup olmadığını kontrol et (sadece 1 scope varsa global)
+    pub fn is_global_scope(&self) -> bool {
+        self.scopes.len() == 1
+    }
 }
 
 #[cfg(test)]

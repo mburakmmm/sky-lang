@@ -2,9 +2,10 @@
 // Stack tabanlı bytecode yorumlayıcısı
 
 use super::{Value, Stack, CallFrame, RuntimeError};
-use super::value::{FunctionValue, NativeFunction, FutureValue, CoroutineValue};
-use crate::compiler::bytecode::{Chunk, OpCode};
+use super::value::{FunctionValue, NativeFunction, FutureValue};
+use crate::compiler::bytecode::Chunk;
 use crate::compiler::bytecode::chunk::Value as ChunkValue;
+use crate::compiler::bytecode::compiler::FunctionInfo;
 
 /// Virtual Machine
 pub struct Vm {
@@ -12,9 +13,11 @@ pub struct Vm {
     frames: Vec<CallFrame>,
     globals: Vec<Value>,
     functions: Vec<Chunk>,
+    function_info: Vec<FunctionInfo>, // Fonksiyon bilgileri
     next_coroutine_id: u64,
     next_future_id: u64,
     cli_args: Vec<String>, // CLI argümanları
+    global_types: Vec<Option<crate::compiler::types::decl::TypeDecl>>,
 }
 
 impl Vm {
@@ -52,9 +55,11 @@ impl Vm {
             frames: Vec::new(),
             globals: Vec::new(),
             functions: Vec::new(),
+            function_info: Vec::new(),
             next_coroutine_id: 1,
             next_future_id: 1,
             cli_args: Vec::new(),
+            global_types: Vec::new(),
         };
         
         // Built-in fonksiyonları ekle
@@ -68,9 +73,11 @@ impl Vm {
             frames: Vec::new(),
             globals: Vec::new(),
             functions,
+            function_info: Vec::new(),
             next_coroutine_id: 1,
             next_future_id: 1,
             cli_args: Vec::new(),
+            global_types: Vec::new(),
         };
         
         // Built-in fonksiyonları ekle
@@ -84,9 +91,11 @@ impl Vm {
             frames: Vec::new(),
             globals: Vec::new(),
             functions,
+            function_info: Vec::new(),
             next_coroutine_id: 1,
             next_future_id: 1,
             cli_args,
+            global_types: Vec::new(),
         };
         
         // Built-in fonksiyonları ekle
@@ -94,15 +103,48 @@ impl Vm {
         vm
     }
     
-    pub fn new_with_file_info(functions: Vec<Chunk>, cli_args: Vec<String>, file_path: String) -> Self {
+    pub fn new_with_file_info(functions: Vec<Chunk>, cli_args: Vec<String>, file_path: String, global_types: Vec<Option<crate::compiler::types::decl::TypeDecl>>) -> Self {
         let mut vm = Self {
             stack: Stack::new(),
             frames: Vec::new(),
             globals: Vec::new(),
             functions,
+            function_info: Vec::new(),
             next_coroutine_id: 1,
             next_future_id: 1,
             cli_args,
+            global_types,
+        };
+        
+        // Built-in fonksiyonları ekle
+        vm.register_builtins();
+        
+        // Dosya bilgilerini güncelle
+        if let Some(file_value) = vm.globals.get_mut(22) {
+            *file_value = Value::String(file_path.clone());
+        }
+        if let Some(dir_value) = vm.globals.get_mut(23) {
+            let dir = std::path::Path::new(&file_path).parent()
+                .unwrap_or(std::path::Path::new("."))
+                .to_string_lossy()
+                .to_string();
+            *dir_value = Value::String(dir);
+        }
+        
+        vm
+    }
+    
+    pub fn new_with_function_info(functions: Vec<Chunk>, function_info: Vec<FunctionInfo>, cli_args: Vec<String>, file_path: String, global_types: Vec<Option<crate::compiler::types::decl::TypeDecl>>) -> Self {
+        let mut vm = Self {
+            stack: Stack::new(),
+            frames: Vec::new(),
+            globals: Vec::new(),
+            functions,
+            function_info,
+            next_coroutine_id: 1,
+            next_future_id: 1,
+            cli_args,
+            global_types,
         };
         
         // Built-in fonksiyonları ekle
@@ -127,30 +169,43 @@ impl Vm {
     fn call_main_function(&mut self) -> Result<(), RuntimeError> {
         // Main fonksiyonunu bul
         if let Some(main_index) = self.find_main_function() {
-            // __args__ değişkenini stack'e push et
-            if let Some(args_index) = self.find_global_variable("__args__") {
-                self.stack.push(self.globals[args_index as usize].clone())?;
-            } else {
-                // __args__ bulunamazsa boş liste push et
-                self.stack.push(Value::List(vec![]))?;
+            // Main fonksiyonunun parametre sayısını al
+            let param_count = self.get_main_param_count();
+            
+            // Main fonksiyonu için __args__'ı geçir (eğer parametre varsa)
+            if param_count > 0 {
+                if let Some(args_index) = self.find_global_variable("__args__") {
+                    self.stack.push(self.globals[args_index as usize].clone())?;
+                } else {
+                    // __args__ bulunamazsa boş liste push et
+                    self.stack.push(Value::List(vec![]))?;
+                }
             }
             
             // Main fonksiyonunu çağır
-            self.call_function_by_index(main_index, 1)?;
+            self.call_function_by_index(main_index, param_count as u8)?;
         }
         Ok(())
     }
 
     /// Main fonksiyonunu bul
     fn find_main_function(&self) -> Option<usize> {
-        for (i, chunk) in self.functions.iter().enumerate() {
-            // Fonksiyon ismini kontrol et (bu basit bir implementasyon)
-            // Gerçek implementasyonda fonksiyon isimlerini saklamak gerekir
-            if i == 0 { // İlk fonksiyon main olarak varsayılır
-                return Some(i);
+        for func_info in &self.function_info {
+            if func_info.name == "main" {
+                return Some(func_info.chunk_index);
             }
         }
         None
+    }
+    
+    /// Main fonksiyonunun parametre sayısını bul
+    fn get_main_param_count(&self) -> usize {
+        for func_info in &self.function_info {
+            if func_info.name == "main" {
+                return func_info.param_count;
+            }
+        }
+        0
     }
 
     /// Global değişkenin index'ini bul
@@ -163,6 +218,15 @@ impl Vm {
             "__file__" => Some(22), // __file__ slot 22'de
             "__dir__" => Some(23),  // __dir__ slot 23'te
             _ => None,
+        }
+    }
+    
+    /// Global değişkeni al
+    pub fn get_global(&self, name: &str) -> Option<Value> {
+        if let Some(index) = self.find_global_variable(name) {
+            self.globals.get(index as usize).cloned()
+        } else {
+            None
         }
     }
 
@@ -179,6 +243,18 @@ impl Vm {
         let frame = CallFrame::new(chunk, self.stack.len() - arg_count as usize);
         self.frames.push(frame);
         
+        // Args'ları local slot'lara ata
+        if arg_count > 0 {
+            let frame = self.frames.last_mut().unwrap();
+            
+            // Stack'ten args'ları pop et ve local slot'lara ata
+            for i in 0..arg_count as usize {
+                if let Ok(arg_value) = self.stack.pop() {
+                    frame.set_local(i, arg_value);
+                }
+            }
+        }
+        
         Ok(())
     }
 
@@ -186,6 +262,164 @@ impl Vm {
     pub fn run(&mut self, chunk: Chunk) -> Result<Value, RuntimeError> {
         let mut frame = CallFrame::new(chunk, self.stack.len());
         self.frames.push(frame);
+        
+        // Main chunk'ı çalıştır (global değişkenleri yükle)
+        while !self.frames.is_empty() {
+            // Frame'i kontrol et
+            if self.frames.last().unwrap().ip >= self.frames.last().unwrap().chunk.len() {
+                // Frame tamamlandı, pop et
+                self.frames.pop();
+                break;
+            }
+            
+            let instruction = self.frames.last().unwrap().current_instruction().unwrap();
+            // eprintln!("DEBUG VM: executing instruction 0x{:02x} at ip {}", instruction, self.frames.last().unwrap().ip);
+            
+            match instruction {
+                0x00 => {
+                    self.read_constant()?; // CONST
+                    // CONST 3 byte ilerlet (opcode + u16 index)
+                    self.advance_ip(); // opcode
+                    self.advance_ip(); // index low
+                    self.advance_ip(); // index high
+                }
+                0x02 => {
+                    self.read_global()?;   // LOAD_GLOBAL
+                    // LOAD_GLOBAL 3 byte ilerlet (opcode + u16 index)
+                    self.advance_ip(); // opcode
+                    self.advance_ip(); // index low
+                    self.advance_ip(); // index high
+                }
+                0x03 => self.write_global()?,  // STORE_GLOBAL
+                0x04 => {
+                    self.read_local()?;    // LOAD_LOCAL
+                    // LOAD_LOCAL 3 byte ilerlet (opcode + u16 index)
+                    self.advance_ip(); // opcode
+                    self.advance_ip(); // index low
+                    self.advance_ip(); // index high
+                }
+                0x05 => self.write_local()?,   // STORE_LOCAL
+                0x06 => { 
+                    self.write_local_typed()?;   // STORE_LOCAL_TYPED
+                    // STORE_LOCAL_TYPED 4 byte ilerlet (opcode + u16 local index + u8 type)
+                    self.advance_ip(); // opcode
+                    self.advance_ip(); // local index low
+                    self.advance_ip(); // local index high
+                    self.advance_ip(); // type
+                }
+                0x07 => { 
+                    // eprintln!("DEBUG VM: executing STORE_GLOBAL_TYPED");
+                    self.write_global_typed()?;   // STORE_GLOBAL_TYPED
+                    // STORE_GLOBAL_TYPED 4 byte ilerlet (opcode + u16 global index + u8 type)
+                    self.advance_ip(); // opcode
+                    self.advance_ip(); // global index low
+                    self.advance_ip(); // global index high
+                    self.advance_ip(); // type
+                }
+                0x10 => { self.binary_op(Value::add)?; self.advance_ip(); }, // ADD
+                0x11 => { self.binary_op(Value::sub)?; self.advance_ip(); }, // SUB
+                0x12 => { self.binary_op(Value::mul)?; self.advance_ip(); }, // MUL
+                0x13 => { self.binary_op(Value::div)?; self.advance_ip(); }, // DIV
+                0x14 => { self.binary_op(Value::mod_op)?; self.advance_ip(); }, // MOD
+                0x20 => { self.binary_op(Value::equal)?; self.advance_ip(); }, // EQUAL
+                0x21 => { self.binary_op(Value::not_equal)?; self.advance_ip(); }, // NOT_EQUAL
+                0x22 => { self.binary_op(Value::less)?; self.advance_ip(); }, // LESS
+                0x23 => { self.binary_op(Value::less_equal)?; self.advance_ip(); }, // LESS_EQUAL
+                0x24 => { self.binary_op(Value::greater)?; self.advance_ip(); }, // GREATER
+                0x25 => { self.binary_op(Value::greater_equal)?; self.advance_ip(); }, // GREATER_EQUAL
+                0x30 => { self.binary_op(Value::and)?; self.advance_ip(); }, // AND
+                0x31 => { self.binary_op(Value::or)?; self.advance_ip(); }, // OR
+                0x32 => { self.unary_op(Value::not)?; self.advance_ip(); }, // NOT
+                0x40 => { // JUMP
+                    let offset = self.frames.last().unwrap().chunk.get_u16(self.frames.last().unwrap().ip + 1).unwrap_or(0);
+                    self.frames.last_mut().unwrap().ip = offset as usize;
+                }
+                0x41 => { // JUMP_IF_FALSE
+                    let offset = self.frames.last().unwrap().chunk.get_u16(self.frames.last().unwrap().ip + 1).unwrap_or(0);
+                    let condition = self.stack.pop()?;
+                    if !condition.is_truthy() {
+                        self.frames.last_mut().unwrap().ip = offset as usize;
+                    } else {
+                        self.advance_ip(); // opcode
+                        self.advance_ip(); // offset low
+                        self.advance_ip(); // offset high
+                    }
+                }
+                0x50 => { self.stack.pop()?; self.advance_ip(); }, // POP
+                0x51 => { self.binary_op(Value::concat)?; self.advance_ip(); }, // CONCAT
+                0x52 => { self.unary_op(Value::to_string_op)?; self.advance_ip(); }, // TO_STRING
+                0x53 => { self.get_attr()?; self.advance_ip(); }, // GET_ATTR
+                0x54 => { self.set_attr()?; self.advance_ip(); }, // SET_ATTR
+                0x55 => { self.get_index()?; self.advance_ip(); }, // GET_INDEX
+                0x56 => { self.set_index()?; self.advance_ip(); }, // SET_INDEX
+                0x57 => { self.dup()?; self.advance_ip(); }, // DUP
+                0x60 => { // MAKE_FUNCTION
+                    self.make_function()?;
+                }
+                0x61 => { // CALL
+                    self.call_function()?;
+                }
+                0x62 => { // RETURN
+                    let result = self.stack.pop().unwrap_or(Value::Null);
+                    self.frames.pop();
+                    if !self.frames.is_empty() {
+                        self.stack.push(result)?;
+                    }
+                }
+                0x70 => { // MAKE_COOP_FUNCTION
+                    self.make_coop_function()?;
+                }
+                0x71 => { // COOP_NEW
+                    self.coop_new()?;
+                    self.advance_ip();
+                }
+                0x72 => { // YIELD
+                    self.coop_yield()?;
+                    self.advance_ip();
+                }
+                0x73 => { // COOP_RESUME
+                    self.coop_resume()?;
+                    self.advance_ip();
+                }
+                0x74 => { // COOP_IS_DONE
+                    self.coop_is_done()?;
+                    self.advance_ip();
+                }
+                0x80 => { // AWAIT
+                    self.await_future()?;
+                    self.advance_ip();
+                }
+                0x90 => { // MAKE_RANGE
+                    self.make_range()?;
+                    self.advance_ip();
+                }
+                0x91 => { // ITER_NEW
+                    self.iter_new()?;
+                    self.advance_ip();
+                }
+                0x92 => { // ITER_NEXT
+                    self.iter_next()?;
+                    self.advance_ip();
+                }
+                0x93 => { // ITER_DONE
+                    self.iter_done()?;
+                    self.advance_ip();
+                }
+                0xA0 => { // PRINT
+                    self.print()?;
+                    self.advance_ip();
+                }
+                0xFF => { // NOP
+                    self.advance_ip();
+                }
+                _ => {
+                    return Err(RuntimeError::InvalidOpcode {
+                        opcode: instruction,
+                        span: crate::compiler::diag::Span::new(0, 0, 0),
+                    });
+                }
+            }
+        }
         
         // Main fonksiyonunu otomatik çağır
         self.call_main_function()?;
@@ -242,6 +476,7 @@ impl Vm {
                     self.advance_ip(); // type
                 }
                 0x07 => { 
+                    // eprintln!("DEBUG VM: executing STORE_GLOBAL_TYPED");
                     self.write_global_typed()?;   // STORE_GLOBAL_TYPED
                     // STORE_GLOBAL_TYPED 4 byte ilerlet (opcode + u16 global index + u8 type)
                     self.advance_ip(); // opcode
@@ -391,11 +626,11 @@ impl Vm {
         let frame = self.frames.last_mut().unwrap();
         let index = frame.chunk.get_u16(frame.ip + 1).unwrap_or(0);
         
-        
         let global = self.globals.get(index as usize)
             .cloned()
             .unwrap_or(Value::Null);
         
+        // eprintln!("DEBUG VM: LOAD_GLOBAL {} -> {:?}", index, global);
         self.stack.push(global)?;
         Ok(())
     }
@@ -420,35 +655,69 @@ impl Vm {
 
     fn write_global_typed(&mut self) -> Result<(), RuntimeError> {
         let frame = self.frames.last_mut().unwrap();
-        frame.advance_ip();
-        let index = frame.chunk.get_u16(frame.ip).unwrap_or(0);
-        frame.advance_ip();
-        frame.advance_ip();
-        let type_code = frame.chunk.get_byte(frame.ip).unwrap_or(0);
+        let index = frame.chunk.get_u16(frame.ip + 1).unwrap_or(0);
+        let type_code = frame.chunk.get_byte(frame.ip + 3).unwrap_or(0);
+        
+        // eprintln!("DEBUG VM: Stack durumu - len: {}, is_empty: {}", self.stack.len(), self.stack.is_empty());
+        if self.stack.is_empty() {
+            // eprintln!("DEBUG VM: Stack boş! STORE_GLOBAL_TYPED için değer yok.");
+            return Err(RuntimeError::StackUnderflow);
+        }
         
         let value = self.stack.pop()?;
         
-        // Tip kontrolü yap
-        if let Some(expected_type) = crate::compiler::types::TypeDecl::from_bytecode_type(type_code) {
-            if !expected_type.is_dynamic() {
-                // null assignment'ı için özel durum - null herhangi bir tipe atanabilir
-                if matches!(value, Value::Null) {
-                    // Global array'i genişlet gerekirse
-                    while self.globals.len() <= index as usize {
-                        self.globals.push(Value::Null);
+        // eprintln!("DEBUG VM: STORE_GLOBAL_TYPED {} type_code={} value={:?}", index, type_code, value);
+        
+        // Tip kontrolü yap - global_types'tan tip bilgisini al
+        let expected_type = if (index as usize) < self.global_types.len() {
+            if let Some(ty) = &self.global_types[index as usize] {
+                ty.clone()
+            } else {
+                crate::compiler::types::TypeDecl::from_bytecode_type(type_code).unwrap_or(crate::compiler::types::TypeDecl::Var)
+            }
+        } else {
+            crate::compiler::types::TypeDecl::from_bytecode_type(type_code).unwrap_or(crate::compiler::types::TypeDecl::Var)
+        };
+        
+        // eprintln!("DEBUG VM: expected_type={:?}", expected_type);
+        if !expected_type.is_dynamic() {
+            // null assignment'ı için özel durum - null herhangi bir tipe atanabilir
+            if matches!(value, Value::Null) {
+                // Global array'i genişlet gerekirse
+                while self.globals.len() <= index as usize {
+                    self.globals.push(Value::Null);
+                }
+                self.globals[index as usize] = value;
+                // eprintln!("DEBUG VM: stored null at global {}", index);
+                return Ok(());
+            }
+            
+            let actual_type = value.get_type();
+            // eprintln!("DEBUG VM: actual_type={:?}", actual_type);
+            
+            // ListParam tipleri için özel kontrol
+            if let crate::compiler::types::decl::TypeDecl::ListParam(expected_param) = &expected_type {
+                if let Value::List(list) = &value {
+                    // Liste elementlerinin tiplerini kontrol et
+                    for (i, element) in list.iter().enumerate() {
+                        let element_type = element.get_type();
+                        if !crate::compiler::types::is_compatible(&expected_param.to_type_decl(), &element_type) {
+                            // eprintln!("DEBUG VM: list element type mismatch! expected={:?}, actual={:?} at index {}", expected_param, element_type, i);
+                            return Err(RuntimeError::TypeMismatch {
+                                expected: format!("list[{}]", expected_param),
+                                actual: format!("list with {} at index {}", element_type, i),
+                                span: crate::compiler::diag::Span::new(0, 0, 0),
+                            });
+                        }
                     }
-                    self.globals[index as usize] = value;
-                    return Ok(());
                 }
-                
-                let actual_type = value.get_type();
-                if !crate::compiler::types::is_compatible(&expected_type, &actual_type) {
-                    return Err(RuntimeError::TypeMismatch {
-                        expected: expected_type.to_string(),
-                        actual: actual_type.to_string(),
-                        span: crate::compiler::diag::Span::new(0, 0, 0),
-                    });
-                }
+            } else if !crate::compiler::types::is_compatible(&expected_type, &actual_type) {
+                // eprintln!("DEBUG VM: type mismatch! expected={:?}, actual={:?}", expected_type, actual_type);
+                return Err(RuntimeError::TypeMismatch {
+                    expected: expected_type.to_string(),
+                    actual: actual_type.to_string(),
+                    span: crate::compiler::diag::Span::new(0, 0, 0),
+                });
             }
         }
         
@@ -457,7 +726,8 @@ impl Vm {
             self.globals.push(Value::Null);
         }
         
-        self.globals[index as usize] = value;
+        self.globals[index as usize] = value.clone();
+                // eprintln!("DEBUG VM: stored {:?} at global {}", value, index);
         Ok(())
     }
 
@@ -594,14 +864,10 @@ impl Vm {
 
     fn make_function(&mut self) -> Result<(), RuntimeError> {
         let frame = self.frames.last_mut().unwrap();
-        frame.advance_ip();
-        let chunk_index = if frame.ip >= 2 {
-            frame.chunk.get_u16(frame.ip - 2).unwrap_or(0)
-        } else {
-            0
-        };
-        frame.advance_ip();
-        frame.advance_ip();
+        let chunk_index = frame.chunk.get_u16(frame.ip + 1).unwrap_or(0);
+        frame.advance_ip(); // opcode
+        frame.advance_ip(); // chunk index low
+        frame.advance_ip(); // chunk index high
         let param_count = frame.chunk.get_byte(frame.ip).unwrap_or(0);
         frame.advance_ip();
         
@@ -766,14 +1032,10 @@ impl Vm {
 
     fn make_coop_function(&mut self) -> Result<(), RuntimeError> {
         let frame = self.frames.last_mut().unwrap();
-        frame.advance_ip();
-        let chunk_index = if frame.ip >= 2 {
-            frame.chunk.get_u16(frame.ip - 2).unwrap_or(0)
-        } else {
-            0
-        };
-        frame.advance_ip();
-        frame.advance_ip();
+        let chunk_index = frame.chunk.get_u16(frame.ip + 1).unwrap_or(0);
+        frame.advance_ip(); // opcode
+        frame.advance_ip(); // chunk index low
+        frame.advance_ip(); // chunk index high
         let param_count = frame.chunk.get_byte(frame.ip).unwrap_or(0);
         frame.advance_ip();
         
@@ -859,6 +1121,20 @@ impl Vm {
             }
         }
         
+        Ok(())
+    }
+
+    /// Stack'in en üstündeki değeri kopyala
+    fn dup(&mut self) -> Result<(), RuntimeError> {
+        let value = self.stack.peek(0)?.clone();
+        self.stack.push(value)?;
+        Ok(())
+    }
+
+    /// Print işlemi
+    fn print(&mut self) -> Result<(), RuntimeError> {
+        let value = self.stack.pop()?;
+        println!("{}", value.to_string());
         Ok(())
     }
 
@@ -1521,6 +1797,54 @@ impl Vm {
         
         // __dir__ (slot 23) - CLI'den geçirilecek
         self.globals.push(Value::String("".to_string()));
+        
+        // Ek global değişkenler için boş slot'lar (24+)
+        // Global tiplere göre varsayılan değerler atanacak
+        // Fonksiyonlar için de uygun değerler atanacak
+        let max_global_slot = std::cmp::max(30, self.global_types.len());
+        for i in 24..max_global_slot {
+            if i < self.global_types.len() {
+                if let Some(ty) = &self.global_types[i] {
+                    match ty {
+                        crate::compiler::types::decl::TypeDecl::ListParam(_) => {
+                            self.globals.push(Value::List(Vec::new()));
+                        }
+                        crate::compiler::types::decl::TypeDecl::Map => {
+                            self.globals.push(Value::Map(std::collections::HashMap::new()));
+                        }
+                        crate::compiler::types::decl::TypeDecl::String => {
+                            self.globals.push(Value::String(String::new()));
+                        }
+                        crate::compiler::types::decl::TypeDecl::Int => {
+                            self.globals.push(Value::Int(0));
+                        }
+                        crate::compiler::types::decl::TypeDecl::Float => {
+                            self.globals.push(Value::Float(0.0));
+                        }
+                        crate::compiler::types::decl::TypeDecl::Bool => {
+                            self.globals.push(Value::Bool(false));
+                        }
+                        _ => {
+                            self.globals.push(Value::Null);
+                        }
+                    }
+                } else {
+                    // Tip bilgisi yoksa, fonksiyon olabilir - Null olarak başlat
+                    // Fonksiyonlar runtime'da MAKE_FUNCTION ile atanacak
+                    self.globals.push(Value::Null);
+                }
+            } else {
+                self.globals.push(Value::Null);
+            }
+        }
+        
+        // Debug: Global slot'ların durumunu yazdır
+        // eprintln!("DEBUG VM: Global slot sayısı: {}", self.globals.len());
+        // for (i, val) in self.globals.iter().enumerate() {
+        //     if i >= 24 {
+        //         eprintln!("DEBUG VM: Global slot {}: {:?}", i, val);
+        //     }
+        // }
     }
 }
 

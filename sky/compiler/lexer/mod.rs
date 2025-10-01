@@ -84,9 +84,10 @@ pub fn lex(src: &str) -> Result<Vec<Token>, Diagnostic> {
                     }
                     chars.next();
                 }
+                let end_pos = chars.peek().map(|(p, _)| *p).unwrap_or(src.len());
                 tokens.push(Token::new(
                     token::TokenKind::Comment,
-                    Span::new(0, start, chars.peek().map(|(p, _)| *p).unwrap_or(src.len()))
+                    Span::new(0, start, end_pos)
                 ));
             }
             

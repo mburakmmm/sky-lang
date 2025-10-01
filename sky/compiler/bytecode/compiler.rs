@@ -1,9 +1,9 @@
 // Compiler - AST'ten Bytecode Üretici
 // Bound AST'yi bytecode'a dönüştürür
 
-use super::chunk::{Chunk, Value, LineInfo};
+use super::chunk::{Chunk, Value};
 use super::op::OpCode;
-use crate::compiler::binder::{BoundAst, BoundStmt, BoundExpr, symbols::{SymbolInfo, Slot}};
+use crate::compiler::binder::{BoundAst, BoundStmt, BoundExpr, symbols::Slot};
 use crate::compiler::parser::ast::{Literal, BinaryOp, UnaryOp, Expr};
 use crate::compiler::diag::{Diagnostic, Span};
 
@@ -11,7 +11,17 @@ use crate::compiler::diag::{Diagnostic, Span};
 pub struct Compiler {
     chunk: Chunk,
     functions: Vec<Chunk>,
+    function_info: Vec<FunctionInfo>, // Fonksiyon bilgileri
     loop_stack: Vec<LoopContext>, // Loop context stack
+    global_types: Vec<Option<crate::compiler::types::decl::TypeDecl>>, // Global değişken tipleri
+}
+
+/// Fonksiyon bilgisi
+#[derive(Debug, Clone)]
+pub struct FunctionInfo {
+    pub name: String,
+    pub param_count: usize,
+    pub chunk_index: usize,
 }
 
 /// Loop context bilgisi
@@ -27,7 +37,9 @@ impl Compiler {
         Self {
             chunk: Chunk::new(),
             functions: Vec::new(),
+            function_info: Vec::new(),
             loop_stack: Vec::new(),
+            global_types: Vec::new(),
         }
     }
 
@@ -43,6 +55,14 @@ impl Compiler {
     pub fn get_functions(&self) -> &Vec<Chunk> {
         &self.functions
     }
+    
+    pub fn get_function_info(&self) -> &Vec<FunctionInfo> {
+        &self.function_info
+    }
+    
+    pub fn get_global_types(&self) -> &Vec<Option<crate::compiler::types::decl::TypeDecl>> {
+        &self.global_types
+    }
 
     fn compile_statement(&mut self, stmt: BoundStmt) -> Result<(), Diagnostic> {
         match stmt {
@@ -57,7 +77,14 @@ impl Compiler {
                             self.chunk.write_op(OpCode::StoreLocalTyped(idx.try_into().unwrap(), type_code), 0);
                         }
                         crate::compiler::binder::symbols::Slot::Global(idx) => {
-                            self.chunk.write_op(OpCode::StoreGlobalTyped(idx.try_into().unwrap(), type_code), 0);
+                            // Global değişken tipini kaydet
+                            let global_idx = idx.try_into().unwrap();
+                            while self.global_types.len() <= global_idx as usize {
+                                self.global_types.push(None);
+                            }
+                            self.global_types[global_idx as usize] = Some(ty.clone());
+                            
+                            self.chunk.write_op(OpCode::StoreGlobalTyped(global_idx, type_code), 0);
                         }
                     }
                 } else {
@@ -91,6 +118,13 @@ impl Compiler {
                 // Fonksiyon chunk'ını kaydet
                 let func_index = self.functions.len();
                 self.functions.push(func_chunk);
+                
+                // Fonksiyon bilgilerini kaydet
+                self.function_info.push(FunctionInfo {
+                    name: name.clone(),
+                    param_count,
+                    chunk_index: func_index,
+                });
                 
                 // Fonksiyon oluşturma opcode'u - parametre sayısını da kaydet
                 match kind {
