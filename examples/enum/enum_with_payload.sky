@@ -1,0 +1,24 @@
+# Enum with payload test
+
+enum Shape
+  Circle(int)
+  Rectangle(int, int)
+  Triangle(int, int, int)
+end
+
+function area(shape)
+  match shape
+    Circle(r) => print("Circle area:", 3.14 * r * r)
+    Rectangle(w, h) => print("Rectangle area:", w * h)
+    Triangle(a, b, c) => print("Triangle (placeholder)")
+  end
+end
+
+function main
+  let c = Circle(5)
+  let r = Rectangle(10, 20)
+  
+  area(c)
+  area(r)
+end
+

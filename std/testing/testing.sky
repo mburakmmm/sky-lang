@@ -1,0 +1,184 @@
+# Testing framework for SKY
+
+# Global test state
+let _tests = []
+let _passed = 0
+let _failed = 0
+
+class TestResult
+  function __init__(self, name, passed, error)
+    self.name = name
+    self.passed = passed
+    self.error = error
+  end
+end
+
+# Assertion functions
+function assert_eq(a, b, msg)
+  if a != b
+    let error_msg = "Assertion failed: " + str(a) + " != " + str(b)
+    if msg
+      error_msg = error_msg + " (" + msg + ")"
+    end
+    panic(error_msg)
+  end
+end
+
+function assert_ne(a, b, msg)
+  if a == b
+    let error_msg = "Assertion failed: " + str(a) + " == " + str(b)
+    if msg
+      error_msg = error_msg + " (" + msg + ")"
+    end
+    panic(error_msg)
+  end
+end
+
+function assert_true(cond, msg)
+  if not cond
+    let error_msg = "Assertion failed: expected true"
+    if msg
+      error_msg = error_msg + " (" + msg + ")"
+    end
+    panic(error_msg)
+  end
+end
+
+function assert_false(cond, msg)
+  if cond
+    let error_msg = "Assertion failed: expected false"
+    if msg
+      error_msg = error_msg + " (" + msg + ")"
+    end
+    panic(error_msg)
+  end
+end
+
+function assert_nil(value, msg)
+  if value != 0
+    let error_msg = "Assertion failed: expected nil/null"
+    if msg
+      error_msg = error_msg + " (" + msg + ")"
+    end
+    panic(error_msg)
+  end
+end
+
+function assert_not_nil(value, msg)
+  if value == 0
+    let error_msg = "Assertion failed: expected non-nil"
+    if msg
+      error_msg = error_msg + " (" + msg + ")"
+    end
+    panic(error_msg)
+  end
+end
+
+function assert_raises(fn, expected_error, msg)
+  let raised = false
+  let actual_error = ""
+  
+  # Try to call function and catch error
+  # (needs proper error handling support)
+  # For now, this is a placeholder
+  
+  if not raised
+    let error_msg = "Assertion failed: expected " + expected_error + " to be raised"
+    if msg
+      error_msg = error_msg + " (" + msg + ")"
+    end
+    panic(error_msg)
+  end
+end
+
+# Test registration and running
+function test(name, fn)
+  # Register a test
+  _tests.append({
+    "name": name,
+    "fn": fn
+  })
+end
+
+function run_tests()
+  # Run all registered tests
+  print("Running", len(_tests), "tests...")
+  print("")
+  
+  _passed = 0
+  _failed = 0
+  
+  for test_case in _tests
+    let name = test_case["name"]
+    let fn = test_case["fn"]
+    
+    print("  [TEST]", name, "...")
+    
+    # Run test (error handling needed)
+    # For now, simplified
+    let success = true
+    let error = ""
+    
+    # Call test function
+    fn()
+    
+    if success
+      _passed = _passed + 1
+      print("    ✅ PASS")
+    else
+      _failed = _failed + 1
+      print("    ❌ FAIL:", error)
+    end
+  end
+  
+  print("")
+  print("=" * 60)
+  print("Results:", _passed, "passed,", _failed, "failed")
+  print("=" * 60)
+  
+  if _failed > 0
+    panic("Tests failed!")
+  end
+end
+
+# Benchmark support
+function bench(name, fn)
+  print("[BENCH]", name)
+  
+  # Warmup
+  let i = 0
+  while i < 10
+    fn()
+    i = i + 1
+  end
+  
+  # Actual benchmark
+  let iterations = 1000
+  let start_time = 0  # Needs time module
+  
+  i = 0
+  while i < iterations
+    fn()
+    i = i + 1
+  end
+  
+  let end_time = 0  # Needs time module
+  let avg_time = (end_time - start_time) / iterations
+  
+  print("  Average:", avg_time, "ms")
+end
+
+# Example usage:
+#
+# import testing
+#
+# testing.test("addition works", function()
+#   testing.assert_eq(1 + 1, 2, "basic math")
+# end)
+#
+# testing.test("strings work", function()
+#   testing.assert_eq("hello".upper(), "HELLO")
+# end)
+#
+# testing.run_tests()
+

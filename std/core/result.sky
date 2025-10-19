@@ -1,0 +1,92 @@
+# Result[T, E] type for error handling
+# Rust-style Result implementation using classes
+
+class Result
+  function __init__(self, value, error, is_ok)
+    self._value = value
+    self._error = error
+    self._is_ok = is_ok
+  end
+  
+  function is_ok(self)
+    return self._is_ok
+  end
+  
+  function is_err(self)
+    return not self._is_ok
+  end
+  
+  function unwrap(self)
+    if not self._is_ok
+      panic("called unwrap() on Err: " + str(self._error))
+    end
+    return self._value
+  end
+  
+  function unwrap_or(self, default)
+    if self._is_ok
+      return self._value
+    end
+    return default
+  end
+  
+  function unwrap_err(self)
+    if self._is_ok
+      panic("called unwrap_err() on Ok")
+    end
+    return self._error
+  end
+  
+  function map(self, fn)
+    if self._is_ok
+      return Ok(fn(self._value))
+    end
+    return self
+  end
+  
+  function map_err(self, fn)
+    if not self._is_ok
+      return Err(fn(self._error))
+    end
+    return self
+  end
+  
+  function and_then(self, fn)
+    if self._is_ok
+      return fn(self._value)
+    end
+    return self
+  end
+  
+  function or_else(self, fn)
+    if not self._is_ok
+      return fn(self._error)
+    end
+    return self
+  end
+end
+
+# Constructor functions
+function Ok(value)
+  return Result(value, 0, true)
+end
+
+function Err(error)
+  return Result(0, error, false)
+end
+
+# Example usage:
+# function divide(a, b)
+#   if b == 0
+#     return Err("division by zero")
+#   end
+#   return Ok(a / b)
+# end
+#
+# let result = divide(10, 2)
+# if result.is_ok()
+#   print("Result:", result.unwrap())
+# else
+#   print("Error:", result.unwrap_err())
+# end
+

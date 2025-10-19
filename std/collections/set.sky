@@ -1,0 +1,103 @@
+# Set - unordered collection of unique elements
+
+class Set
+  function __init__(self, items)
+    self._items = {}
+    if items
+      for item in items
+        self.add(item)
+      end
+    end
+  end
+  
+  function add(self, item)
+    let key = str(item)
+    self._items[key] = item
+  end
+  
+  function remove(self, item)
+    let key = str(item)
+    if self.contains(item)
+      self._items.pop(key)
+    end
+  end
+  
+  function contains(self, item)
+    let key = str(item)
+    return self._items.get(key) != 0
+  end
+  
+  function len(self)
+    return len(self._items)
+  end
+  
+  function clear(self)
+    self._items = {}
+  end
+  
+  function copy(self)
+    let new_set = Set([])
+    for item in self.to_list()
+      new_set.add(item)
+    end
+    return new_set
+  end
+  
+  function to_list(self)
+    return self._items.values()
+  end
+  
+  function union(self, other)
+    let result = self.copy()
+    for item in other.to_list()
+      result.add(item)
+    end
+    return result
+  end
+  
+  function intersection(self, other)
+    let result = Set([])
+    for item in self.to_list()
+      if other.contains(item)
+        result.add(item)
+      end
+    end
+    return result
+  end
+  
+  function difference(self, other)
+    let result = Set([])
+    for item in self.to_list()
+      if not other.contains(item)
+        result.add(item)
+      end
+    end
+    return result
+  end
+  
+  function symmetric_difference(self, other)
+    let result = self.difference(other)
+    let other_diff = other.difference(self)
+    return result.union(other_diff)
+  end
+  
+  function issubset(self, other)
+    for item in self.to_list()
+      if not other.contains(item)
+        return false
+      end
+    end
+    return true
+  end
+  
+  function issuperset(self, other)
+    return other.issubset(self)
+  end
+end
+
+# Example usage:
+# let s1 = Set([1, 2, 3])
+# let s2 = Set([3, 4, 5])
+# print(s1.union(s2).to_list())  # [1, 2, 3, 4, 5]
+# print(s1.intersection(s2).to_list())  # [3]
+

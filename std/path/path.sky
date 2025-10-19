@@ -1,0 +1,133 @@
+# Path manipulation utilities (platform-aware)
+
+const SEPARATOR = "/"  # Unix default
+
+function join(parts)
+  # Join path parts with separator
+  let result = ""
+  let i = 0
+  
+  for part in parts
+    if i > 0 and not result.endswith("/")
+      result = result + "/"
+    end
+    
+    # Remove leading/trailing slashes from parts
+    let clean_part = part
+    if clean_part.startswith("/") and i > 0
+      clean_part = clean_part.slice(1)
+    end
+    if clean_part.endswith("/")
+      clean_part = clean_part.slice(0, len(clean_part) - 1)
+    end
+    
+    result = result + clean_part
+    i = i + 1
+  end
+  
+  return result
+end
+
+function basename(path)
+  # Get the last component of path
+  let parts = path.split("/")
+  if len(parts) == 0
+    return ""
+  end
+  return parts[len(parts) - 1]
+end
+
+function dirname(path)
+  # Get directory portion of path
+  let parts = path.split("/")
+  if len(parts) <= 1
+    return "."
+  end
+  
+  # Remove last component
+  let result = []
+  let i = 0
+  while i < len(parts) - 1
+    result.append(parts[i])
+    i = i + 1
+  end
+  
+  return join(result)
+end
+
+function extname(path)
+  # Get file extension
+  let base = basename(path)
+  if not base.contains(".")
+    return ""
+  end
+  
+  let parts = base.split(".")
+  if len(parts) < 2
+    return ""
+  end
+  
+  return "." + parts[len(parts) - 1]
+end
+
+function is_abs(path)
+  # Check if path is absolute
+  return path.startswith("/")
+end
+
+function normalize(path)
+  # Normalize path (remove .., ., double slashes)
+  let parts = path.split("/")
+  let normalized = []
+  
+  for part in parts
+    if part == "" or part == "."
+      continue
+    end
+    
+    if part == ".."
+      if len(normalized) > 0 and normalized[len(normalized) - 1] != ".."
+        normalized.pop()
+      else
+        normalized.append("..")
+      end
+    else
+      normalized.append(part)
+    end
+  end
+  
+  let result = join(normalized)
+  
+  # Preserve leading slash for absolute paths
+  if path.startswith("/") and not result.startswith("/")
+    result = "/" + result
+  end
+  
+  return result
+end
+
+function split(path)
+  # Split path into directory and file
+  let dir = dirname(path)
+  let file = basename(path)
+  return [dir, file]
+end
+
+function splitext(path)
+  # Split path into name and extension
+  let ext = extname(path)
+  if ext == ""
+    return [path, ""]
+  end
+  
+  let name = path.slice(0, len(path) - len(ext))
+  return [name, ext]
+end
+
+# Example usage:
+# let p = path.join(["home", "user", "file.txt"])
+# print(p)  # "home/user/file.txt"
+# print(path.basename(p))  # "file.txt"
+# print(path.dirname(p))  # "home/user"
+# print(path.extname(p))  # ".txt"
+

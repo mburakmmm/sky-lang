@@ -189,6 +189,8 @@ func (i *Interpreter) evalStatement(stmt ast.Statement) (Value, error) {
 		return nil, i.evalImportStatement(s)
 	case *ast.UnsafeStatement:
 		return i.evalUnsafeStatement(s)
+	case *ast.EnumStatement:
+		return i.evalEnumStatement(s)
 	case *ast.BlockStatement:
 		return i.evalBlockStatement(s, i.env)
 	default:
@@ -552,6 +554,9 @@ func (i *Interpreter) evalExpression(expr ast.Expression) (Value, error) {
 
 	case *ast.MemberExpression:
 		return i.evalMemberExpression(e)
+
+	case *ast.MatchExpression:
+		return i.evalMatchExpression(e)
 
 	default:
 		return nil, &RuntimeError{Message: fmt.Sprintf("unknown expression type: %T", expr)}

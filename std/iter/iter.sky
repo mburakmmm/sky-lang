@@ -1,0 +1,180 @@
+# Lazy iterator module
+
+class Iter
+  function __init__(self, source)
+    self._source = source
+    self._index = 0
+  end
+  
+  function __iter__(self)
+    return self
+  end
+  
+  function __next__(self)
+    if self._index < len(self._source)
+      let value = self._source[self._index]
+      self._index = self._index + 1
+      return value
+    end
+    # StopIteration - return error to signal end
+    panic("StopIteration")
+  end
+  
+  function take(self, n)
+    return TakeIter(self, n)
+  end
+  
+  function drop(self, n)
+    return DropIter(self, n)
+  end
+  
+  function map(self, fn)
+    return MapIter(self, fn)
+  end
+  
+  function filter(self, fn)
+    return FilterIter(self, fn)
+  end
+  
+  function chain(self, other)
+    return ChainIter(self, other)
+  end
+  
+  function to_list(self)
+    let result = []
+    for item in self
+      result.append(item)
+    end
+    return result
+  end
+end
+
+# TakeIter - takes first n elements
+class TakeIter
+  function __init__(self, source, n)
+    self._source = source
+    self._n = n
+    self._taken = 0
+  end
+  
+  function __iter__(self)
+    return self
+  end
+  
+  function __next__(self)
+    if self._taken >= self._n
+      panic("StopIteration")
+    end
+    self._taken = self._taken + 1
+    return self._source.__next__()
+  end
+end
+
+# DropIter - drops first n elements
+class DropIter
+  function __init__(self, source, n)
+    self._source = source
+    self._n = n
+    self._dropped = 0
+  end
+  
+  function __iter__(self)
+    return self
+  end
+  
+  function __next__(self)
+    while self._dropped < self._n
+      self._source.__next__()
+      self._dropped = self._dropped + 1
+    end
+    return self._source.__next__()
+  end
+end
+
+# MapIter - transforms elements
+class MapIter
+  function __init__(self, source, fn)
+    self._source = source
+    self._fn = fn
+  end
+  
+  function __iter__(self)
+    return self
+  end
+  
+  function __next__(self)
+    let value = self._source.__next__()
+    return self._fn(value)
+  end
+end
+
+# FilterIter - filters elements
+class FilterIter
+  function __init__(self, source, fn)
+    self._source = source
+    self._fn = fn
+  end
+  
+  function __iter__(self)
+    return self
+  end
+  
+  function __next__(self)
+    while true
+      let value = self._source.__next__()
+      if self._fn(value)
+        return value
+      end
+    end
+  end
+end
+
+# ChainIter - chains two iterators
+class ChainIter
+  function __init__(self, first, second)
+    self._first = first
+    self._second = second
+    self._using_first = true
+  end
+  
+  function __iter__(self)
+    return self
+  end
+  
+  function __next__(self)
+    if self._using_first
+      let value = 0
+      # Try first iterator
+      # If exhausted, switch to second
+      # (needs proper error handling)
+      self._using_first = false
+    end
+    return self._second.__next__()
+  end
+end
+
+# Helper functions
+function iter(source)
+  return Iter(source)
+end
+
+function range(start, end, step)
+  let result = []
+  let i = start
+  if step == 0
+    step = 1
+  end
+  
+  while i < end
+    result.append(i)
+    i = i + step
+  end
+  
+  return Iter(result)
+end
+
+# Example usage:
+# let nums = iter([1, 2, 3, 4, 5])
+# let doubled = nums.map(function(x) return x * 2 end)
+# print(doubled.take(3).to_list())  # [2, 4, 6]
+

@@ -1,0 +1,68 @@
+# Option[T] type for representing optional values
+# Rust-style Option implementation using classes
+
+class Option
+  function __init__(self, value, is_some)
+    self._value = value
+    self._is_some = is_some
+  end
+  
+  function is_some(self)
+    return self._is_some
+  end
+  
+  function is_none(self)
+    return not self._is_some
+  end
+  
+  function unwrap(self)
+    if not self._is_some
+      panic("called unwrap() on None")
+    end
+    return self._value
+  end
+  
+  function unwrap_or(self, default)
+    if self._is_some
+      return self._value
+    end
+    return default
+  end
+  
+  function map(self, fn)
+    if self._is_some
+      return Some(fn(self._value))
+    end
+    return None()
+  end
+  
+  function and_then(self, fn)
+    if self._is_some
+      return fn(self._value)
+    end
+    return None()
+  end
+  
+  function or_else(self, fn)
+    if self._is_some
+      return self
+    end
+    return fn()
+  end
+end
+
+# Constructor functions
+function Some(value)
+  return Option(value, true)
+end
+
+function None()
+  return Option(0, false)
+end
+
+# Example usage:
+# let x = Some(42)
+# print(x.unwrap())  # 42
+# let y = None()
+# print(y.unwrap_or(0))  # 0
+
