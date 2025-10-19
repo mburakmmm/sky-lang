@@ -93,6 +93,7 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerPrefix(lexer.YIELD, p.parseYieldExpression)
 	p.registerPrefix(lexer.SELF, p.parseIdentifier)
 	p.registerPrefix(lexer.SUPER, p.parseIdentifier)
+	p.registerPrefix(lexer.MATCH, p.parseMatchExpression)
 
 	// Infix parse fonksiyonları
 	p.infixParseFns = make(map[lexer.TokenType]infixParseFn)
@@ -239,6 +240,8 @@ func (p *Parser) parseStatement() ast.Statement {
 		return p.parseImportStatement()
 	case lexer.UNSAFE:
 		return p.parseUnsafeStatement()
+	case lexer.ENUM:
+		return p.parseEnumStatement()
 	default:
 		return p.parseExpressionStatement()
 	}
@@ -637,4 +640,161 @@ func (p *Parser) parseTypeAnnotation() ast.TypeAnnotation {
 		p.addError(fmt.Sprintf("unexpected type: %s", p.curToken.Literal))
 		return nil
 	}
+}
+
+// parseEnumStatement parses enum declaration
+func (p *Parser) parseEnumStatement() *ast.EnumStatement {
+	stmt := &ast.EnumStatement{Token: p.curToken}
+
+	if !p.expectPeek(lexer.IDENT) {
+		return nil
+	}
+
+	stmt.Name = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+
+	// Skip NEWLINE and INDENT
+	if p.peekTokenIs(lexer.NEWLINE) {
+		p.nextToken()
+	}
+	if p.peekTokenIs(lexer.INDENT) {
+		p.nextToken()
+	}
+
+	// Parse variants
+	stmt.Variants = []*ast.EnumVariant{}
+
+	for !p.curTokenIs(lexer.END) && !p.curTokenIs(lexer.DEDENT) && !p.curTokenIs(lexer.EOF) {
+		if p.curTokenIs(lexer.NEWLINE) {
+			p.nextToken()
+			continue
+		}
+
+		if !p.curTokenIs(lexer.IDENT) {
+			break
+		}
+
+		variant := &ast.EnumVariant{
+			Name: &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal},
+		}
+
+		// Check for payload
+		if p.peekTokenIs(lexer.LPAREN) {
+			p.nextToken() // (
+			p.nextToken() // first type
+
+			variant.Payload = []ast.TypeAnnotation{}
+
+			if !p.curTokenIs(lexer.RPAREN) {
+				variant.Payload = append(variant.Payload, p.parseTypeAnnotation())
+
+				for p.peekTokenIs(lexer.COMMA) {
+					p.nextToken() // ,
+					p.nextToken() // type
+					variant.Payload = append(variant.Payload, p.parseTypeAnnotation())
+				}
+
+				if !p.expectPeek(lexer.RPAREN) {
+					return nil
+				}
+			}
+		}
+
+		stmt.Variants = append(stmt.Variants, variant)
+		p.nextToken()
+	}
+
+	// Skip DEDENT and END
+	if p.curTokenIs(lexer.DEDENT) {
+		p.nextToken()
+	}
+	if p.curTokenIs(lexer.END) {
+		p.nextToken()
+	}
+
+	return stmt
+}
+
+// parseMatchExpression parses match expression
+func (p *Parser) parseMatchExpression() ast.Expression {
+	expr := &ast.MatchExpression{Token: p.curToken}
+
+	p.nextToken()
+	expr.Value = p.parseExpression(LOWEST)
+
+	// Skip NEWLINE and INDENT
+	if p.peekTokenIs(lexer.NEWLINE) {
+		p.nextToken()
+	}
+	if p.peekTokenIs(lexer.INDENT) {
+		p.nextToken()
+	}
+
+	// Parse match arms
+	expr.Arms = []*ast.MatchArm{}
+
+	for !p.curTokenIs(lexer.END) && !p.curTokenIs(lexer.DEDENT) && !p.curTokenIs(lexer.EOF) {
+		if p.curTokenIs(lexer.NEWLINE) {
+			p.nextToken()
+			continue
+		}
+
+		arm := &ast.MatchArm{}
+
+		// Parse pattern
+		arm.Pattern = p.parseExpression(LOWEST)
+
+		// Expect ARROW =>
+		if !p.expectPeek(lexer.ARROW) {
+			return nil
+		}
+
+		// Parse body
+		p.nextToken()
+
+		// Single expression or block
+		if p.peekTokenIs(lexer.NEWLINE) && p.peekToken.Type != lexer.INDENT {
+			// Single expression
+			body := &ast.BlockStatement{
+				Token:      p.curToken,
+				Statements: []ast.Statement{},
+			}
+
+			exprStmt := &ast.ExpressionStatement{
+				Token:      p.curToken,
+				Expression: p.parseExpression(LOWEST),
+			}
+			body.Statements = append(body.Statements, exprStmt)
+			arm.Body = body
+		} else if p.peekTokenIs(lexer.NEWLINE) {
+			// Block
+			p.nextToken() // NEWLINE
+			p.nextToken() // INDENT
+			arm.Body = p.parseBlockStatement()
+		} else {
+			// Inline expression
+			body := &ast.BlockStatement{
+				Token:      p.curToken,
+				Statements: []ast.Statement{},
+			}
+			exprStmt := &ast.ExpressionStatement{
+				Token:      p.curToken,
+				Expression: p.parseExpression(LOWEST),
+			}
+			body.Statements = append(body.Statements, exprStmt)
+			arm.Body = body
+		}
+
+		expr.Arms = append(expr.Arms, arm)
+		p.nextToken()
+	}
+
+	// Skip DEDENT and END
+	if p.curTokenIs(lexer.DEDENT) {
+		p.nextToken()
+	}
+	if p.curTokenIs(lexer.END) {
+		p.nextToken()
+	}
+
+	return expr
 }

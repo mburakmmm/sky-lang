@@ -37,6 +37,12 @@ func main() {
 		dumpCommand(os.Args[2:])
 	case "check":
 		checkCommand(os.Args[2:])
+	case "fmt":
+		fmtCommand(os.Args[2:])
+	case "lint":
+		lintCommand(os.Args[2:])
+	case "doc":
+		docCommand(os.Args[2:])
 	case "version", "--version", "-v":
 		fmt.Printf("SKY version %s\n", version)
 	case "help", "--help", "-h":
@@ -271,6 +277,15 @@ func buildCommand(args []string) {
 }
 
 func testCommand(args []string) {
+	// Check for enhanced test flags
+	for _, arg := range args {
+		if arg == "-p" || arg == "--parallel" || arg == "-c" || arg == "--coverage" || arg == "-v" || arg == "--verbose" {
+			runEnhancedTests(args)
+			return
+		}
+	}
+
+	// Original simple test runner
 	testDir := "tests"
 	if len(args) > 0 {
 		testDir = args[0]

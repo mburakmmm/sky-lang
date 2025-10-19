@@ -46,6 +46,8 @@ const (
 	AND      // and
 	OR       // or
 	NOT      // not
+	ENUM     // enum
+	MATCH    // match
 
 	// Operators
 	PLUS    // +
@@ -120,6 +122,8 @@ var keywords = map[string]TokenType{
 	"and":      AND,
 	"or":       OR,
 	"not":      NOT,
+	"enum":     ENUM,
+	"match":    MATCH,
 }
 
 // LookupIdent identifier'ın keyword olup olmadığını kontrol eder
@@ -193,6 +197,10 @@ func (tt TokenType) String() string {
 		AND:      "AND",
 		OR:       "OR",
 		NOT:      "NOT",
+		ENUM:     "ENUM",
+		MATCH:    "MATCH",
+		BREAK:    "BREAK",
+		CONTINUE: "CONTINUE",
 
 		PLUS:    "PLUS",
 		MINUS:   "MINUS",
