@@ -143,6 +143,8 @@ func (i *Interpreter) evalStatement(stmt ast.Statement) (Value, error) {
 		return i.evalWhileStatement(s)
 	case *ast.ForStatement:
 		return i.evalForStatement(s)
+	case *ast.ClassStatement:
+		return nil, i.evalClassStatement(s)
 	case *ast.BlockStatement:
 		return i.evalBlockStatement(s, i.env)
 	default:
@@ -416,6 +418,9 @@ func (i *Interpreter) evalExpression(expr ast.Expression) (Value, error) {
 	case *ast.YieldExpression:
 		return i.evalYieldExpression(e)
 
+	case *ast.MemberExpression:
+		return i.evalMemberExpression(e)
+
 	default:
 		return nil, &RuntimeError{Message: fmt.Sprintf("unknown expression type: %T", expr)}
 	}
@@ -450,6 +455,56 @@ func (i *Interpreter) evalInfixExpression(expr *ast.InfixExpression) (Value, err
 	if expr.Operator == "=" || expr.Operator == "+=" || expr.Operator == "-=" ||
 		expr.Operator == "*=" || expr.Operator == "/=" || expr.Operator == "%=" {
 
+		// Handle member assignment (obj.field = value)
+		if memberExpr, ok := expr.Left.(*ast.MemberExpression); ok {
+			object, err := i.evalExpression(memberExpr.Object)
+			if err != nil {
+				return nil, err
+			}
+
+			if instance, ok := object.(*Instance); ok {
+				rightVal, err := i.evalExpression(expr.Right)
+				if err != nil {
+					return nil, err
+				}
+
+				memberName := memberExpr.Member.Value
+
+				if expr.Operator != "=" {
+					// Compound assignment
+					leftVal, found := instance.Get(memberName)
+					if !found {
+						return nil, &RuntimeError{Message: fmt.Sprintf("undefined property: %s", memberName)}
+					}
+
+					var result Value
+					switch expr.Operator {
+					case "+=":
+						result, err = i.evalBinaryOp(leftVal, rightVal, "+")
+					case "-=":
+						result, err = i.evalBinaryOp(leftVal, rightVal, "-")
+					case "*=":
+						result, err = i.evalBinaryOp(leftVal, rightVal, "*")
+					case "/=":
+						result, err = i.evalBinaryOp(leftVal, rightVal, "/")
+					case "%=":
+						result, err = i.evalBinaryOp(leftVal, rightVal, "%")
+					}
+
+					if err != nil {
+						return nil, err
+					}
+					rightVal = result
+				}
+
+				instance.Set(memberName, rightVal)
+				return rightVal, nil
+			}
+
+			return nil, &RuntimeError{Message: "can only assign to instance members"}
+		}
+
+		// Handle identifier assignment
 		if ident, ok := expr.Left.(*ast.Identifier); ok {
 			rightVal, err := i.evalExpression(expr.Right)
 			if err != nil {
@@ -632,9 +687,53 @@ func (i *Interpreter) evalCallExpression(expr *ast.CallExpression) (Value, error
 		return nil, err
 	}
 
+	// Check if it's a class (instantiation)
+	if class, ok := function.(*Class); ok {
+		// Create new instance
+		instance := &Instance{
+			Class:  class,
+			Fields: make(map[string]Value),
+		}
+
+		// Evaluate arguments once
+		args := make([]Value, len(expr.Arguments))
+		for idx, arg := range expr.Arguments {
+			val, err := i.evalExpression(arg)
+			if err != nil {
+				return nil, err
+			}
+			args[idx] = val
+		}
+
+		// Call constructor hierarchy (superclass first, then subclass)
+		constructorChain := []*Function{}
+		currentClass := class
+		for currentClass != nil {
+			if constructor, hasConstructor := currentClass.Methods["__init__"]; hasConstructor {
+				constructorChain = append([]*Function{constructor}, constructorChain...)
+			}
+			currentClass = currentClass.SuperClass
+		}
+
+		// Call constructors in order (base class first)
+		for _, constructor := range constructorChain {
+			callEnv := NewEnvironment(constructor.Env)
+			callEnv.Set("__args__", &List{Elements: args})
+			callEnv.Set("self", instance)
+
+			_, err := constructor.Body(callEnv)
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		return instance, nil
+	}
+
+	// Regular function call
 	fn, ok := function.(*Function)
 	if !ok {
-		return nil, &RuntimeError{Message: fmt.Sprintf("%s is not a function", expr.Function.String())}
+		return nil, &RuntimeError{Message: fmt.Sprintf("%s is not a function or class", expr.Function.String())}
 	}
 
 	// Argümanları değerlendir
@@ -725,4 +824,131 @@ func (i *Interpreter) evalYieldExpression(expr *ast.YieldExpression) (Value, err
 	// In a full implementation, this would suspend the coroutine
 	// and pass control back to the caller
 	return value, nil
+}
+
+// evalClassStatement evaluates a class definition
+func (i *Interpreter) evalClassStatement(stmt *ast.ClassStatement) error {
+	className := stmt.Name.Value
+
+	// Handle superclass
+	var superClass *Class
+	if stmt.SuperClass != nil {
+		superVal, ok := i.env.Get(stmt.SuperClass.Value)
+		if !ok {
+			return &RuntimeError{Message: fmt.Sprintf("undefined superclass: %s", stmt.SuperClass.Value)}
+		}
+		var okClass bool
+		superClass, okClass = superVal.(*Class)
+		if !okClass {
+			return &RuntimeError{Message: fmt.Sprintf("%s is not a class", stmt.SuperClass.Value)}
+		}
+	}
+
+	// Create class environment
+	classEnv := NewEnvironment(i.env)
+
+	// Create class
+	class := &Class{
+		Name:       className,
+		SuperClass: superClass,
+		Methods:    make(map[string]*Function),
+		Env:        classEnv,
+	}
+
+	// Process class body (methods)
+	oldEnv := i.env
+	i.env = classEnv
+	defer func() { i.env = oldEnv }()
+
+	for _, member := range stmt.Body {
+		switch m := member.(type) {
+		case *ast.FunctionStatement:
+			// Add method to class
+			funcName := m.Name.Value
+			params := make([]string, len(m.Parameters))
+			for idx, param := range m.Parameters {
+				params[idx] = param.Name.Value
+			}
+
+			capturedStmt := m
+			capturedEnv := classEnv
+
+			method := &Function{
+				Name:       funcName,
+				Parameters: params,
+				Async:      m.Async,
+				Env:        capturedEnv,
+				Body: func(callEnv *Environment) (Value, error) {
+					// Execute method body
+					fnEnv := NewEnvironment(capturedEnv)
+
+					// Get arguments
+					args, _ := callEnv.Get("__args__")
+					if argList, ok := args.(*List); ok {
+						for idx, paramName := range params {
+							if idx < len(argList.Elements) {
+								fnEnv.Set(paramName, argList.Elements[idx])
+							} else {
+								fnEnv.Set(paramName, &Nil{})
+							}
+						}
+					}
+
+					// Copy self and super if they exist
+					if self, ok := callEnv.Get("self"); ok {
+						fnEnv.Set("self", self)
+					}
+					if super, ok := callEnv.Get("super"); ok {
+						fnEnv.Set("super", super)
+					}
+
+					oldMethodEnv := i.env
+					i.env = fnEnv
+					defer func() { i.env = oldMethodEnv }()
+
+					return i.evalBlockStatement(capturedStmt.Body, fnEnv)
+				},
+			}
+
+			class.Methods[funcName] = method
+
+		default:
+			// For now, only methods are supported in class body
+			return &RuntimeError{Message: fmt.Sprintf("unsupported class member: %T", member)}
+		}
+	}
+
+	// Register class in environment
+	i.env = oldEnv
+	i.env.Set(className, class)
+
+	return nil
+}
+
+// evalMemberExpression evaluates member access (obj.member)
+func (i *Interpreter) evalMemberExpression(expr *ast.MemberExpression) (Value, error) {
+	object, err := i.evalExpression(expr.Object)
+	if err != nil {
+		return nil, err
+	}
+
+	memberName := expr.Member.Value
+
+	// Handle instance member access
+	if instance, ok := object.(*Instance); ok {
+		if value, found := instance.Get(memberName); found {
+			return value, nil
+		}
+		return nil, &RuntimeError{Message: fmt.Sprintf("undefined property: %s", memberName)}
+	}
+
+	// Handle dict member access (for backwards compatibility)
+	if dict, ok := object.(*Dict); ok {
+		if value, found := dict.Pairs[memberName]; found {
+			return value, nil
+		}
+		return &Nil{}, nil
+	}
+
+	return nil, &RuntimeError{Message: fmt.Sprintf("cannot access member of %T", object)}
 }

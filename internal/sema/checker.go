@@ -442,6 +442,17 @@ func (c *Checker) checkExpression(expr ast.Expression) Type {
 }
 
 func (c *Checker) checkIdentifier(expr *ast.Identifier) Type {
+	// Special handling for 'self' and 'super'
+	if expr.Value == "self" {
+		// 'self' is always valid in method context
+		// For now, return AnyType (could be improved with class type tracking)
+		return AnyType
+	}
+	if expr.Value == "super" {
+		// 'super' is always valid in methods of classes with superclasses
+		return AnyType
+	}
+
 	symbol, ok := c.symTable.Resolve(expr.Value)
 	if !ok {
 		c.addError(&SemanticError{

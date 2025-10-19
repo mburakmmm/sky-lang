@@ -15,6 +15,8 @@ const (
 	DictValue
 	FunctionValue
 	PromiseValue
+	ClassValue
+	InstanceValue
 )
 
 // Value runtime değerlerini temsil eder
@@ -241,4 +243,78 @@ func (p *Promise) Await() (Value, error) {
 		return nil, p.Error
 	}
 	return p.Value, nil
+}
+
+// Class represents a class definition
+type Class struct {
+	Name       string
+	SuperClass *Class               // parent class
+	Methods    map[string]*Function // method name -> function
+	Env        *Environment         // class environment
+}
+
+func (c *Class) Kind() ValueKind { return ClassValue }
+func (c *Class) String() string  { return fmt.Sprintf("<class %s>", c.Name) }
+func (c *Class) IsTruthy() bool  { return true }
+
+// Instance represents an instance of a class
+type Instance struct {
+	Class  *Class
+	Fields map[string]Value
+}
+
+func (i *Instance) Kind() ValueKind { return InstanceValue }
+func (i *Instance) String() string {
+	return fmt.Sprintf("<instance of %s>", i.Class.Name)
+}
+func (i *Instance) IsTruthy() bool { return true }
+
+// Get retrieves a field or method from the instance
+func (i *Instance) Get(name string) (Value, bool) {
+	// Check instance fields first
+	if val, ok := i.Fields[name]; ok {
+		return val, true
+	}
+
+	// Check class methods
+	if method, ok := i.Class.Methods[name]; ok {
+		// Bind method to instance (self)
+		boundMethod := &Function{
+			Name:       method.Name,
+			Parameters: method.Parameters,
+			Async:      method.Async,
+			Env:        method.Env,
+			Body: func(callEnv *Environment) (Value, error) {
+				// Set 'self' to this instance
+				callEnv.Set("self", i)
+				return method.Body(callEnv)
+			},
+		}
+		return boundMethod, true
+	}
+
+	// Check superclass methods
+	if i.Class.SuperClass != nil {
+		if method, ok := i.Class.SuperClass.Methods[name]; ok {
+			boundMethod := &Function{
+				Name:       method.Name,
+				Parameters: method.Parameters,
+				Async:      method.Async,
+				Env:        method.Env,
+				Body: func(callEnv *Environment) (Value, error) {
+					callEnv.Set("self", i)
+					callEnv.Set("super", i.Class.SuperClass)
+					return method.Body(callEnv)
+				},
+			}
+			return boundMethod, true
+		}
+	}
+
+	return nil, false
+}
+
+// Set sets a field on the instance
+func (i *Instance) Set(name string, value Value) {
+	i.Fields[name] = value
 }
