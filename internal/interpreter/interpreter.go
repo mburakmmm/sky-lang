@@ -1,6 +1,7 @@
 package interpreter
 
 import (
+	"bufio"
 	"fmt"
 	"math"
 	"os"
@@ -90,6 +91,12 @@ func New() *Interpreter {
 
 	// NUMERIC FUNCTIONS
 	addNumericFunctions(env)
+
+	// UTILITY FUNCTIONS
+	addUtilityFunctions(env)
+
+	// FUNCTIONAL PROGRAMMING
+	addFunctionalFunctions(env)
 
 	// STRING METHODS
 	addStringMethods(env)
@@ -1175,6 +1182,74 @@ func addTypeConversionFunctions(env *Environment) {
 			return &String{Value: ""}, nil
 		},
 	})
+
+	// list(iterable)
+	env.Set("list", &Function{
+		Name: "list",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) > 0 {
+				arg := list.Elements[0]
+
+				switch v := arg.(type) {
+				case *List:
+					// Copy list
+					copied := make([]Value, len(v.Elements))
+					copy(copied, v.Elements)
+					return &List{Elements: copied}, nil
+				case *String:
+					// String to list of characters
+					chars := make([]Value, len(v.Value))
+					for i, ch := range v.Value {
+						chars[i] = &String{Value: string(ch)}
+					}
+					return &List{Elements: chars}, nil
+				case *Dict:
+					// Dict to list of keys
+					keys := make([]Value, 0, len(v.Pairs))
+					for k := range v.Pairs {
+						keys = append(keys, &String{Value: k})
+					}
+					return &List{Elements: keys}, nil
+				default:
+					return &List{Elements: []Value{arg}}, nil
+				}
+			}
+			return &List{Elements: []Value{}}, nil
+		},
+	})
+
+	// dict(pairs or **kwargs)
+	env.Set("dict", &Function{
+		Name: "dict",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) > 0 {
+				// If first arg is already a dict, copy it
+				if d, ok := list.Elements[0].(*Dict); ok {
+					pairs := make(map[string]Value)
+					for k, v := range d.Pairs {
+						pairs[k] = v
+					}
+					return &Dict{Pairs: pairs}, nil
+				}
+
+				// If it's a list of [key, value] pairs
+				if pairsList, ok := list.Elements[0].(*List); ok {
+					pairs := make(map[string]Value)
+					for _, pairVal := range pairsList.Elements {
+						if pair, ok := pairVal.(*List); ok && len(pair.Elements) >= 2 {
+							key := pair.Elements[0].String()
+							val := pair.Elements[1]
+							pairs[key] = val
+						}
+					}
+					return &Dict{Pairs: pairs}, nil
+				}
+			}
+			return &Dict{Pairs: make(map[string]Value)}, nil
+		},
+	})
 }
 
 // addNumericFunctions adds math utility functions
@@ -1390,6 +1465,257 @@ func addNumericFunctions(env *Environment) {
 				}
 			}
 			return &Nil{}, &RuntimeError{Message: "ceil() requires numeric argument"}
+		},
+	})
+
+	// sum(iterable)
+	env.Set("sum", &Function{
+		Name: "sum",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) > 0 {
+				if items, ok := list.Elements[0].(*List); ok {
+					var intSum int64
+					var floatSum float64
+					hasFloat := false
+
+					for _, item := range items.Elements {
+						switch v := item.(type) {
+						case *Integer:
+							if hasFloat {
+								floatSum += float64(v.Value)
+							} else {
+								intSum += v.Value
+							}
+						case *Float:
+							if !hasFloat {
+								floatSum = float64(intSum)
+								hasFloat = true
+							}
+							floatSum += v.Value
+						}
+					}
+
+					if hasFloat {
+						return &Float{Value: floatSum}, nil
+					}
+					return &Integer{Value: intSum}, nil
+				}
+			}
+			return &Integer{Value: 0}, nil
+		},
+	})
+}
+
+// addUtilityFunctions adds utility functions (input, type, isinstance)
+func addUtilityFunctions(env *Environment) {
+	// input(prompt)
+	env.Set("input", &Function{
+		Name: "input",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+
+			// Print prompt if provided
+			if list, ok := args.(*List); ok && len(list.Elements) > 0 {
+				if prompt, ok := list.Elements[0].(*String); ok {
+					fmt.Print(prompt.Value)
+				}
+			}
+
+			// Read from stdin
+			reader := bufio.NewReader(os.Stdin)
+			line, err := reader.ReadString('\n')
+			if err != nil {
+				return &String{Value: ""}, nil
+			}
+
+			// Remove trailing newline
+			line = strings.TrimSuffix(line, "\n")
+			line = strings.TrimSuffix(line, "\r")
+
+			return &String{Value: line}, nil
+		},
+	})
+
+	// type(x)
+	env.Set("type", &Function{
+		Name: "type",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) > 0 {
+				arg := list.Elements[0]
+
+				switch arg.(type) {
+				case *Integer:
+					return &String{Value: "int"}, nil
+				case *Float:
+					return &String{Value: "float"}, nil
+				case *String:
+					return &String{Value: "string"}, nil
+				case *Boolean:
+					return &String{Value: "bool"}, nil
+				case *List:
+					return &String{Value: "list"}, nil
+				case *Dict:
+					return &String{Value: "dict"}, nil
+				case *Function:
+					return &String{Value: "function"}, nil
+				case *Class:
+					return &String{Value: "class"}, nil
+				case *Instance:
+					return &String{Value: "instance"}, nil
+				case *Promise:
+					return &String{Value: "promise"}, nil
+				case *Nil:
+					return &String{Value: "nil"}, nil
+				default:
+					return &String{Value: "unknown"}, nil
+				}
+			}
+			return &String{Value: "nil"}, nil
+		},
+	})
+
+	// isinstance(obj, type)
+	env.Set("isinstance", &Function{
+		Name: "isinstance",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 2 {
+				obj := list.Elements[0]
+				if typeName, ok := list.Elements[1].(*String); ok {
+					objType := ""
+
+					switch obj.(type) {
+					case *Integer:
+						objType = "int"
+					case *Float:
+						objType = "float"
+					case *String:
+						objType = "string"
+					case *Boolean:
+						objType = "bool"
+					case *List:
+						objType = "list"
+					case *Dict:
+						objType = "dict"
+					case *Function:
+						objType = "function"
+					case *Class:
+						objType = "class"
+					case *Instance:
+						objType = "instance"
+					}
+
+					return &Boolean{Value: objType == typeName.Value}, nil
+				}
+			}
+			return &Boolean{Value: false}, nil
+		},
+	})
+}
+
+// addFunctionalFunctions adds functional programming functions
+func addFunctionalFunctions(env *Environment) {
+	// map(function, iterable)
+	env.Set("map", &Function{
+		Name: "map",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 2 {
+				if fn, ok := list.Elements[0].(*Function); ok {
+					if items, ok := list.Elements[1].(*List); ok {
+						results := make([]Value, len(items.Elements))
+
+						for i, item := range items.Elements {
+							// Call function with item
+							fnEnv := NewEnvironment(fn.Env)
+							fnEnv.Set("__args__", &List{Elements: []Value{item}})
+
+							result, err := fn.Body(fnEnv)
+							if err != nil {
+								return &Nil{}, err
+							}
+							results[i] = result
+						}
+
+						return &List{Elements: results}, nil
+					}
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "map() requires function and iterable"}
+		},
+	})
+
+	// filter(function, iterable)
+	env.Set("filter", &Function{
+		Name: "filter",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 2 {
+				if fn, ok := list.Elements[0].(*Function); ok {
+					if items, ok := list.Elements[1].(*List); ok {
+						results := make([]Value, 0, len(items.Elements))
+
+						for _, item := range items.Elements {
+							// Call function with item
+							fnEnv := NewEnvironment(fn.Env)
+							fnEnv.Set("__args__", &List{Elements: []Value{item}})
+
+							result, err := fn.Body(fnEnv)
+							if err != nil {
+								return &Nil{}, err
+							}
+
+							// Include item if result is truthy
+							if result.IsTruthy() {
+								results = append(results, item)
+							}
+						}
+
+						return &List{Elements: results}, nil
+					}
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "filter() requires function and iterable"}
+		},
+	})
+
+	// any(iterable)
+	env.Set("any", &Function{
+		Name: "any",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) > 0 {
+				if items, ok := list.Elements[0].(*List); ok {
+					for _, item := range items.Elements {
+						if item.IsTruthy() {
+							return &Boolean{Value: true}, nil
+						}
+					}
+					return &Boolean{Value: false}, nil
+				}
+			}
+			return &Boolean{Value: false}, nil
+		},
+	})
+
+	// all(iterable)
+	env.Set("all", &Function{
+		Name: "all",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) > 0 {
+				if items, ok := list.Elements[0].(*List); ok {
+					for _, item := range items.Elements {
+						if !item.IsTruthy() {
+							return &Boolean{Value: false}, nil
+						}
+					}
+					return &Boolean{Value: true}, nil
+				}
+			}
+			return &Boolean{Value: true}, nil
 		},
 	})
 }

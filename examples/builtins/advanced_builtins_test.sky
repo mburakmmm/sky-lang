@@ -1,0 +1,71 @@
+# Advanced builtin functions test
+
+import _dummy
+
+function main
+  print("=== COLLECTION CONVERSIONS ===")
+  
+  # list() from string
+  let chars = list("abc")
+  print(len(chars))
+  print(chars[0])
+  
+  # list() from dict (keys)
+  let d = {"x": "1", "y": "2"}
+  let keys = list(d)
+  print(len(keys))
+  
+  # dict() from pairs
+  let pairs = [["a", "1"], ["b", "2"]]
+  let newDict = dict(pairs)
+  print(len(newDict))
+  
+  print("=== MATH: sum() ===")
+  print(sum([1, 2, 3, 4, 5]))
+  print(sum([1.5, 2.5, 3.0]))
+  
+  print("=== TYPE INTROSPECTION ===")
+  print(type(42))
+  print(type(3.14))
+  print(type("hello"))
+  print(type(true))
+  print(type([1, 2]))
+  print(type({"a": "1"}))
+  
+  print("=== isinstance() ===")
+  print(isinstance(42, "int"))
+  print(isinstance(3.14, "float"))
+  print(isinstance("hi", "string"))
+  print(isinstance(true, "bool"))
+  print(isinstance([1], "list"))
+  print(isinstance({}, "dict"))
+  print(isinstance(42, "string"))
+  
+  print("=== FUNCTIONAL: map() ===")
+  let doubled = map(double, [1, 2, 3])
+  print(doubled[0])
+  print(doubled[2])
+  
+  print("=== FUNCTIONAL: filter() ===")
+  let evens = filter(isEven, [1, 2, 3, 4, 5, 6])
+  print(len(evens))
+  print(evens[0])
+  print(evens[2])
+  
+  print("=== FUNCTIONAL: any/all ===")
+  print(any([false, false, true]))
+  print(any([false, false]))
+  print(all([true, true, true]))
+  print(all([true, false, true]))
+  
+  print("=== ALL TESTS PASSED ===")
+end
+
+function double(x: int): int
+  return x * 2
+end
+
+function isEven(x: int): bool
+  return x % 2 == 0
+end
+
