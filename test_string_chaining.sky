@@ -1,0 +1,17 @@
+# Test String Method Chaining
+
+function main
+  print("=== String Method Chaining ===")
+  
+  let text = "hello world"
+  
+  # Test single method
+  let upper = text.upper()
+  print("Upper: " + upper)
+  
+  # Test chained methods
+  let chained = text.upper().lower()
+  print("Chained: " + chained)
+  
+  print("=== Test Complete ===")
+end

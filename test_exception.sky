@@ -1,0 +1,40 @@
+# Test Exception Handling
+
+function divide(a, b): int
+  if b == 0
+    throw "Division by zero error!"
+  end
+  return a / b
+end
+
+function safe_divide(a, b): int
+  try
+    return divide(a, b)
+  catch err
+    print("Caught error: " + err)
+    return -1
+  end
+end
+
+function main
+  print("=== Exception Handling Test ===")
+  
+  # Test normal division
+  print("10 / 2 = " + str(divide(10, 2)))
+  
+  # Test division with error handling
+  print("10 / 0 with try-catch = " + str(safe_divide(10, 0)))
+  
+  # Test try-catch-finally
+  try
+    print("In try block")
+    let result = divide(20, 4)
+    print("Result: " + str(result))
+  catch e
+    print("Error: " + e)
+  finally
+    print("Finally block executed")
+  end
+  
+  print("=== Test Complete ===")
+end

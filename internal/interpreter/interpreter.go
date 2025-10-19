@@ -211,6 +211,10 @@ func (i *Interpreter) evalStatement(stmt ast.Statement) (Value, error) {
 		return i.evalEnumStatement(s)
 	case *ast.BlockStatement:
 		return i.evalBlockStatement(s, i.env)
+	case *ast.TryStatement:
+		return i.evalTryStatement(s)
+	case *ast.ThrowStatement:
+		return i.evalThrowStatement(s)
 	default:
 		return nil, &RuntimeError{Message: fmt.Sprintf("unknown statement type: %T", stmt)}
 	}
@@ -276,9 +280,29 @@ func (i *Interpreter) evalFunctionStatement(stmt *ast.FunctionStatement) error {
 
 			// Parametreleri bind et
 			if argList, ok := args.(*List); ok {
-				for idx, paramName := range params {
+				for idx, param := range capturedStmt.Parameters {
+					paramName := param.Name.Value
+
+					// Handle varargs parameter
+					if param.Variadic {
+						// Collect remaining arguments into a list
+						varargs := &List{Elements: []Value{}}
+						for i := idx; i < len(argList.Elements); i++ {
+							varargs.Elements = append(varargs.Elements, argList.Elements[i])
+						}
+						fnEnv.Set(paramName, varargs)
+						break // Varargs is always last
+					}
+
 					if idx < len(argList.Elements) {
 						fnEnv.Set(paramName, argList.Elements[idx])
+					} else if param.DefaultValue != nil {
+						// Use default value
+						defaultVal, err := i.evalExpression(param.DefaultValue)
+						if err != nil {
+							return nil, err
+						}
+						fnEnv.Set(paramName, defaultVal)
 					} else {
 						fnEnv.Set(paramName, &Nil{})
 					}
@@ -1235,6 +1259,31 @@ func (i *Interpreter) evalMemberExpression(expr *ast.MemberExpression) (Value, e
 		if value, found := dict.Pairs[memberName]; found {
 			return value, nil
 		}
+
+		// Check for dict methods (get, set, has_key, etc.)
+		methodName := "dict_" + memberName
+		if method, found := i.env.Get(methodName); found {
+			if fn, ok := method.(*Function); ok {
+				// Return bound method
+				return &Function{
+					Name:       memberName,
+					Parameters: fn.Parameters,
+					Env:        fn.Env,
+					Body: func(callEnv *Environment) (Value, error) {
+						// Inject dict as first argument
+						args, _ := callEnv.Get("__args__")
+						if argList, ok := args.(*List); ok {
+							newArgs := append([]Value{dict}, argList.Elements...)
+							callEnv.Set("__args__", &List{Elements: newArgs})
+						} else {
+							callEnv.Set("__args__", &List{Elements: []Value{dict}})
+						}
+						return fn.Body(callEnv)
+					},
+				}, nil
+			}
+		}
+
 		return &Nil{}, nil
 	}
 
@@ -2625,6 +2674,51 @@ func (i *Interpreter) importSymbolsFromModule(moduleEnv *Environment, alias *ast
 		}
 	}
 	return nil
+}
+
+// evalTryStatement handles try-catch-finally
+func (i *Interpreter) evalTryStatement(stmt *ast.TryStatement) (Value, error) {
+	var result Value = &Nil{}
+	var tryErr error
+
+	// Execute try block
+	result, tryErr = i.evalBlockStatement(stmt.TryBlock, i.env)
+
+	// If there's an error and a catch clause, execute catch
+	if tryErr != nil && stmt.CatchClause != nil {
+		catchEnv := NewEnvironment(i.env)
+
+		// Bind error to error variable if specified
+		if stmt.CatchClause.ErrorVar != nil {
+			// Convert error to string value
+			errorStr := tryErr.Error()
+			catchEnv.Set(stmt.CatchClause.ErrorVar.Value, &String{Value: errorStr})
+		}
+
+		// Execute catch block
+		oldEnv := i.env
+		i.env = catchEnv
+		result, tryErr = i.evalBlockStatement(stmt.CatchClause.Body, catchEnv)
+		i.env = oldEnv
+	}
+
+	// Execute finally block if it exists
+	if stmt.Finally != nil {
+		_, _ = i.evalBlockStatement(stmt.Finally, i.env)
+	}
+
+	return result, tryErr
+}
+
+// evalThrowStatement throws an error
+func (i *Interpreter) evalThrowStatement(stmt *ast.ThrowStatement) (Value, error) {
+	value, err := i.evalExpression(stmt.Value)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create runtime error with the thrown value
+	return nil, &RuntimeError{Message: value.String()}
 }
 
 // evalUnsafeStatement executes an unsafe block

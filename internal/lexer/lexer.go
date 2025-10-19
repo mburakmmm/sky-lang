@@ -268,8 +268,16 @@ func (l *Lexer) NextToken() Token {
 		l.readChar()
 
 	case '.':
-		tok = l.makeToken(DOT, string(l.ch))
-		l.readChar()
+		// Check for ... (ellipsis)
+		if l.peekChar() == '.' && l.peekCharN(2) == '.' {
+			l.readChar()
+			l.readChar()
+			tok = l.makeToken(ELLIPSIS, "...")
+			l.readChar()
+		} else {
+			tok = l.makeToken(DOT, string(l.ch))
+			l.readChar()
+		}
 
 	case ',':
 		tok = l.makeToken(COMMA, string(l.ch))

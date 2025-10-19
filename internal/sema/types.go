@@ -121,6 +121,7 @@ type FunctionType struct {
 	Params     []Type
 	ReturnType Type
 	Variadic   bool
+	MinParams  int // Minimum required parameters (for optional params)
 }
 
 func (t *FunctionType) String() string {

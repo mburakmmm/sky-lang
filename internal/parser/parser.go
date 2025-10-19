@@ -248,6 +248,10 @@ func (p *Parser) parseStatement() ast.Statement {
 		return p.parseUnsafeStatement()
 	case lexer.ENUM:
 		return p.parseEnumStatement()
+	case lexer.TRY:
+		return p.parseTryStatement()
+	case lexer.THROW:
+		return p.parseThrowStatement()
 	default:
 		return p.parseExpressionStatement()
 	}

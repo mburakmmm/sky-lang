@@ -1,0 +1,44 @@
+# Test Generators/Yield
+
+coop function counter(max): any
+  let i = 0
+  while i < max
+    yield i
+    i = i + 1
+  end
+end
+
+coop function fibonacci: any
+  let a = 0
+  let b = 1
+  while true
+    yield a
+    let temp = a
+    a = b
+    b = temp + b
+  end
+end
+
+function main
+  print("=== Generator/Yield Test ===")
+  
+  # Test counter generator
+  print("Counter:")
+  let c = counter(5)
+  let i = 0
+  while i < 5
+    print("  " + str(c.next()))
+    i = i + 1
+  end
+  
+  # Test fibonacci generator
+  print("Fibonacci (first 10):")
+  let fib = fibonacci()
+  let j = 0
+  while j < 10
+    print("  " + str(fib.next()))
+    j = j + 1
+  end
+  
+  print("=== Test Complete ===")
+end

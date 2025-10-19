@@ -75,7 +75,36 @@ func (p *Parser) parseFunctionParameters() []*ast.FunctionParameter {
 
 	p.nextToken()
 
-	// İlk parametre
+	// Check for varargs (...)
+	if p.curTokenIs(lexer.ELLIPSIS) {
+		// Varargs parameter
+		if !p.expectPeek(lexer.IDENT) {
+			return nil
+		}
+
+		param := &ast.FunctionParameter{
+			Token:    p.curToken,
+			Name:     &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal},
+			Variadic: true,
+		}
+
+		// Tip anotasyonu
+		if p.peekTokenIs(lexer.COLON) {
+			p.nextToken() // :
+			p.nextToken() // tip
+			param.Type = p.parseTypeAnnotation()
+		}
+
+		params = append(params, param)
+
+		// Varargs must be last parameter
+		if !p.expectPeek(lexer.RPAREN) {
+			return nil
+		}
+		return params
+	}
+
+	// İlk parametre (normal)
 	param := &ast.FunctionParameter{
 		Token: p.curToken,
 		Name:  &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal},
@@ -100,7 +129,35 @@ func (p *Parser) parseFunctionParameters() []*ast.FunctionParameter {
 	// Diğer parametreler
 	for p.peekTokenIs(lexer.COMMA) {
 		p.nextToken() // ,
-		p.nextToken() // parametre adı
+		p.nextToken() // parametre adı veya ...
+
+		// Check for varargs
+		if p.curTokenIs(lexer.ELLIPSIS) {
+			if !p.expectPeek(lexer.IDENT) {
+				return nil
+			}
+
+			param := &ast.FunctionParameter{
+				Token:    p.curToken,
+				Name:     &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal},
+				Variadic: true,
+			}
+
+			// Tip anotasyonu
+			if p.peekTokenIs(lexer.COLON) {
+				p.nextToken()
+				p.nextToken()
+				param.Type = p.parseTypeAnnotation()
+			}
+
+			params = append(params, param)
+
+			// Varargs must be last
+			if !p.expectPeek(lexer.RPAREN) {
+				return nil
+			}
+			return params
+		}
 
 		param := &ast.FunctionParameter{
 			Token: p.curToken,
@@ -127,6 +184,78 @@ func (p *Parser) parseFunctionParameters() []*ast.FunctionParameter {
 	}
 
 	return params
+}
+
+// parseTryStatement try-catch-finally statement'ı parse eder
+func (p *Parser) parseTryStatement() *ast.TryStatement {
+	stmt := &ast.TryStatement{Token: p.curToken}
+
+	// NEWLINE ve INDENT
+	if !p.expectPeek(lexer.NEWLINE) {
+		return nil
+	}
+	if !p.expectPeek(lexer.INDENT) {
+		return nil
+	}
+
+	// Try block
+	stmt.TryBlock = p.parseBlockStatement()
+
+	// CATCH clause (optional)
+	if p.peekTokenIs(lexer.CATCH) {
+		p.nextToken() // catch
+
+		// Error variable (optional)
+		var errorVar *ast.Identifier
+		if p.peekTokenIs(lexer.IDENT) {
+			p.nextToken()
+			errorVar = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+		}
+
+		if !p.expectPeek(lexer.NEWLINE) {
+			return nil
+		}
+		if !p.expectPeek(lexer.INDENT) {
+			return nil
+		}
+
+		catchBody := p.parseBlockStatement()
+		stmt.CatchClause = &ast.CatchClause{
+			ErrorVar: errorVar,
+			Body:     catchBody,
+		}
+	}
+
+	// FINALLY clause (optional)
+	if p.peekTokenIs(lexer.FINALLY) {
+		p.nextToken() // finally
+
+		if !p.expectPeek(lexer.NEWLINE) {
+			return nil
+		}
+		if !p.expectPeek(lexer.INDENT) {
+			return nil
+		}
+
+		stmt.Finally = p.parseBlockStatement()
+	}
+
+	// END token
+	if p.peekTokenIs(lexer.END) {
+		p.nextToken()
+	}
+
+	return stmt
+}
+
+// parseThrowStatement throw statement'ı parse eder
+func (p *Parser) parseThrowStatement() *ast.ThrowStatement {
+	stmt := &ast.ThrowStatement{Token: p.curToken}
+
+	p.nextToken()
+	stmt.Value = p.parseExpression(LOWEST)
+
+	return stmt
 }
 
 // parseBlockStatement blok statement'ı parse eder

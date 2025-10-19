@@ -1,0 +1,29 @@
+# Test Async/Await
+
+async function fetch_data(id): int
+  print("Fetching data for ID: " + str(id))
+  await time_sleep(100)
+  print("Data fetched for ID: " + str(id))
+  return id * 10
+end
+
+async function process_multiple: int
+  print("Processing multiple...")
+  
+  let result1 = await fetch_data(1)
+  print("Result 1: " + str(result1))
+  
+  let result2 = await fetch_data(2)
+  print("Result 2: " + str(result2))
+  
+  return result1 + result2
+end
+
+async function main
+  print("=== Async/Await Test ===")
+  
+  let total = await process_multiple()
+  print("Total: " + str(total))
+  
+  print("=== Test Complete ===")
+end

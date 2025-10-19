@@ -1,0 +1,42 @@
+# Test Complex Expressions
+
+function get_builder: any
+  class Builder
+    function init
+      self.value = ""
+    end
+    
+    function add(text): any
+      self.value = self.value + text
+      return self
+    end
+    
+    function get: string
+      return self.value
+    end
+  end
+  
+  return Builder()
+end
+
+function get_string: string
+  return "hello world"
+end
+
+function main
+  print("=== Complex Expressions Test ===")
+  
+  # Test fn().method()
+  let result1 = get_builder().add("Hello")
+  print("get_builder().add('Hello') worked!")
+  
+  # Test fn().method().method()
+  let result2 = get_builder().add("A").add("B").get()
+  print("Chained result: " + result2)
+  
+  # Test fn().method() on string
+  let upper = get_string().upper()
+  print("get_string().upper(): " + upper)
+  
+  print("=== Test Complete ===")
+end

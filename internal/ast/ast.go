@@ -231,10 +231,14 @@ type FunctionParameter struct {
 	Name         *Identifier
 	Type         TypeAnnotation
 	DefaultValue Expression
+	Variadic     bool // ...args style varargs
 }
 
 func (fp *FunctionParameter) String() string {
 	var out strings.Builder
+	if fp.Variadic {
+		out.WriteString("...")
+	}
 	out.WriteString(fp.Name.String())
 	if fp.Type != nil {
 		out.WriteString(": ")
@@ -594,6 +598,40 @@ func (ye *YieldExpression) String() string {
 		return fmt.Sprintf("yield %s", ye.Value.String())
 	}
 	return "yield"
+}
+
+// TryStatement try-catch-finally statement
+type TryStatement struct {
+	Token       lexer.Token     // TRY token
+	TryBlock    *BlockStatement // try block
+	CatchClause *CatchClause    // catch clause (optional)
+	Finally     *BlockStatement // finally block (optional)
+}
+
+func (ts *TryStatement) statementNode()       {}
+func (ts *TryStatement) TokenLiteral() string { return ts.Token.Literal }
+func (ts *TryStatement) Pos() lexer.Token     { return ts.Token }
+func (ts *TryStatement) String() string {
+	return "try...catch"
+}
+
+// CatchClause catch clause
+type CatchClause struct {
+	ErrorVar *Identifier     // error variable name
+	Body     *BlockStatement // catch block
+}
+
+// ThrowStatement throw statement
+type ThrowStatement struct {
+	Token lexer.Token // THROW token
+	Value Expression  // error value
+}
+
+func (ts *ThrowStatement) statementNode()       {}
+func (ts *ThrowStatement) TokenLiteral() string { return ts.Token.Literal }
+func (ts *ThrowStatement) Pos() lexer.Token     { return ts.Token }
+func (ts *ThrowStatement) String() string {
+	return "throw " + ts.Value.String()
 }
 
 // LambdaExpression anonymous function expression

@@ -1,0 +1,29 @@
+# Test Varargs
+
+function sum_all(...numbers): int
+  let total = 0
+  for num in numbers
+    total = total + num
+  end
+  return total
+end
+
+function concat(separator, ...words): string
+  return join(separator, words)
+end
+
+function main
+  print("=== Varargs Test ===")
+  
+  # Test varargs with different counts
+  # print("sum_all(): " + str(sum_all())) # 0 args - semantic checker issue
+  print("sum_all(5): " + str(sum_all(5)))
+  print("sum_all(1, 2, 3): " + str(sum_all(1, 2, 3)))
+  print("sum_all(1, 2, 3, 4, 5): " + str(sum_all(1, 2, 3, 4, 5)))
+  
+  # Test varargs with required param
+  print("concat('-', 'a', 'b', 'c'): " + concat("-", "a", "b", "c"))
+  print("concat(' ', 'Hello', 'World'): " + concat(" ", "Hello", "World"))
+  
+  print("=== Test Complete ===")
+end

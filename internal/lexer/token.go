@@ -48,6 +48,10 @@ const (
 	NOT      // not
 	ENUM     // enum
 	MATCH    // match
+	TRY      // try
+	CATCH    // catch
+	FINALLY  // finally
+	THROW    // throw
 
 	// Operators
 	PLUS    // +
@@ -125,6 +129,10 @@ var keywords = map[string]TokenType{
 	"not":      NOT,
 	"enum":     ENUM,
 	"match":    MATCH,
+	"try":      TRY,
+	"catch":    CATCH,
+	"finally":  FINALLY,
+	"throw":    THROW,
 }
 
 // LookupIdent identifier'ın keyword olup olmadığını kontrol eder
@@ -200,6 +208,10 @@ func (tt TokenType) String() string {
 		NOT:      "NOT",
 		ENUM:     "ENUM",
 		MATCH:    "MATCH",
+		TRY:      "TRY",
+		CATCH:    "CATCH",
+		FINALLY:  "FINALLY",
+		THROW:    "THROW",
 		BREAK:    "BREAK",
 		CONTINUE: "CONTINUE",
 
@@ -228,16 +240,17 @@ func (tt TokenType) String() string {
 		SLASHEQ:   "SLASHEQ",
 		PERCENTEQ: "PERCENTEQ",
 
-		LPAREN: "LPAREN",
-		RPAREN: "RPAREN",
-		LBRACK: "LBRACK",
-		RBRACK: "RBRACK",
-		LBRACE: "LBRACE",
-		RBRACE: "RBRACE",
-		DOT:    "DOT",
-		COMMA:  "COMMA",
-		COLON:  "COLON",
-		ARROW:  "ARROW",
+		LPAREN:   "LPAREN",
+		RPAREN:   "RPAREN",
+		LBRACK:   "LBRACK",
+		RBRACK:   "RBRACK",
+		LBRACE:   "LBRACE",
+		RBRACE:   "RBRACE",
+		DOT:      "DOT",
+		COMMA:    "COMMA",
+		COLON:    "COLON",
+		ARROW:    "ARROW",
+		ELLIPSIS: "ELLIPSIS",
 
 		NEWLINE: "NEWLINE",
 		INDENT:  "INDENT",

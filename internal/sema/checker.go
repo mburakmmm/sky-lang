@@ -195,11 +195,21 @@ func (c *Checker) checkReturnStatement(stmt *ast.ReturnStatement) {
 func (c *Checker) checkFunctionStatement(stmt *ast.FunctionStatement) {
 	// Parametrelerin tiplerini al
 	paramTypes := make([]Type, len(stmt.Parameters))
+	minParams := 0
+	hasVarargs := false
 	for i, param := range stmt.Parameters {
 		if param.Type != nil {
 			paramTypes[i] = ResolveType(param.Type)
 		} else {
 			paramTypes[i] = AnyType
+		}
+		// Check for varargs
+		if param.Variadic {
+			hasVarargs = true
+			// Varargs itself is optional, so minParams stays at current value
+		} else if param.DefaultValue == nil && !hasVarargs {
+			// Count required parameters (those without default values)
+			minParams = i + 1
 		}
 	}
 
@@ -213,6 +223,8 @@ func (c *Checker) checkFunctionStatement(stmt *ast.FunctionStatement) {
 	funcType := &FunctionType{
 		Params:     paramTypes,
 		ReturnType: returnType,
+		MinParams:  minParams,
+		Variadic:   hasVarargs,
 	}
 
 	// Fonksiyonu sembole ekle
@@ -654,12 +666,38 @@ func (c *Checker) checkCallExpression(expr *ast.CallExpression) Type {
 
 	if ft, ok := funcType.(*FunctionType); ok {
 		// Parametre sayısı kontrolü
-		if !ft.Variadic && len(expr.Arguments) != len(ft.Params) {
-			c.addError(&SemanticError{
-				Message: fmt.Sprintf("wrong number of arguments: expected %d, got %d",
-					len(ft.Params), len(expr.Arguments)),
-				Pos: expr.Token,
-			})
+		argCount := len(expr.Arguments)
+		minRequired := ft.MinParams
+		if minRequired == 0 {
+			minRequired = len(ft.Params) // Backward compatibility
+		}
+
+		if ft.Variadic {
+			// Varargs function: check minimum required arguments
+			if argCount < minRequired {
+				c.addError(&SemanticError{
+					Message: fmt.Sprintf("wrong number of arguments: expected at least %d, got %d",
+						minRequired, argCount),
+					Pos: expr.Token,
+				})
+			}
+		} else {
+			// Non-varargs: check if argument count is within valid range
+			if argCount < minRequired || argCount > len(ft.Params) {
+				if minRequired == len(ft.Params) {
+					c.addError(&SemanticError{
+						Message: fmt.Sprintf("wrong number of arguments: expected %d, got %d",
+							len(ft.Params), argCount),
+						Pos: expr.Token,
+					})
+				} else {
+					c.addError(&SemanticError{
+						Message: fmt.Sprintf("wrong number of arguments: expected %d-%d, got %d",
+							minRequired, len(ft.Params), argCount),
+						Pos: expr.Token,
+					})
+				}
+			}
 		}
 
 		// Argüman tiplerini kontrol et
