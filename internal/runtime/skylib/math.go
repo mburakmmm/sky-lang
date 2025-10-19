@@ -80,15 +80,15 @@ func Exp(x float64) float64 {
 	return math.Exp(x)
 }
 
-func Log(x float64) float64 {
+func MathLog(x float64) float64 {
 	return math.Log(x)
 }
 
-func Log10(x float64) float64 {
+func MathLog10(x float64) float64 {
 	return math.Log10(x)
 }
 
-func Log2(x float64) float64 {
+func MathLog2(x float64) float64 {
 	return math.Log2(x)
 }
 
