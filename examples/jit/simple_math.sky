@@ -1,0 +1,6 @@
+# Simple math for JIT
+
+function main(): int
+  return 10 + 20
+end
+

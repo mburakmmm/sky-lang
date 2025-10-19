@@ -1,0 +1,12 @@
+# JIT arithmetic test
+
+function add(a: int, b: int): int
+  return a + b
+end
+
+function main(): int
+  let x = add(10, 20)
+  let y = add(x, 12)
+  return y
+end
+

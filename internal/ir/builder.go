@@ -577,6 +577,11 @@ func (b *Builder) Dispose() {
 	C.LLVMContextDispose(b.context)
 }
 
+// GetModule returns the LLVM module
+func (b *Builder) GetModule() C.LLVMModuleRef {
+	return b.module
+}
+
 // WriteBitcodeToFile writes LLVM bitcode to file
 func (b *Builder) WriteBitcodeToFile(filename string) error {
 	if C.LLVMWriteBitcodeToFile(b.module, C.CString(filename)) != 0 {

@@ -1,0 +1,6 @@
+# JIT test file
+
+function main
+  print("Hello from JIT!")
+end
+
