@@ -2,8 +2,8 @@
   "name": "sky-language",
   "displayName": "SKY Language Support",
   "description": "Syntax highlighting and snippets for SKY Programming Language",
+  "publisher": "melihburakmmm",
   "version": "0.1.0",
-  "publisher": "sky-lang",
   "icon": "icon.png",
   "repository": {
     "type": "git",
@@ -17,9 +17,6 @@
   "engines": {
     "vscode": "^1.60.0"
   },
-  "activationEvents": [
-    "onLanguage:sky"
-  ],
   "categories": [
     "Programming Languages",
     "Snippets"
