@@ -1,0 +1,17 @@
+# Fibonacci benchmark for SKY
+import _bypass
+
+function fib(n)
+  if n <= 1
+    return n
+  end
+  return fib(n - 1) + fib(n - 2)
+end
+
+function main()
+  let n = 35
+  print("Computing fib(35)...")
+  let result = fib(n)
+  print("Result:", result)
+end
+
