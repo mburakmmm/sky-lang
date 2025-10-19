@@ -1,0 +1,58 @@
+# Binaries
+/bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+coverage.html
+
+# Go workspace file
+go.work
+
+# Dependency directories
+vendor/
+
+# IDE directories
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+dist/
+build/
+*.prof
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# LLVM artifacts
+*.bc
+*.ll
+
+# Sky build artifacts
+*.skyc
+*.skyo
+
+# Log files
+*.log
+
+# Editor backups
+*~
+\#*\#
+.\#*
+

@@ -1,0 +1,10 @@
+# This should produce type errors
+
+function add(x: int, y: int): int
+  return x + y
+end
+
+function main
+  let result = add("hello", "world")  # ERROR: wrong types
+end
+

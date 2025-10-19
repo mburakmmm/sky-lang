@@ -1,0 +1,22 @@
+{
+  "package": {
+    "name": "test-project",
+    "version": "0.1.0",
+    "description": "A SKY project",
+    "authors": [
+      "Your Name \u003cyour.email@example.com\u003e"
+    ],
+    "license": "MIT",
+    "homepage": "",
+    "repository": "",
+    "keywords": null
+  },
+  "dependencies": {},
+  "dev_dependencies": {},
+  "build": {
+    "target": "native",
+    "output": "bin/test-project",
+    "optimization": 2,
+    "features": {}
+  }
+}

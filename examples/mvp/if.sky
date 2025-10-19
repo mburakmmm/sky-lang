@@ -1,0 +1,11 @@
+# If-else example
+
+function main
+  let x = 3
+  if x < 5
+    print("small")
+  else
+    print("big")
+  end
+end
+

@@ -1,0 +1,21 @@
+# Control flow parsing examples
+
+# If-elif-else
+if x < 10
+  print("small")
+elif x < 100
+  print("medium")
+else
+  print("large")
+end
+
+# While loop
+while count > 0
+  count = count - 1
+end
+
+# For loop
+for item in items
+  print(item)
+end
+

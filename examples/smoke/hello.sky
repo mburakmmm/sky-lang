@@ -1,0 +1,6 @@
+# SKY Hello World Example
+
+function main
+  print("Hello, SKY!")
+end
+

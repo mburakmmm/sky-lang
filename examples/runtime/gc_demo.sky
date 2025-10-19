@@ -1,0 +1,27 @@
+# Garbage Collector demonstration
+
+function createObjects
+  let objects = []
+  for i in range(1000)
+    objects.append({"id": i, "data": "object_" + i})
+  end
+  return objects
+end
+
+function main
+  print("GC Demo - Creating and releasing objects")
+  
+  # Create many objects
+  let batch1 = createObjects()
+  print("Created batch 1: " + len(batch1) + " objects")
+  
+  # Let them go out of scope (GC will collect)
+  batch1 = []
+  
+  # Create more
+  let batch2 = createObjects()
+  print("Created batch 2: " + len(batch2) + " objects")
+  
+  print("GC will automatically collect unreachable objects")
+end
+

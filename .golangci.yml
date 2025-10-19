@@ -1,0 +1,96 @@
+run:
+  timeout: 5m
+  tests: true
+  modules-download-mode: readonly
+
+linters:
+  enable:
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+    - gofmt
+    - goimports
+    - misspell
+    - gocritic
+    - revive
+    - unconvert
+    - unparam
+    - nakedret
+    - prealloc
+    - exportloopref
+    - gosec
+    - bodyclose
+    - noctx
+    - stylecheck
+  disable:
+    - typecheck  # LLVM cgo binding'leri için
+
+linters-settings:
+  errcheck:
+    check-type-assertions: true
+    check-blank: true
+  
+  govet:
+    check-shadowing: true
+    enable-all: true
+  
+  gofmt:
+    simplify: true
+  
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - style
+      - performance
+      - experimental
+    disabled-checks:
+      - commentedOutCode
+  
+  revive:
+    rules:
+      - name: exported
+        severity: warning
+      - name: package-comments
+        severity: warning
+  
+  nakedret:
+    max-func-lines: 30
+  
+  gosec:
+    excludes:
+      - G404  # Weak random number generator - çünkü crypto-critical değil
+  
+  stylecheck:
+    checks: ["all", "-ST1000"]  # Package comment kontrolünü devre dışı bırak
+
+issues:
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - errcheck
+        - gosec
+        - gocritic
+    
+    - path: internal/
+      linters:
+        - revive
+      text: "exported:"
+    
+    # CGO için özel kurallar
+    - path: ".*\\.go"
+      linters:
+        - staticcheck
+      text: "SA4006:"  # Unused değişkenler (LLVM API'ler için gerekli)
+  
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  new: false
+
+output:
+  format: colored-line-number
+  print-issued-lines: true
+  print-linter-name: true
+

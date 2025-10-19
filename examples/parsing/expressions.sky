@@ -1,0 +1,33 @@
+# Expression parsing examples
+
+# Arithmetic
+let a = 1 + 2 * 3
+let b = (1 + 2) * 3
+let c = 2 ** 10
+
+# Comparison
+let d = x > y
+let e = x <= y
+
+# Logical
+let f = x && y || z
+let g = !flag
+
+# Assignments
+x = 10
+y += 5
+z *= 2
+
+# Function calls
+print("hello")
+add(1, 2)
+obj.method(x, y, z)
+
+# Indexing
+let item = array[0]
+let value = dict["key"]
+
+# Lists and Dicts
+let numbers = [1, 2, 3, 4, 5]
+let person = {"name": "Alice", "age": 30}
+

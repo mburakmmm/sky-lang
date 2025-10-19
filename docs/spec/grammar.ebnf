@@ -1,0 +1,311 @@
+(* SKY Programming Language - EBNF Grammar Specification *)
+(* Girintileme tabanlı blok yapısı ile Python-benzeri sözdizimi *)
+
+(* ============================================ *)
+(* Program Structure *)
+(* ============================================ *)
+
+program        = stmt_list ;
+
+stmt_list      = { stmt NEWLINE } ;
+
+stmt           = var_decl
+               | const_decl
+               | func_decl
+               | class_decl
+               | if_stmt
+               | while_stmt
+               | for_stmt
+               | return_stmt
+               | async_stmt
+               | unsafe_stmt
+               | import_stmt
+               | expr_stmt
+               ;
+
+(* ============================================ *)
+(* Declarations *)
+(* ============================================ *)
+
+var_decl       = "let" IDENT [ ":" type ] "=" expr ;
+
+const_decl     = "const" IDENT [ ":" type ] "=" expr ;
+
+func_decl      = [ "async" ] "function" IDENT [ param_list ] [ ":" type ] 
+                 NEWLINE INDENT stmt_list DEDENT "end" ;
+
+class_decl     = "class" IDENT [ "(" IDENT ")" ]
+                 NEWLINE INDENT class_body DEDENT "end" ;
+
+class_body     = { class_member NEWLINE } ;
+
+class_member   = func_decl | var_decl | const_decl ;
+
+import_stmt    = "import" import_path [ "as" IDENT ] ;
+
+import_path    = IDENT { "." IDENT } ;
+
+(* ============================================ *)
+(* Control Flow *)
+(* ============================================ *)
+
+if_stmt        = "if" expr NEWLINE 
+                 INDENT stmt_list DEDENT 
+                 [ elif_list ]
+                 [ else_clause ] 
+                 "end" ;
+
+elif_list      = { elif_clause } ;
+
+elif_clause    = "elif" expr NEWLINE INDENT stmt_list DEDENT ;
+
+else_clause    = "else" NEWLINE INDENT stmt_list DEDENT ;
+
+while_stmt     = "while" expr NEWLINE 
+                 INDENT stmt_list DEDENT 
+                 "end" ;
+
+for_stmt       = "for" IDENT "in" expr NEWLINE 
+                 INDENT stmt_list DEDENT 
+                 "end" ;
+
+return_stmt    = "return" [ expr ] ;
+
+(* ============================================ *)
+(* Async & Concurrency *)
+(* ============================================ *)
+
+async_stmt     = "await" expr ;
+
+coop_func      = "coop" "function" IDENT [ param_list ] [ ":" type ]
+                 NEWLINE INDENT coop_body DEDENT "end" ;
+
+coop_body      = { stmt | yield_stmt NEWLINE } ;
+
+yield_stmt     = "yield" [ expr ] ;
+
+(* ============================================ *)
+(* Unsafe Blocks *)
+(* ============================================ *)
+
+unsafe_stmt    = "unsafe" NEWLINE INDENT stmt_list DEDENT "end" ;
+
+(* ============================================ *)
+(* Expressions *)
+(* ============================================ *)
+
+expr_stmt      = expr ;
+
+expr           = assignment ;
+
+assignment     = logic_or [ ( "=" | "+=" | "-=" | "*=" | "/=" | "%=" ) assignment ] ;
+
+logic_or       = logic_and { "||" logic_and } ;
+
+logic_and      = equality { "&&" equality } ;
+
+equality       = comparison { ( "==" | "!=" ) comparison } ;
+
+comparison     = term { ( "<" | "<=" | ">" | ">=" ) term } ;
+
+term           = factor { ( "+" | "-" ) factor } ;
+
+factor         = unary { ( "*" | "/" | "%" ) unary } ;
+
+unary          = ( "!" | "-" | "+" ) unary | await_expr | call ;
+
+await_expr     = "await" call ;
+
+call           = primary { call_suffix } ;
+
+call_suffix    = "(" [ arg_list ] ")"
+               | "." IDENT
+               | "[" expr "]"
+               ;
+
+primary        = NUMBER
+               | STRING
+               | BOOLEAN
+               | "self"
+               | "super"
+               | IDENT
+               | "(" expr ")"
+               | list_literal
+               | dict_literal
+               | lambda_expr
+               ;
+
+(* ============================================ *)
+(* Literals *)
+(* ============================================ *)
+
+list_literal   = "[" [ expr_list ] "]" ;
+
+dict_literal   = "{" [ dict_entries ] "}" ;
+
+dict_entries   = dict_entry { "," dict_entry } [ "," ] ;
+
+dict_entry     = expr ":" expr ;
+
+lambda_expr    = "function" [ param_list ] [ ":" type ] "=>" expr ;
+
+(* ============================================ *)
+(* Function Parameters & Arguments *)
+(* ============================================ *)
+
+param_list     = "(" [ params ] ")" ;
+
+params         = param { "," param } ;
+
+param          = IDENT [ ":" type ] [ "=" expr ] ;
+
+arg_list       = expr_list ;
+
+expr_list      = expr { "," expr } ;
+
+(* ============================================ *)
+(* Types *)
+(* ============================================ *)
+
+type           = basic_type
+               | list_type
+               | dict_type
+               | func_type
+               | "any"
+               ;
+
+basic_type     = "int" | "float" | "string" | "bool" ;
+
+list_type      = "[" type "]" ;
+
+dict_type      = "{" type ":" type "}" ;
+
+func_type      = "(" [ type_list ] ")" "=>" type ;
+
+type_list      = type { "," type } ;
+
+(* ============================================ *)
+(* Lexical Elements *)
+(* ============================================ *)
+
+IDENT          = LETTER { LETTER | DIGIT | "_" } ;
+
+NUMBER         = INTEGER | FLOAT ;
+
+INTEGER        = DIGIT { DIGIT } 
+               | "0x" HEX_DIGIT { HEX_DIGIT }
+               | "0b" BIN_DIGIT { BIN_DIGIT }
+               | "0o" OCT_DIGIT { OCT_DIGIT }
+               ;
+
+FLOAT          = DIGIT { DIGIT } "." DIGIT { DIGIT } [ EXPONENT ]
+               | DIGIT { DIGIT } EXPONENT
+               ;
+
+EXPONENT       = ( "e" | "E" ) [ "+" | "-" ] DIGIT { DIGIT } ;
+
+STRING         = '"' { STRING_CHAR } '"'
+               | "'" { STRING_CHAR } "'"
+               ;
+
+STRING_CHAR    = ? any character except quote or newline ?
+               | ESCAPE_SEQ
+               ;
+
+ESCAPE_SEQ     = "\\" ( "n" | "t" | "r" | "\\" | '"' | "'" | "0" ) ;
+
+BOOLEAN        = "true" | "false" ;
+
+LETTER         = "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" 
+               | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" 
+               | "u" | "v" | "w" | "x" | "y" | "z"
+               | "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J" 
+               | "K" | "L" | "M" | "N" | "O" | "P" | "Q" | "R" | "S" | "T" 
+               | "U" | "V" | "W" | "X" | "Y" | "Z"
+               ;
+
+DIGIT          = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
+
+HEX_DIGIT      = DIGIT | "a" | "b" | "c" | "d" | "e" | "f" 
+               | "A" | "B" | "C" | "D" | "E" | "F" ;
+
+BIN_DIGIT      = "0" | "1" ;
+
+OCT_DIGIT      = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" ;
+
+(* ============================================ *)
+(* Special Tokens *)
+(* ============================================ *)
+
+NEWLINE        = ? platform-specific line terminator ? ;
+
+INDENT         = ? increase in indentation level ? ;
+
+DEDENT         = ? decrease in indentation level ? ;
+
+COMMENT        = "#" { ? any character except newline ? } NEWLINE ;
+
+(* ============================================ *)
+(* Keywords (Reserved Words) *)
+(* ============================================ *)
+
+(* Keywords:
+   function, end, class, let, const, if, elif, else, for, while, 
+   return, async, await, coop, yield, unsafe, self, super, import, 
+   as, in, true, false, and, or, not
+*)
+
+(* ============================================ *)
+(* Operators & Delimiters *)
+(* ============================================ *)
+
+(* Operators:
+   +  -  *  /  %  **
+   ==  !=  <  <=  >  >=
+   &&  ||  !
+   =  +=  -=  *=  /=  %=
+   .  ,  :  =>  
+   (  )  [  ]  {  }
+*)
+
+(* ============================================ *)
+(* Notes *)
+(* ============================================ *)
+
+(* 1. Girintileme (Indentation):
+      - Boşluk (space) veya tab kullanılabilir, ancak karıştırılmamalı
+      - Her blok INDENT ile başlar, DEDENT ile biter
+      - Python benzeri indentation semantiği
+      - `end` anahtar kelimesi opsiyoneldir (girintileme yeterli)
+
+   2. Yorum (Comments):
+      - Tek satır yorumlar: # ile başlar
+      - Çok satırlı yorumlar: ###...###
+
+   3. Tip Sistemi:
+      - İsteğe bağlı statik tipler
+      - Tip çıkarımı (type inference) desteklenir
+      - `any` tipi dinamik tipleme için kullanılır
+
+   4. Fonksiyonlar:
+      - First-class citizens
+      - Lambda/closure desteği
+      - Async fonksiyonlar
+      - Coroutine fonksiyonlar (coop/yield)
+
+   5. OOP:
+      - Class-based
+      - Single inheritance
+      - `self` ve `super` anahtar kelimeleri
+
+   6. Modül Sistemi:
+      - Dosya bazlı modüller
+      - `import` ile dahil etme
+      - `_` öneki ile private members
+
+   7. Unsafe Bloklar:
+      - GC devre dışı
+      - Ham pointer erişimi
+      - Performans-kritik kod için
+*)
+
