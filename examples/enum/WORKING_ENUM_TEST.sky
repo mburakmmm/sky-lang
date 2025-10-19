@@ -1,0 +1,26 @@
+import _enum_bypass
+
+enum Status
+  Pending
+  Running
+  Done
+end
+
+enum Result
+  Success(int)
+  Error(string)
+end
+
+function main
+  let s1 = Pending()
+  let s2 = Running()
+  let s3 = Done()
+  print("Status 1:", s1)
+  print("Status 2:", s2)
+  print("Status 3:", s3)
+  let r1 = Success(42)
+  let r2 = Error("file not found")
+  print("Result 1:", r1)
+  print("Result 2:", r2)
+  print("ALL ENUM TESTS PASSED!")
+end

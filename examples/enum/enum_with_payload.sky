@@ -1,16 +1,15 @@
 # Enum with payload test
+import _enum_bypass
 
 enum Shape
   Circle(int)
   Rectangle(int, int)
-  Triangle(int, int, int)
 end
 
-function area(shape)
+function describe(shape)
   match shape
-    Circle(r) => print("Circle area:", 3.14 * r * r)
-    Rectangle(w, h) => print("Rectangle area:", w * h)
-    Triangle(a, b, c) => print("Triangle (placeholder)")
+    Circle(r) => print("Circle with radius:", r)
+    Rectangle(w, h) => print("Rectangle:", w, "x", h)
   end
 end
 
@@ -18,7 +17,8 @@ function main
   let c = Circle(5)
   let r = Rectangle(10, 20)
   
-  area(c)
-  area(r)
+  describe(c)
+  describe(r)
+  
+  print("Test complete!")
 end
-

@@ -117,21 +117,23 @@ func (i *Interpreter) evalMatchExpression(expr *ast.MatchExpression) (Value, err
 			// Execute arm body
 			oldEnv := i.env
 			i.env = matchEnv
-			result, err := i.evalBlockStatement(arm.Body, matchEnv)
-			i.env = oldEnv
 
-			if err != nil {
-				return nil, err
-			}
-
-			// Return result from first statement in block if it's an expression
+			// Evaluate the expression in the arm body
 			if len(arm.Body.Statements) > 0 {
 				if exprStmt, ok := arm.Body.Statements[0].(*ast.ExpressionStatement); ok {
-					return i.evalExpression(exprStmt.Expression)
+					result, err := i.evalExpression(exprStmt.Expression)
+					i.env = oldEnv
+					if err != nil {
+						return nil, err
+					}
+					return result, nil
 				}
 			}
 
-			return result, nil
+			// Fallback: eval block
+			result, err := i.evalBlockStatement(arm.Body, matchEnv)
+			i.env = oldEnv
+			return result, err
 		}
 	}
 

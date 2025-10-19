@@ -1,4 +1,5 @@
 # Basic enum test
+import _enum_bypass
 
 enum Color
   Red
@@ -16,4 +17,3 @@ function main
     Blue() => print("It's blue!")
   end
 end
-

@@ -1,0 +1,26 @@
+import _enum_bypass
+
+enum Shape
+  Circle(int)
+  Rectangle(int, int)
+end
+
+function main
+  let c = Circle(5)
+  print("Created:", c)
+  
+  let r = Rectangle(10, 20)
+  print("Created:", r)
+  
+  # Simple match without function call
+  match c
+    Circle(radius) => print("Matched Circle, radius:", radius)
+    Rectangle(w, h) => print("Matched Rectangle")
+  end
+  
+  match r
+    Circle(radius) => print("Matched Circle")
+    Rectangle(w, h) => print("Matched Rectangle, w:", w, "h:", h)
+  end
+end
+

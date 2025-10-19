@@ -1,0 +1,37 @@
+import _enum_bypass
+
+enum Number
+  Zero
+  One
+  Many(int)
+end
+
+function main
+  let n1 = Zero()
+  let n2 = One()
+  let n3 = Many(42)
+  
+  print("Testing n1:")
+  match n1
+    Zero() => print("  Matched Zero")
+    One() => print("  Matched One")
+    Many(x) => print("  Matched Many:", x)
+  end
+  
+  print("Testing n2:")
+  match n2
+    Zero() => print("  Matched Zero")
+    One() => print("  Matched One")
+    Many(x) => print("  Matched Many:", x)
+  end
+  
+  print("Testing n3:")
+  match n3
+    Zero() => print("  Matched Zero")
+    One() => print("  Matched One")
+    Many(x) => print("  Matched Many:", x)
+  end
+  
+  print("All tests passed!")
+end
+

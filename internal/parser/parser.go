@@ -198,8 +198,8 @@ func (p *Parser) ParseProgram() *ast.Program {
 	program.Statements = []ast.Statement{}
 
 	for !p.curTokenIs(lexer.EOF) {
-		// NEWLINE'ları atla
-		if p.curTokenIs(lexer.NEWLINE) {
+		// NEWLINE, DEDENT, END'leri atla (top-level'da olmamalı)
+		if p.curTokenIs(lexer.NEWLINE) || p.curTokenIs(lexer.DEDENT) || p.curTokenIs(lexer.END) {
 			p.nextToken()
 			continue
 		}
