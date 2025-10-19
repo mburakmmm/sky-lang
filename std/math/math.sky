@@ -1,0 +1,138 @@
+# Math module - High-level mathematical functions
+
+import _math_core
+
+const PI = 3.141592653589793
+const E = 2.718281828459045
+const TAU = 6.283185307179586
+const INF = 1.0 / 0.0
+const NAN = 0.0 / 0.0
+
+function abs(x)
+  if x < 0
+    return -x
+  end
+  return x
+end
+
+function min(a, b)
+  if a < b
+    return a
+  end
+  return b
+end
+
+function max(a, b)
+  if a > b
+    return a
+  end
+  return b
+end
+
+function clamp(x, min_val, max_val)
+  if x < min_val
+    return min_val
+  end
+  if x > max_val
+    return max_val
+  end
+  return x
+end
+
+function sign(x)
+  if x > 0
+    return 1
+  end
+  if x < 0
+    return -1
+  end
+  return 0
+end
+
+function pow(x, y)
+  return x ** y
+end
+
+function sqrt(x)
+  return x ** 0.5
+end
+
+function floor(x)
+  let i = int(x)
+  if x < 0 and float(i) != x
+    return i - 1
+  end
+  return i
+end
+
+function ceil(x)
+  let i = int(x)
+  if x > 0 and float(i) != x
+    return i + 1
+  end
+  return i
+end
+
+function round(x)
+  let i = int(x)
+  let frac = x - float(i)
+  
+  if frac >= 0.5
+    return i + 1
+  end
+  if frac <= -0.5
+    return i - 1
+  end
+  return i
+end
+
+function sum(numbers)
+  let total = 0
+  for n in numbers
+    total = total + n
+  end
+  return total
+end
+
+function avg(numbers)
+  if len(numbers) == 0
+    return 0
+  end
+  return sum(numbers) / len(numbers)
+end
+
+function hypot(x, y)
+  return sqrt(x * x + y * y)
+end
+
+function is_even(n)
+  return n % 2 == 0
+end
+
+function is_odd(n)
+  return n % 2 != 0
+end
+
+function gcd(a, b)
+  while b != 0
+    let temp = b
+    b = a % b
+    a = temp
+  end
+  return abs(a)
+end
+
+function lcm(a, b)
+  if a == 0 or b == 0
+    return 0
+  end
+  return abs(a * b) / gcd(a, b)
+end
+
+function factorial(n)
+  if n <= 1
+    return 1
+  end
+  return n * factorial(n - 1)
+end
+

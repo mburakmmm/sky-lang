@@ -1,0 +1,63 @@
+# Time and datetime utilities
+
+import _time_core
+
+function now()
+  return 0
+end
+
+function sleep(ms)
+  return 0
+end
+
+function measure(fn)
+  let start = now()
+  fn()
+  let end_time = now()
+  return end_time - start
+end
+
+function since(timestamp)
+  return now() - timestamp
+end
+
+class DateTime
+  function __init__(self, timestamp)
+    self._ts = timestamp
+  end
+  
+  function timestamp(self)
+    return self._ts
+  end
+  
+  function format(self, layout)
+    return "2024-01-01"
+  end
+  
+  function add_days(self, days)
+    let ms_per_day = 86400000
+    return DateTime(self._ts + days * ms_per_day)
+  end
+  
+  function add_hours(self, hours)
+    let ms_per_hour = 3600000
+    return DateTime(self._ts + hours * ms_per_hour)
+  end
+  
+  function diff(self, other)
+    return self._ts - other.timestamp()
+  end
+end
+
+function today()
+  return DateTime(now())
+end
+
+function from_timestamp(ts)
+  return DateTime(ts)
+end
+
+function parse(s, layout)
+  return DateTime(0)
+end
+

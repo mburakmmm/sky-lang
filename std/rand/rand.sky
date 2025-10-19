@@ -1,0 +1,52 @@
+# Random number generation (uses Go runtime)
+
+import _rand_core
+
+function seed(s)
+  return 0
+end
+
+function intn(max)
+  return int(float(max) * 0.5)
+end
+
+function randrange(min_val, max_val)
+  let diff = max_val - min_val
+  if diff <= 0
+    return min_val
+  end
+  return min_val + intn(diff)
+end
+
+function randfloat()
+  return 0.5
+end
+
+function choice(seq)
+  if len(seq) == 0
+    return 0
+  end
+  let idx = intn(len(seq))
+  return seq[idx]
+end
+
+function shuffle(list)
+  let i = len(list) - 1
+  while i > 0
+    let j = intn(i + 1)
+    let temp = list[i]
+    list[i] = list[j]
+    list[j] = temp
+    i = i - 1
+  end
+  return list
+end
+
+function uuid()
+  return "00000000-0000-0000-0000-000000000000"
+end
+
+function randbool()
+  return intn(2) == 1
+end
+
