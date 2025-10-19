@@ -99,13 +99,15 @@ For more information, visit: https://github.com/mburakmmm/sky-lang
 func runCommand(args []string) {
 	if len(args) == 0 {
 		fmt.Fprintln(os.Stderr, "Error: no input file specified")
-		fmt.Fprintln(os.Stderr, "Usage: sky run [--vm] <file>")
+		fmt.Fprintln(os.Stderr, "Usage: sky run [--vm|--jit] <file>")
 		os.Exit(1)
 	}
 
-	// Check for --vm flag
+	// Check for mode flags
 	useVMMode := false
+	useJITMode := false
 	filename := args[0]
+
 	if args[0] == "--vm" {
 		if len(args) < 2 {
 			fmt.Fprintln(os.Stderr, "Error: no input file specified")
@@ -114,6 +116,23 @@ func runCommand(args []string) {
 		}
 		useVMMode = true
 		filename = args[1]
+	} else if args[0] == "--jit" {
+		if len(args) < 2 {
+			fmt.Fprintln(os.Stderr, "Error: no input file specified")
+			fmt.Fprintln(os.Stderr, "Usage: sky run --jit <file>")
+			os.Exit(1)
+		}
+		useJITMode = true
+		filename = args[1]
+	}
+
+	// Use JIT mode if requested (LLVM backend)
+	if useJITMode {
+		if err := runWithJIT(filename); err != nil {
+			fmt.Fprintf(os.Stderr, "%v\n", err)
+			os.Exit(1)
+		}
+		return
 	}
 
 	// Use VM mode if requested (better recursion support)
@@ -182,13 +201,73 @@ func runCommand(args []string) {
 func buildCommand(args []string) {
 	if len(args) == 0 {
 		fmt.Fprintln(os.Stderr, "Error: no input file specified")
-		fmt.Fprintln(os.Stderr, "Usage: sky build <file>")
+		fmt.Fprintln(os.Stderr, "Usage: sky build [-o output] <file>")
 		os.Exit(1)
 	}
 
+	// Parse flags
+	outputFile := "a.out"
 	filename := args[0]
+
+	for i := 0; i < len(args); i++ {
+		if args[i] == "-o" && i+1 < len(args) {
+			outputFile = args[i+1]
+			i++
+		} else if args[i][0] != '-' {
+			filename = args[i]
+		}
+	}
+
 	fmt.Printf("Building %s...\n", filename)
-	fmt.Println("Note: AOT compilation not yet implemented")
+
+	// Read and parse file
+	content, err := os.ReadFile(filename)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error reading file: %v\n", err)
+		os.Exit(1)
+	}
+
+	l := lexer.New(string(content), filename)
+	p := parser.New(l)
+	program := p.ParseProgram()
+
+	if len(p.Errors()) > 0 {
+		fmt.Fprintln(os.Stderr, "Parse errors:")
+		for _, err := range p.Errors() {
+			fmt.Fprintf(os.Stderr, "  - %s\n", err)
+		}
+		os.Exit(1)
+	}
+
+	// Semantic check
+	hasImports := false
+	for _, stmt := range program.Statements {
+		if _, ok := stmt.(*ast.ImportStatement); ok {
+			hasImports = true
+			break
+		}
+	}
+
+	if !hasImports {
+		checker := sema.NewChecker()
+		errors := checker.Check(program)
+
+		if len(errors) > 0 {
+			fmt.Fprintln(os.Stderr, "Semantic errors:")
+			for _, err := range errors {
+				fmt.Fprintf(os.Stderr, "  - %s\n", err)
+			}
+			os.Exit(1)
+		}
+	}
+
+	// AOT compile
+	if err := compileAOT(program, outputFile); err != nil {
+		fmt.Fprintf(os.Stderr, "Build error: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("Successfully built: %s\n", outputFile)
 }
 
 func testCommand(args []string) {
