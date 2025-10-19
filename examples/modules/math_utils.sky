@@ -1,0 +1,16 @@
+# Math utilities module
+
+function add(a: int, b: int): int
+  return a + b
+end
+
+function multiply(a: int, b: int): int
+  return a * b
+end
+
+function square(x: int): int
+  return x * x
+end
+
+const PI = 3.14159
+

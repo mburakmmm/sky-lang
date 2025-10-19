@@ -192,6 +192,11 @@ func (e *Environment) Update(name string, value Value) error {
 	return &RuntimeError{Message: fmt.Sprintf("undefined variable: %s", name)}
 }
 
+// GetAll returns all symbols in this environment (not including parent)
+func (e *Environment) GetAll() map[string]Value {
+	return e.store
+}
+
 // Promise represents an async value that will be resolved later
 type Promise struct {
 	State    string // "pending", "fulfilled", "rejected"

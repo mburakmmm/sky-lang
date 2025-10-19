@@ -5,19 +5,27 @@ import (
 	"os"
 
 	"github.com/mburakmmm/sky-lang/internal/ast"
+	"github.com/mburakmmm/sky-lang/internal/lexer"
+	"github.com/mburakmmm/sky-lang/internal/parser"
 )
 
 // Interpreter AST'yi yorumlar ve çalıştırır
 type Interpreter struct {
-	env        *Environment
-	output     *os.File
-	trampoline *TrampolineStack // Custom call stack for recursion
+	env         *Environment
+	output      *os.File
+	trampoline  *TrampolineStack        // Custom call stack for recursion
+	moduleCache map[string]*Environment // Cached loaded modules
+	currentDir  string                  // Current working directory for relative imports
+	sourceFile  string                  // Source file path for relative imports
 }
 
 // New yeni bir interpreter oluşturur
 func New() *Interpreter {
 	env := NewEnvironment(nil)
 	trampoline := NewTrampolineStack(10000) // 10K depth limit
+
+	// Get current working directory
+	currentDir, _ := os.Getwd()
 
 	// Built-in fonksiyonları ekle
 	env.Set("print", &Function{
@@ -75,10 +83,17 @@ func New() *Interpreter {
 	})
 
 	return &Interpreter{
-		env:        env,
-		output:     os.Stdout,
-		trampoline: trampoline,
+		env:         env,
+		output:      os.Stdout,
+		trampoline:  trampoline,
+		moduleCache: make(map[string]*Environment),
+		currentDir:  currentDir,
 	}
+}
+
+// SetSourceFile sets the source file path for imports
+func (i *Interpreter) SetSourceFile(path string) {
+	i.sourceFile = path
 }
 
 // Eval programı çalıştırır
@@ -145,6 +160,8 @@ func (i *Interpreter) evalStatement(stmt ast.Statement) (Value, error) {
 		return i.evalForStatement(s)
 	case *ast.ClassStatement:
 		return nil, i.evalClassStatement(s)
+	case *ast.ImportStatement:
+		return nil, i.evalImportStatement(s)
 	case *ast.BlockStatement:
 		return i.evalBlockStatement(s, i.env)
 	default:
@@ -951,4 +968,129 @@ func (i *Interpreter) evalMemberExpression(expr *ast.MemberExpression) (Value, e
 	}
 
 	return nil, &RuntimeError{Message: fmt.Sprintf("cannot access member of %T", object)}
+}
+
+// evalImportStatement handles module imports
+func (i *Interpreter) evalImportStatement(stmt *ast.ImportStatement) error {
+	// Build module path
+	modulePath := ""
+	for idx, segment := range stmt.Path {
+		if idx > 0 {
+			modulePath += "/"
+		}
+		modulePath += segment
+	}
+
+	// Check if already loaded
+	if moduleEnv, cached := i.moduleCache[modulePath]; cached {
+		// Module already loaded, import symbols
+		return i.importSymbolsFromModule(moduleEnv, stmt.Alias)
+	}
+
+	// Load module file
+	moduleFilePath := i.resolveModulePath(modulePath)
+
+	// Read and parse module
+	content, err := os.ReadFile(moduleFilePath)
+	if err != nil {
+		return &RuntimeError{Message: fmt.Sprintf("cannot load module %s: %v", modulePath, err)}
+	}
+
+	// Parse module
+	l := lexer.New(string(content), moduleFilePath)
+	p := parser.New(l)
+	program := p.ParseProgram()
+	if len(p.Errors()) > 0 {
+		return &RuntimeError{Message: fmt.Sprintf("parse errors in module %s: %v", modulePath, p.Errors())}
+	}
+
+	// Create module environment
+	moduleEnv := NewEnvironment(nil)
+	oldEnv := i.env
+	i.env = moduleEnv
+
+	// Execute module
+	for _, modStmt := range program.Statements {
+		_, err := i.evalStatement(modStmt)
+		if err != nil {
+			i.env = oldEnv // Restore before returning
+			return &RuntimeError{Message: fmt.Sprintf("error in module %s: %v", modulePath, err)}
+		}
+	}
+
+	// Restore environment BEFORE importing symbols
+	i.env = oldEnv
+
+	// Cache module
+	i.moduleCache[modulePath] = moduleEnv
+
+	// Import symbols (now i.env is the original environment)
+	return i.importSymbolsFromModule(moduleEnv, stmt.Alias)
+}
+
+// resolveModulePath resolves module path to file path
+func (i *Interpreter) resolveModulePath(modulePath string) string {
+	moduleFile := modulePath + ".sky"
+
+	// Try relative to source file directory first
+	if i.sourceFile != "" {
+		sourceDir := ""
+		lastSlash := -1
+		for idx, ch := range i.sourceFile {
+			if ch == '/' || ch == '\\' {
+				lastSlash = idx
+			}
+		}
+		if lastSlash >= 0 {
+			sourceDir = i.sourceFile[:lastSlash]
+		}
+
+		if sourceDir != "" {
+			relToSource := sourceDir + "/" + moduleFile
+			if _, err := os.Stat(relToSource); err == nil {
+				return relToSource
+			}
+		}
+	}
+
+	// Try relative to current directory
+	relPath := i.currentDir + "/" + moduleFile
+	if _, err := os.Stat(relPath); err == nil {
+		return relPath
+	}
+
+	// Try as absolute path
+	if _, err := os.Stat(moduleFile); err == nil {
+		return moduleFile
+	}
+
+	// Default to relative path
+	return relPath
+}
+
+// importSymbolsFromModule imports exported symbols from module
+func (i *Interpreter) importSymbolsFromModule(moduleEnv *Environment, alias *ast.Identifier) error {
+	symbols := moduleEnv.GetAll()
+
+	if alias != nil {
+		// Import with alias (import foo as f)
+		// Create a namespace object
+		namespace := &Dict{Pairs: make(map[string]Value)}
+		for name, value := range symbols {
+			// Only import public symbols (not starting with _)
+			if len(name) > 0 && name[0] != '_' {
+				namespace.Pairs[name] = value
+			}
+		}
+		i.env.Set(alias.Value, namespace)
+	} else {
+		// Direct import (import foo)
+		for name, value := range symbols {
+			// Only import public symbols
+			if len(name) > 0 && name[0] != '_' {
+				i.env.Set(name, value)
+			}
+		}
+	}
+	return nil
 }

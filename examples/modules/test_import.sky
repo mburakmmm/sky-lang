@@ -1,0 +1,22 @@
+# Import test
+
+import math_utils
+
+function main
+  print("=== Import Test ===")
+  
+  let sum = add(5, 3)
+  print("5 + 3 =")
+  print(sum)
+  
+  let product = multiply(4, 7)
+  print("4 * 7 =")
+  print(product)
+  
+  let sq = square(6)
+  print("6^2 =")
+  print(sq)
+  
+  print("=== Done ===")
+end
+

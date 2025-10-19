@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/mburakmmm/sky-lang/internal/ast"
 	"github.com/mburakmmm/sky-lang/internal/interpreter"
 	"github.com/mburakmmm/sky-lang/internal/lexer"
 	"github.com/mburakmmm/sky-lang/internal/parser"
@@ -146,20 +147,31 @@ func runCommand(args []string) {
 		os.Exit(1)
 	}
 
-	// Semantic checker
-	checker := sema.NewChecker()
-	errors := checker.Check(program)
-
-	if len(errors) > 0 {
-		fmt.Fprintln(os.Stderr, "Semantic errors:")
-		for _, err := range errors {
-			fmt.Fprintf(os.Stderr, "  - %s\n", err)
+	// Semantic checker (skip if imports present, as they're resolved at runtime)
+	hasImports := false
+	for _, stmt := range program.Statements {
+		if _, ok := stmt.(*ast.ImportStatement); ok {
+			hasImports = true
+			break
 		}
-		os.Exit(1)
+	}
+
+	if !hasImports {
+		checker := sema.NewChecker()
+		errors := checker.Check(program)
+
+		if len(errors) > 0 {
+			fmt.Fprintln(os.Stderr, "Semantic errors:")
+			for _, err := range errors {
+				fmt.Fprintf(os.Stderr, "  - %s\n", err)
+			}
+			os.Exit(1)
+		}
 	}
 
 	// Interpreter
 	interp := interpreter.New()
+	interp.SetSourceFile(filename)
 	err = interp.Eval(program)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Runtime error: %v\n", err)
