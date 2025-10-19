@@ -2,7 +2,9 @@ package interpreter
 
 import (
 	"fmt"
+	"math"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/mburakmmm/sky-lang/internal/ast"
@@ -82,6 +84,12 @@ func New() *Interpreter {
 			return &List{Elements: []Value{}}, nil
 		},
 	})
+
+	// TYPE CONVERSION FUNCTIONS
+	addTypeConversionFunctions(env)
+
+	// NUMERIC FUNCTIONS
+	addNumericFunctions(env)
 
 	// STRING METHODS
 	addStringMethods(env)
@@ -1068,6 +1076,322 @@ func (i *Interpreter) evalMemberExpression(expr *ast.MemberExpression) (Value, e
 	}
 
 	return nil, &RuntimeError{Message: fmt.Sprintf("cannot access member of %T", object)}
+}
+
+// addTypeConversionFunctions adds int(), float(), bool() converters
+func addTypeConversionFunctions(env *Environment) {
+	// int(x, [base])
+	env.Set("int", &Function{
+		Name: "int",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) > 0 {
+				arg := list.Elements[0]
+
+				switch v := arg.(type) {
+				case *Integer:
+					return v, nil
+				case *Float:
+					return &Integer{Value: int64(v.Value)}, nil
+				case *String:
+					base := 10
+					if len(list.Elements) >= 2 {
+						if baseVal, ok := list.Elements[1].(*Integer); ok {
+							base = int(baseVal.Value)
+						}
+					}
+					val, err := strconv.ParseInt(v.Value, base, 64)
+					if err != nil {
+						return &Nil{}, &RuntimeError{Message: fmt.Sprintf("invalid literal for int(): %s", v.Value)}
+					}
+					return &Integer{Value: val}, nil
+				case *Boolean:
+					if v.Value {
+						return &Integer{Value: 1}, nil
+					}
+					return &Integer{Value: 0}, nil
+				default:
+					return &Integer{Value: 0}, nil
+				}
+			}
+			return &Integer{Value: 0}, nil
+		},
+	})
+
+	// float(x)
+	env.Set("float", &Function{
+		Name: "float",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) > 0 {
+				arg := list.Elements[0]
+
+				switch v := arg.(type) {
+				case *Float:
+					return v, nil
+				case *Integer:
+					return &Float{Value: float64(v.Value)}, nil
+				case *String:
+					val, err := strconv.ParseFloat(v.Value, 64)
+					if err != nil {
+						return &Nil{}, &RuntimeError{Message: fmt.Sprintf("invalid literal for float(): %s", v.Value)}
+					}
+					return &Float{Value: val}, nil
+				case *Boolean:
+					if v.Value {
+						return &Float{Value: 1.0}, nil
+					}
+					return &Float{Value: 0.0}, nil
+				default:
+					return &Float{Value: 0.0}, nil
+				}
+			}
+			return &Float{Value: 0.0}, nil
+		},
+	})
+
+	// bool(x)
+	env.Set("bool", &Function{
+		Name: "bool",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) > 0 {
+				arg := list.Elements[0]
+				return &Boolean{Value: arg.IsTruthy()}, nil
+			}
+			return &Boolean{Value: false}, nil
+		},
+	})
+
+	// str(x)
+	env.Set("str", &Function{
+		Name: "str",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) > 0 {
+				arg := list.Elements[0]
+				return &String{Value: arg.String()}, nil
+			}
+			return &String{Value: ""}, nil
+		},
+	})
+}
+
+// addNumericFunctions adds math utility functions
+func addNumericFunctions(env *Environment) {
+	// abs(x)
+	env.Set("abs", &Function{
+		Name: "abs",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) > 0 {
+				arg := list.Elements[0]
+
+				switch v := arg.(type) {
+				case *Integer:
+					if v.Value < 0 {
+						return &Integer{Value: -v.Value}, nil
+					}
+					return v, nil
+				case *Float:
+					return &Float{Value: math.Abs(v.Value)}, nil
+				default:
+					return &Nil{}, &RuntimeError{Message: "abs() requires numeric argument"}
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "abs() requires argument"}
+		},
+	})
+
+	// min(a, b, ...)
+	env.Set("min", &Function{
+		Name: "min",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) > 0 {
+				minVal := list.Elements[0]
+
+				for _, arg := range list.Elements[1:] {
+					switch m := minVal.(type) {
+					case *Integer:
+						if v, ok := arg.(*Integer); ok {
+							if v.Value < m.Value {
+								minVal = v
+							}
+						}
+					case *Float:
+						if v, ok := arg.(*Float); ok {
+							if v.Value < m.Value {
+								minVal = v
+							}
+						}
+					}
+				}
+				return minVal, nil
+			}
+			return &Nil{}, &RuntimeError{Message: "min() requires at least one argument"}
+		},
+	})
+
+	// max(a, b, ...)
+	env.Set("max", &Function{
+		Name: "max",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) > 0 {
+				maxVal := list.Elements[0]
+
+				for _, arg := range list.Elements[1:] {
+					switch m := maxVal.(type) {
+					case *Integer:
+						if v, ok := arg.(*Integer); ok {
+							if v.Value > m.Value {
+								maxVal = v
+							}
+						}
+					case *Float:
+						if v, ok := arg.(*Float); ok {
+							if v.Value > m.Value {
+								maxVal = v
+							}
+						}
+					}
+				}
+				return maxVal, nil
+			}
+			return &Nil{}, &RuntimeError{Message: "max() requires at least one argument"}
+		},
+	})
+
+	// round(x, [digits])
+	env.Set("round", &Function{
+		Name: "round",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) > 0 {
+				if f, ok := list.Elements[0].(*Float); ok {
+					digits := 0
+					if len(list.Elements) >= 2 {
+						if d, ok := list.Elements[1].(*Integer); ok {
+							digits = int(d.Value)
+						}
+					}
+
+					multiplier := math.Pow(10, float64(digits))
+					rounded := math.Round(f.Value*multiplier) / multiplier
+					return &Float{Value: rounded}, nil
+				}
+				if i, ok := list.Elements[0].(*Integer); ok {
+					return i, nil
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "round() requires numeric argument"}
+		},
+	})
+
+	// pow(x, y)
+	env.Set("pow", &Function{
+		Name: "pow",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 2 {
+				var x, y float64
+
+				switch v := list.Elements[0].(type) {
+				case *Integer:
+					x = float64(v.Value)
+				case *Float:
+					x = v.Value
+				default:
+					return &Nil{}, &RuntimeError{Message: "pow() requires numeric arguments"}
+				}
+
+				switch v := list.Elements[1].(type) {
+				case *Integer:
+					y = float64(v.Value)
+				case *Float:
+					y = v.Value
+				default:
+					return &Nil{}, &RuntimeError{Message: "pow() requires numeric arguments"}
+				}
+
+				result := math.Pow(x, y)
+
+				// Return int if both inputs were int and result is whole number
+				if _, ok1 := list.Elements[0].(*Integer); ok1 {
+					if _, ok2 := list.Elements[1].(*Integer); ok2 {
+						if result == math.Floor(result) {
+							return &Integer{Value: int64(result)}, nil
+						}
+					}
+				}
+
+				return &Float{Value: result}, nil
+			}
+			return &Nil{}, &RuntimeError{Message: "pow() requires two arguments"}
+		},
+	})
+
+	// sqrt(x)
+	env.Set("sqrt", &Function{
+		Name: "sqrt",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) > 0 {
+				var x float64
+
+				switch v := list.Elements[0].(type) {
+				case *Integer:
+					x = float64(v.Value)
+				case *Float:
+					x = v.Value
+				default:
+					return &Nil{}, &RuntimeError{Message: "sqrt() requires numeric argument"}
+				}
+
+				if x < 0 {
+					return &Nil{}, &RuntimeError{Message: "sqrt() of negative number"}
+				}
+
+				return &Float{Value: math.Sqrt(x)}, nil
+			}
+			return &Nil{}, &RuntimeError{Message: "sqrt() requires argument"}
+		},
+	})
+
+	// floor(x)
+	env.Set("floor", &Function{
+		Name: "floor",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) > 0 {
+				if f, ok := list.Elements[0].(*Float); ok {
+					return &Integer{Value: int64(math.Floor(f.Value))}, nil
+				}
+				if i, ok := list.Elements[0].(*Integer); ok {
+					return i, nil
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "floor() requires numeric argument"}
+		},
+	})
+
+	// ceil(x)
+	env.Set("ceil", &Function{
+		Name: "ceil",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) > 0 {
+				if f, ok := list.Elements[0].(*Float); ok {
+					return &Integer{Value: int64(math.Ceil(f.Value))}, nil
+				}
+				if i, ok := list.Elements[0].(*Integer); ok {
+					return i, nil
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "ceil() requires numeric argument"}
+		},
+	})
 }
 
 // addStringMethods adds all Python-style string methods
