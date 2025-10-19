@@ -1,0 +1,34 @@
+# Join ve Null Test
+
+function main
+  print("=== Join ve Null Testi ===")
+  
+  # Test join function
+  let words = ["Hello", "World", "SKY"]
+  let joined = join(" ", words)
+  print("Joined: " + joined)
+  
+  let numbers = ["1", "2", "3", "4", "5"]
+  let numbered = join("-", numbers)
+  print("Numbered: " + numbered)
+  
+  # Test null/nil
+  print("Null value: " + str(null))
+  print("Nil value: " + str(nil))
+  
+  # Test null comparison
+  let x = null
+  if x == null
+    print("x is null")
+  else
+    print("x is not null")
+  end
+  
+  # Test null assignment
+  let y: any = "hello"
+  print("y before: " + str(y))
+  y = null
+  print("y after: " + str(y))
+  
+  print("=== Test Tamamlandı ===")
+end

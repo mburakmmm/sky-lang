@@ -1,0 +1,43 @@
+# String Metodları Test
+
+function main
+  print("=== String Metodları Testi ===")
+  
+  let text = "Hello World"
+  
+  # Test upper()
+  print("Original: " + text)
+  print("Upper: " + text.upper())
+  
+  # Test lower()
+  print("Lower: " + text.lower())
+  
+  # Test capitalize()
+  print("Capitalize: " + text.capitalize())
+  
+  # Test startswith()
+  print("Starts with 'Hello': " + str(text.startswith("Hello")))
+  
+  # Test endswith()
+  print("Ends with 'World': " + str(text.endswith("World")))
+  
+  # Test find()
+  print("Find 'World': " + str(text.find("World")))
+  
+  # Test count()
+  print("Count 'l': " + str(text.count("l")))
+  
+  # Test split()
+  let words = text.split(" ")
+  print("Split result: " + str(words))
+  
+  # Test replace()
+  let replaced = text.replace("World", "SKY")
+  print("Replace: " + replaced)
+  
+  # Test strip()
+  let spaced = "  hello  "
+  print("Strip: '" + spaced.strip() + "'")
+  
+  print("=== Test Tamamlandı ===")
+end

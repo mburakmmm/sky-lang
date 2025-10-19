@@ -111,6 +111,9 @@ func New() *Interpreter {
 	// NATIVE STDLIB (Go functions)
 	addNativeStdlib(env)
 
+	// GLOBAL FUNCTIONS
+	addGlobalFunctions(env)
+
 	return &Interpreter{
 		env:         env,
 		output:      os.Stdout,
@@ -867,6 +870,34 @@ func (i *Interpreter) evalBinaryOp(left, right Value, op string) (Value, error) 
 			if op == "+" {
 				return &String{Value: strL.Value + strR.Value}, nil
 			}
+		}
+	}
+
+	// Nil comparison operations
+	if _, okL := left.(*Nil); okL {
+		if _, okR := right.(*Nil); okR {
+			switch op {
+			case "==":
+				return &Boolean{Value: true}, nil
+			case "!=":
+				return &Boolean{Value: false}, nil
+			}
+		}
+		// left is nil, right is not
+		switch op {
+		case "==":
+			return &Boolean{Value: false}, nil
+		case "!=":
+			return &Boolean{Value: true}, nil
+		}
+	}
+	if _, okR := right.(*Nil); okR {
+		// right is nil, left is not
+		switch op {
+		case "==":
+			return &Boolean{Value: false}, nil
+		case "!=":
+			return &Boolean{Value: true}, nil
 		}
 	}
 
@@ -2055,6 +2086,35 @@ func addStringMethods(env *Environment) {
 			return &Integer{Value: 0}, nil
 		},
 	})
+}
+
+// addGlobalFunctions adds global utility functions
+func addGlobalFunctions(env *Environment) {
+	// join(separator, list) - global function
+	env.Set("join", &Function{
+		Name: "join",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 2 {
+				if sep, ok := list.Elements[0].(*String); ok {
+					if items, ok := list.Elements[1].(*List); ok {
+						parts := make([]string, len(items.Elements))
+						for i, item := range items.Elements {
+							parts[i] = item.String()
+						}
+						return &String{Value: strings.Join(parts, sep.Value)}, nil
+					}
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "join() requires string separator and list"}
+		},
+	})
+
+	// null constant
+	env.Set("null", &Nil{})
+
+	// nil constant (alias for null)
+	env.Set("nil", &Nil{})
 }
 
 // addListMethods adds all Python-style list methods

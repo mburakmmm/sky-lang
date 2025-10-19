@@ -1,0 +1,23 @@
+# Simple Method Test
+
+class Test
+  function init
+    self.value = "test"
+  end
+  
+  function get_value: string
+    return self.value
+  end
+end
+
+function main
+  print("=== Simple Method Test ===")
+  
+  let obj = Test()
+  print("Object created")
+  
+  let value = obj.get_value()
+  print("Value: " + value)
+  
+  print("=== Test Complete ===")
+end

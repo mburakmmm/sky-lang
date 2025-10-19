@@ -203,12 +203,21 @@ func NewSymbolTable() *SymbolTable {
 		// Random
 		{"rand_int", &FunctionType{Params: []Type{IntType}, ReturnType: IntType}},
 		{"rand_uuid", &FunctionType{Params: []Type{}, ReturnType: StringType}},
+
+		// Global utilities
+		{"join", &FunctionType{Params: []Type{StringType, &ListType{ElementType: AnyType}}, ReturnType: StringType}},
+		{"null", NilType},
+		{"nil", NilType},
 	}
 
 	for _, builtin := range builtins {
+		kind := FunctionSymbol
+		if builtin.name == "null" || builtin.name == "nil" {
+			kind = VariableSymbol
+		}
 		globalScope.Define(&Symbol{
 			Name: builtin.name,
-			Kind: FunctionSymbol,
+			Kind: kind,
 			Type: builtin.typ,
 		})
 	}
