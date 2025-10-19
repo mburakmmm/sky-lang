@@ -1,0 +1,30 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run Current SKY File",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/bin/sky",
+      "args": [
+        "run",
+        "${file}"
+      ],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Check Current SKY File",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/bin/sky",
+      "args": [
+        "check",
+        "${file}"
+      ],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}
+

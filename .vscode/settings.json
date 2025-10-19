@@ -1,0 +1,12 @@
+{
+  "files.associations": {
+    "*.sky": "sky"
+  },
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.formatOnSave": false,
+  "[sky]": {
+    "editor.defaultFormatter": "sky.formatter",
+    "editor.tabSize": 2
+  }
+}

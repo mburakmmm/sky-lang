@@ -1,0 +1,73 @@
+{
+  "SKY Function": {
+    "prefix": "fn",
+    "body": [
+      "function ${1:name}($2)",
+      "  $0",
+      "end"
+    ],
+    "description": "SKY function definition"
+  },
+  "SKY Async Function": {
+    "prefix": "afn",
+    "body": [
+      "async function ${1:name}($2)",
+      "  $0",
+      "end"
+    ],
+    "description": "SKY async function"
+  },
+  "SKY Class": {
+    "prefix": "class",
+    "body": [
+      "class ${1:Name}",
+      "  function init($2)",
+      "    self.$3 = $3",
+      "  end",
+      "  ",
+      "  function ${4:method}($5)",
+      "    $0",
+      "  end",
+      "end"
+    ],
+    "description": "SKY class definition"
+  },
+  "SKY If": {
+    "prefix": "if",
+    "body": [
+      "if ${1:condition}",
+      "  $0",
+      "end"
+    ],
+    "description": "SKY if statement"
+  },
+  "SKY For": {
+    "prefix": "for",
+    "body": [
+      "for ${1:item} in ${2:collection}",
+      "  $0",
+      "end"
+    ],
+    "description": "SKY for loop"
+  },
+  "SKY Enum": {
+    "prefix": "enum",
+    "body": [
+      "enum ${1:Name}",
+      "  ${2:Variant1}",
+      "  ${3:Variant2}",
+      "end"
+    ],
+    "description": "SKY enum definition"
+  },
+  "SKY Match": {
+    "prefix": "match",
+    "body": [
+      "match ${1:value}",
+      "  ${2:Pattern1} => $3",
+      "  ${4:Pattern2} => $5",
+      "end"
+    ],
+    "description": "SKY match expression"
+  }
+}

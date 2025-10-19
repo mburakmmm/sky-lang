@@ -1,0 +1,88 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run SKY File",
+      "type": "shell",
+      "command": "sky",
+      "args": [
+        "run",
+        "${file}"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Check SKY File",
+      "type": "shell",
+      "command": "sky",
+      "args": [
+        "check",
+        "${file}"
+      ],
+      "presentation": {
+        "reveal": "always"
+      },
+      "problemMatcher": {
+        "owner": "sky",
+        "fileLocation": ["relative", "${workspaceFolder}"],
+        "pattern": {
+          "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "severity": 4,
+          "message": 5
+        }
+      }
+    },
+    {
+      "label": "Build SKY Project",
+      "type": "shell",
+      "command": "sky",
+      "args": [
+        "build",
+        "${file}"
+      ],
+      "group": "build",
+      "presentation": {
+        "reveal": "always"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Run Tests",
+      "type": "shell",
+      "command": "sky",
+      "args": [
+        "test"
+      ],
+      "group": "test",
+      "presentation": {
+        "reveal": "always"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Format SKY File",
+      "type": "shell",
+      "command": "sky",
+      "args": [
+        "fmt",
+        "${file}"
+      ],
+      "presentation": {
+        "reveal": "silent"
+      },
+      "problemMatcher": []
+    }
+  ]
+}
+

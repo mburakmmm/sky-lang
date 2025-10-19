@@ -1,0 +1,55 @@
+{
+  "name": "sky-language",
+  "displayName": "SKY Language Support",
+  "description": "Syntax highlighting and snippets for SKY Programming Language",
+  "version": "0.1.0",
+  "publisher": "sky-lang",
+  "icon": "icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mburakmmm/sky-lang"
+  },
+  "homepage": "https://github.com/mburakmmm/sky-lang",
+  "bugs": {
+    "url": "https://github.com/mburakmmm/sky-lang/issues"
+  },
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets"
+  ],
+  "keywords": [
+    "sky",
+    "programming language",
+    "syntax highlighting",
+    "async",
+    "pattern matching"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "sky",
+        "aliases": ["SKY", "sky"],
+        "extensions": [".sky"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "sky",
+        "scopeName": "source.sky",
+        "path": "./syntaxes/sky.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "sky",
+        "path": "./snippets/sky.json"
+      }
+    ]
+  }
+}
+

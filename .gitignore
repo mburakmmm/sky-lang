@@ -20,11 +20,16 @@ go.work
 vendor/
 
 # IDE directories
-.vscode/
+# .vscode/ kept for extension
 .idea/
 *.swp
 *.swo
 *~
+
+# Cursor AI rules (project-specific)
+.cursorrules
+2.cursorrules
+*.cursorrules
 
 # OS files
 .DS_Store
