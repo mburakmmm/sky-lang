@@ -417,15 +417,10 @@ func (i *Interpreter) evalFunctionStatement(stmt *ast.FunctionStatement) error {
 					}
 				}
 
-				// Create generator
-				gen := &Generator{
-					Function: decoratedFn,
-					Env:      genEnv,
-					State:    0,
-					Values:   []Value{},
-					Done:     false,
-					interp:   i,
-					stmt:     capturedStmt.Body,
+				// Create generator by executing and collecting yields
+				gen, err := NewGenerator(i, genEnv, capturedStmt.Body)
+				if err != nil {
+					return nil, err
 				}
 
 				// Add next() method to generator
@@ -460,8 +455,11 @@ func (i *Interpreter) evalIfStatement(stmt *ast.IfStatement) (Value, error) {
 
 	if condition.IsTruthy() {
 		val, err := i.evalBlockStatement(stmt.Consequence, i.env)
-		// Propagate return signal
+		// Propagate signals
 		if _, isReturn := err.(*ReturnSignal); isReturn {
+			return nil, err
+		}
+		if _, isYield := err.(*YieldSignal); isYield {
 			return nil, err
 		}
 		return val, err
@@ -475,8 +473,11 @@ func (i *Interpreter) evalIfStatement(stmt *ast.IfStatement) (Value, error) {
 		}
 		if cond.IsTruthy() {
 			val, err := i.evalBlockStatement(elif.Consequence, i.env)
-			// Propagate return signal
+			// Propagate signals
 			if _, isReturn := err.(*ReturnSignal); isReturn {
+				return nil, err
+			}
+			if _, isYield := err.(*YieldSignal); isYield {
 				return nil, err
 			}
 			return val, err
@@ -486,8 +487,11 @@ func (i *Interpreter) evalIfStatement(stmt *ast.IfStatement) (Value, error) {
 	// Else dalı
 	if stmt.Alternative != nil {
 		val, err := i.evalBlockStatement(stmt.Alternative, i.env)
-		// Propagate return signal
+		// Propagate signals
 		if _, isReturn := err.(*ReturnSignal); isReturn {
+			return nil, err
+		}
+		if _, isYield := err.(*YieldSignal); isYield {
 			return nil, err
 		}
 		return val, err
@@ -518,6 +522,9 @@ func (i *Interpreter) evalWhileStatement(stmt *ast.WhileStatement) (Value, error
 			}
 			if _, isReturn := err.(*ReturnSignal); isReturn {
 				return nil, err // Propagate return signal
+			}
+			if _, isYield := err.(*YieldSignal); isYield {
+				return nil, err // Propagate yield signal
 			}
 			// Real error
 			return nil, err
@@ -556,6 +563,9 @@ func (i *Interpreter) evalForStatement(stmt *ast.ForStatement) (Value, error) {
 				if _, isReturn := err.(*ReturnSignal); isReturn {
 					return nil, err // Propagate return signal
 				}
+				if _, isYield := err.(*YieldSignal); isYield {
+					return nil, err // Propagate yield signal
+				}
 				return nil, err
 			}
 		}
@@ -575,6 +585,9 @@ func (i *Interpreter) evalForStatement(stmt *ast.ForStatement) (Value, error) {
 				if _, isReturn := err.(*ReturnSignal); isReturn {
 					return nil, err // Propagate return signal
 				}
+				if _, isYield := err.(*YieldSignal); isYield {
+					return nil, err // Propagate yield signal
+				}
 				return nil, err
 			}
 		}
@@ -593,6 +606,9 @@ func (i *Interpreter) evalForStatement(stmt *ast.ForStatement) (Value, error) {
 				}
 				if _, isReturn := err.(*ReturnSignal); isReturn {
 					return nil, err // Propagate return signal
+				}
+				if _, isYield := err.(*YieldSignal); isYield {
+					return nil, err // Propagate yield signal
 				}
 				return nil, err
 			}
@@ -667,6 +683,10 @@ func (i *Interpreter) evalBlockStatement(block *ast.BlockStatement, env *Environ
 		if err != nil {
 			// Propagate ReturnSignal up
 			if _, isReturn := err.(*ReturnSignal); isReturn {
+				return nil, err
+			}
+			// Propagate YieldSignal up (for generators)
+			if _, isYield := err.(*YieldSignal); isYield {
 				return nil, err
 			}
 			// Other errors
@@ -1227,7 +1247,7 @@ func (i *Interpreter) evalAwaitExpression(expr *ast.AwaitExpression) (Value, err
 // evalYieldExpression yields a value (for coroutines/generators)
 func (i *Interpreter) evalYieldExpression(expr *ast.YieldExpression) (Value, error) {
 	if expr.Value == nil {
-		return &Nil{}, nil
+		return nil, &YieldSignal{Value: &Nil{}}
 	}
 
 	value, err := i.evalExpression(expr.Value)
@@ -1235,10 +1255,8 @@ func (i *Interpreter) evalYieldExpression(expr *ast.YieldExpression) (Value, err
 		return nil, err
 	}
 
-	// For now, yield just returns the value
-	// In a full implementation, this would suspend the coroutine
-	// and pass control back to the caller
-	return value, nil
+	// Return YieldSignal to pause execution and return value
+	return nil, &YieldSignal{Value: value}
 }
 
 // evalClassStatement evaluates a class definition

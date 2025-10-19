@@ -8,14 +8,16 @@ coop function counter(max): any
   end
 end
 
-coop function fibonacci: any
+coop function fibonacci(max): any
   let a = 0
   let b = 1
-  while true
+  let count = 0
+  while count < max
     yield a
     let temp = a
     a = b
     b = temp + b
+    count = count + 1
   end
 end
 
@@ -33,7 +35,7 @@ function main
   
   # Test fibonacci generator
   print("Fibonacci (first 10):")
-  let fib = fibonacci()
+  let fib = fibonacci(10)
   let j = 0
   while j < 10
     print("  " + str(fib.next()))
