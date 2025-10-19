@@ -150,6 +150,15 @@ func (c *ContinueSignal) Error() string {
 	return "continue"
 }
 
+// ReturnSignal signals a return statement execution
+type ReturnSignal struct {
+	Value Value
+}
+
+func (r *ReturnSignal) Error() string {
+	return "return"
+}
+
 // Environment değişken ortamını temsil eder
 type Environment struct {
 	store  map[string]Value

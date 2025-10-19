@@ -222,9 +222,13 @@ func (i *Interpreter) evalConstStatement(stmt *ast.ConstStatement) (Value, error
 
 func (i *Interpreter) evalReturnStatement(stmt *ast.ReturnStatement) (Value, error) {
 	if stmt.ReturnValue != nil {
-		return i.evalExpression(stmt.ReturnValue)
+		val, err := i.evalExpression(stmt.ReturnValue)
+		if err != nil {
+			return nil, err
+		}
+		return nil, &ReturnSignal{Value: val}
 	}
-	return &Nil{}, nil
+	return nil, &ReturnSignal{Value: &Nil{}}
 }
 
 func (i *Interpreter) evalFunctionStatement(stmt *ast.FunctionStatement) error {
@@ -283,6 +287,12 @@ func (i *Interpreter) evalFunctionStatement(stmt *ast.FunctionStatement) error {
 
 			result, err := i.evalBlockStatement(capturedStmt.Body, fnEnv)
 
+			// Handle ReturnSignal - extract value and return normally
+			if retSignal, isReturn := err.(*ReturnSignal); isReturn {
+				result = retSignal.Value
+				err = nil
+			}
+
 			// Cache successful results
 			if err == nil && result != nil {
 				if argList, ok := args.(*List); ok {
@@ -305,7 +315,12 @@ func (i *Interpreter) evalIfStatement(stmt *ast.IfStatement) (Value, error) {
 	}
 
 	if condition.IsTruthy() {
-		return i.evalBlockStatement(stmt.Consequence, i.env)
+		val, err := i.evalBlockStatement(stmt.Consequence, i.env)
+		// Propagate return signal
+		if _, isReturn := err.(*ReturnSignal); isReturn {
+			return nil, err
+		}
+		return val, err
 	}
 
 	// Elif dallarını kontrol et
@@ -315,13 +330,23 @@ func (i *Interpreter) evalIfStatement(stmt *ast.IfStatement) (Value, error) {
 			return nil, err
 		}
 		if cond.IsTruthy() {
-			return i.evalBlockStatement(elif.Consequence, i.env)
+			val, err := i.evalBlockStatement(elif.Consequence, i.env)
+			// Propagate return signal
+			if _, isReturn := err.(*ReturnSignal); isReturn {
+				return nil, err
+			}
+			return val, err
 		}
 	}
 
 	// Else dalı
 	if stmt.Alternative != nil {
-		return i.evalBlockStatement(stmt.Alternative, i.env)
+		val, err := i.evalBlockStatement(stmt.Alternative, i.env)
+		// Propagate return signal
+		if _, isReturn := err.(*ReturnSignal); isReturn {
+			return nil, err
+		}
+		return val, err
 	}
 
 	return &Nil{}, nil
@@ -346,6 +371,9 @@ func (i *Interpreter) evalWhileStatement(stmt *ast.WhileStatement) (Value, error
 			}
 			if _, isContinue := err.(*ContinueSignal); isContinue {
 				continue // Continue to next iteration
+			}
+			if _, isReturn := err.(*ReturnSignal); isReturn {
+				return nil, err // Propagate return signal
 			}
 			// Real error
 			return nil, err
@@ -381,6 +409,9 @@ func (i *Interpreter) evalForStatement(stmt *ast.ForStatement) (Value, error) {
 				if _, isContinue := err.(*ContinueSignal); isContinue {
 					continue
 				}
+				if _, isReturn := err.(*ReturnSignal); isReturn {
+					return nil, err // Propagate return signal
+				}
 				return nil, err
 			}
 		}
@@ -397,6 +428,9 @@ func (i *Interpreter) evalForStatement(stmt *ast.ForStatement) (Value, error) {
 				if _, isContinue := err.(*ContinueSignal); isContinue {
 					continue
 				}
+				if _, isReturn := err.(*ReturnSignal); isReturn {
+					return nil, err // Propagate return signal
+				}
 				return nil, err
 			}
 		}
@@ -412,6 +446,9 @@ func (i *Interpreter) evalForStatement(stmt *ast.ForStatement) (Value, error) {
 				}
 				if _, isContinue := err.(*ContinueSignal); isContinue {
 					continue
+				}
+				if _, isReturn := err.(*ReturnSignal); isReturn {
+					return nil, err // Propagate return signal
 				}
 				return nil, err
 			}
@@ -481,13 +518,15 @@ func (i *Interpreter) evalBlockStatement(block *ast.BlockStatement, env *Environ
 
 	for _, stmt := range block.Statements {
 		val, err := i.evalStatement(stmt)
-		if err != nil {
-			return nil, err
-		}
 
-		// Return statement'ı handle et
-		if _, isReturn := stmt.(*ast.ReturnStatement); isReturn {
-			return val, nil
+		// Check for control flow signals
+		if err != nil {
+			// Propagate ReturnSignal up
+			if _, isReturn := err.(*ReturnSignal); isReturn {
+				return nil, err
+			}
+			// Other errors
+			return nil, err
 		}
 
 		result = val
