@@ -660,3 +660,16 @@ func (ft *FunctionType) String() string {
 	}
 	return fmt.Sprintf("(%s) => %s", strings.Join(params, ", "), ft.ReturnType.String())
 }
+
+// PointerType pointer tip anotasyonu *T
+type PointerType struct {
+	Token       lexer.Token // STAR token
+	PointeeType TypeAnnotation
+}
+
+func (pt *PointerType) typeNode()            {}
+func (pt *PointerType) TokenLiteral() string { return pt.Token.Literal }
+func (pt *PointerType) Pos() lexer.Token     { return pt.Token }
+func (pt *PointerType) String() string {
+	return fmt.Sprintf("*%s", pt.PointeeType.String())
+}

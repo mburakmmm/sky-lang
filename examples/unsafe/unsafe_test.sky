@@ -1,0 +1,21 @@
+# Unsafe block test
+
+function main
+  print("=== Unsafe Block Test ===")
+  
+  let x = 10
+  print("Before unsafe:")
+  print(x)
+  
+  unsafe
+    x = 99
+    print("Inside unsafe:")
+    print(x)
+  end
+  
+  print("After unsafe:")
+  print(x)
+  
+  print("=== Done ===")
+end
+

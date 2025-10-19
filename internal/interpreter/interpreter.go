@@ -162,6 +162,8 @@ func (i *Interpreter) evalStatement(stmt ast.Statement) (Value, error) {
 		return nil, i.evalClassStatement(s)
 	case *ast.ImportStatement:
 		return nil, i.evalImportStatement(s)
+	case *ast.UnsafeStatement:
+		return i.evalUnsafeStatement(s)
 	case *ast.BlockStatement:
 		return i.evalBlockStatement(s, i.env)
 	default:
@@ -1181,4 +1183,17 @@ func (i *Interpreter) importSymbolsFromModule(moduleEnv *Environment, alias *ast
 		}
 	}
 	return nil
+}
+
+// evalUnsafeStatement executes an unsafe block
+// In unsafe blocks, certain safety checks are disabled
+func (i *Interpreter) evalUnsafeStatement(stmt *ast.UnsafeStatement) (Value, error) {
+	// For now, unsafe blocks just execute normally
+	// In a production implementation, this would:
+	// - Disable GC for the duration of the block
+	// - Allow raw pointer operations
+	// - Disable bounds checking
+	// - Allow direct memory access
+
+	return i.evalBlockStatement(stmt.Body, i.env)
 }

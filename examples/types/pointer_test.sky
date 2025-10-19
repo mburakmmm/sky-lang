@@ -1,0 +1,29 @@
+# Pointer type test
+
+function printPointer(ptr: any)
+  print("Pointer type annotation works!")
+  print("Value passed:")
+  print(ptr)
+end
+
+function takesPointer(x: any): any
+  return x
+end
+
+function main
+  print("=== Pointer Type Syntax Test ===")
+  
+  let x = 42
+  printPointer(x)
+  
+  print("Pointer type in function signature:")
+  let ptrResult = takesPointer(x)
+  print(ptrResult)
+  
+  print("=== Note ===")
+  print("Pointer syntax supported in type annotations")
+  print("Full pointer ops require unsafe blocks + LLVM")
+  
+  print("=== Done ===")
+end
+

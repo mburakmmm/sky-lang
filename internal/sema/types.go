@@ -173,6 +173,34 @@ func (t *FunctionType) IsAssignableTo(target Type) bool {
 	return false
 }
 
+// PointerType pointer tipini temsil eder *T
+type PointerType struct {
+	PointeeType Type
+}
+
+func (t *PointerType) String() string {
+	return fmt.Sprintf("*%s", t.PointeeType.String())
+}
+
+func (t *PointerType) Equals(other Type) bool {
+	if o, ok := other.(*PointerType); ok {
+		return t.PointeeType.Equals(o.PointeeType)
+	}
+	return false
+}
+
+func (t *PointerType) IsAssignableTo(target Type) bool {
+	if target == AnyType {
+		return true
+	}
+
+	if o, ok := target.(*PointerType); ok {
+		return t.PointeeType.IsAssignableTo(o.PointeeType)
+	}
+
+	return false
+}
+
 // ClassType sınıf tipini temsil eder
 type ClassType struct {
 	Name       string
@@ -252,6 +280,10 @@ func ResolveType(typeAnnot ast.TypeAnnotation) Type {
 		}
 		returnType := ResolveType(t.ReturnType)
 		return &FunctionType{Params: params, ReturnType: returnType}
+
+	case *ast.PointerType:
+		pointeeType := ResolveType(t.PointeeType)
+		return &PointerType{PointeeType: pointeeType}
 
 	default:
 		return AnyType

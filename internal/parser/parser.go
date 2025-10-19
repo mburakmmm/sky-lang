@@ -591,6 +591,14 @@ func (p *Parser) parseYieldExpression() ast.Expression {
 // parseTypeAnnotation tip anotasyonunu parse eder
 func (p *Parser) parseTypeAnnotation() ast.TypeAnnotation {
 	switch p.curToken.Type {
+	case lexer.STAR:
+		// Pointer type: *T
+		p.nextToken()
+		pointeeType := p.parseTypeAnnotation()
+		return &ast.PointerType{
+			Token:       p.curToken,
+			PointeeType: pointeeType,
+		}
 	case lexer.IDENT:
 		// Basic types: int, float, string, bool, any
 		return &ast.BasicType{
