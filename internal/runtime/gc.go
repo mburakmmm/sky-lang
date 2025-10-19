@@ -50,7 +50,8 @@ const (
 	colorBlack = 2
 )
 
-// Arena memory arena
+// Arena memory arena (basic implementation for GC)
+// Note: Enhanced ArenaAllocator available in arena.go
 type Arena struct {
 	start uintptr
 	end   uintptr

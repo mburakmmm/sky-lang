@@ -1,0 +1,28 @@
+# Channel example (syntax design)
+# Note: Full interpreter integration pending
+
+function producer(ch)
+  let i = 0
+  while i < 5
+    ch.send(i)
+    i = i + 1
+  end
+  ch.close()
+end
+
+function consumer(ch)
+  while true
+    let value, ok = ch.receive()
+    if not ok
+      break
+    end
+    print(value)
+  end
+end
+
+function main
+  let ch = channel(2)  # Buffered channel with capacity 2
+  spawn producer(ch)
+  consumer(ch)
+end
+

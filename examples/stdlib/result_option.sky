@@ -1,0 +1,35 @@
+# Result and Option types (Rust-style error handling)
+# Note: Full implementation pending in stdlib
+
+# Option[T] - represents an optional value
+# - Some(value)
+# - None
+
+# Result[T, E] - represents success or failure
+# - Ok(value)
+# - Err(error)
+
+function divide(a: int, b: int): Result[int, string]
+  if b == 0
+    return Err("division by zero")
+  end
+  return Ok(a / b)
+end
+
+function main
+  let result = divide(10, 2)
+  
+  match result
+    Ok(value) => print("Success:", value)
+    Err(error) => print("Error:", error)
+  end
+  
+  # Option example
+  let maybe_value = Some(42)
+  
+  match maybe_value
+    Some(v) => print("Value:", v)
+    None => print("No value")
+  end
+end
+

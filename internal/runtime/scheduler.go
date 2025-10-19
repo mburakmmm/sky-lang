@@ -3,7 +3,6 @@ package runtime
 import (
 	"container/heap"
 	"context"
-	"fmt"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -287,76 +286,7 @@ func (co *Coroutine) Wait() error {
 	return co.err
 }
 
-// Channel async channel implementasyonu
-type Channel struct {
-	ch      chan interface{}
-	closed  atomic.Bool
-	closeMu sync.Mutex
-}
-
-// NewChannel yeni bir channel oluşturur
-func NewChannel(bufferSize int) *Channel {
-	return &Channel{
-		ch: make(chan interface{}, bufferSize),
-	}
-}
-
-// Send channel'a değer gönderir
-func (c *Channel) Send(value interface{}) error {
-	if c.closed.Load() {
-		return fmt.Errorf("send on closed channel")
-	}
-
-	c.ch <- value
-	return nil
-}
-
-// Receive channel'dan değer alır
-func (c *Channel) Receive() (interface{}, bool) {
-	val, ok := <-c.ch
-	return val, ok
-}
-
-// Close channel'ı kapatır
-func (c *Channel) Close() {
-	c.closeMu.Lock()
-	defer c.closeMu.Unlock()
-
-	if !c.closed.CompareAndSwap(false, true) {
-		return
-	}
-
-	close(c.ch)
-}
-
-// Select multiple channel üzerinde select işlemi
-func Select(cases ...SelectCase) (int, interface{}, bool) {
-	// Simple round-robin select implementation
-	for i, c := range cases {
-		if c.Chan != nil {
-			select {
-			case val, ok := <-c.Chan.ch:
-				return i, val, ok
-			default:
-				continue
-			}
-		}
-	}
-
-	// No immediate value, block on first available
-	selectCases := make([]any, len(cases))
-	for i, c := range cases {
-		if c.Chan != nil {
-			selectCases[i] = c.Chan.ch
-		}
-	}
-
-	// Simplified - real implementation would use reflect.Select
-	return -1, nil, false
-}
-
-// SelectCase select case
-type SelectCase struct {
-	Chan *Channel
-	Send interface{} // nil = receive, non-nil = send
-}
+// Note: Channel, Select, SelectCase moved to separate files:
+// - channel.go: Full Channel implementation
+// - select.go: Select multiplexer
+// See those files for the complete implementations
