@@ -3,6 +3,7 @@ package interpreter
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/mburakmmm/sky-lang/internal/ast"
 	"github.com/mburakmmm/sky-lang/internal/lexer"
@@ -81,6 +82,15 @@ func New() *Interpreter {
 			return &List{Elements: []Value{}}, nil
 		},
 	})
+
+	// STRING METHODS
+	addStringMethods(env)
+
+	// LIST METHODS
+	addListMethods(env)
+
+	// DICT METHODS
+	addDictMethods(env)
 
 	return &Interpreter{
 		env:         env,
@@ -1058,6 +1068,525 @@ func (i *Interpreter) evalMemberExpression(expr *ast.MemberExpression) (Value, e
 	}
 
 	return nil, &RuntimeError{Message: fmt.Sprintf("cannot access member of %T", object)}
+}
+
+// addStringMethods adds all Python-style string methods
+func addStringMethods(env *Environment) {
+	// str.upper()
+	env.Set("str_upper", &Function{
+		Name: "str_upper",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) > 0 {
+				if s, ok := list.Elements[0].(*String); ok {
+					return &String{Value: strings.ToUpper(s.Value)}, nil
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "upper() requires string argument"}
+		},
+	})
+
+	// str.lower()
+	env.Set("str_lower", &Function{
+		Name: "str_lower",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) > 0 {
+				if s, ok := list.Elements[0].(*String); ok {
+					return &String{Value: strings.ToLower(s.Value)}, nil
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "lower() requires string argument"}
+		},
+	})
+
+	// str.capitalize()
+	env.Set("str_capitalize", &Function{
+		Name: "str_capitalize",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) > 0 {
+				if s, ok := list.Elements[0].(*String); ok {
+					if len(s.Value) == 0 {
+						return s, nil
+					}
+					return &String{Value: strings.ToUpper(s.Value[:1]) + strings.ToLower(s.Value[1:])}, nil
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "capitalize() requires string argument"}
+		},
+	})
+
+	// str.split(sep)
+	env.Set("str_split", &Function{
+		Name: "str_split",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 1 {
+				if s, ok := list.Elements[0].(*String); ok {
+					sep := " "
+					if len(list.Elements) >= 2 {
+						if sepStr, ok := list.Elements[1].(*String); ok {
+							sep = sepStr.Value
+						}
+					}
+					parts := strings.Split(s.Value, sep)
+					elements := make([]Value, len(parts))
+					for i, part := range parts {
+						elements[i] = &String{Value: part}
+					}
+					return &List{Elements: elements}, nil
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "split() requires string argument"}
+		},
+	})
+
+	// str.join(list)
+	env.Set("str_join", &Function{
+		Name: "str_join",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 2 {
+				if sep, ok := list.Elements[0].(*String); ok {
+					if items, ok := list.Elements[1].(*List); ok {
+						parts := make([]string, len(items.Elements))
+						for i, item := range items.Elements {
+							parts[i] = item.String()
+						}
+						return &String{Value: strings.Join(parts, sep.Value)}, nil
+					}
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "join() requires string separator and list"}
+		},
+	})
+
+	// str.replace(old, new)
+	env.Set("str_replace", &Function{
+		Name: "str_replace",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 3 {
+				if s, ok := list.Elements[0].(*String); ok {
+					if old, ok := list.Elements[1].(*String); ok {
+						if new, ok := list.Elements[2].(*String); ok {
+							return &String{Value: strings.ReplaceAll(s.Value, old.Value, new.Value)}, nil
+						}
+					}
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "replace() requires string, old, new"}
+		},
+	})
+
+	// str.strip()
+	env.Set("str_strip", &Function{
+		Name: "str_strip",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) > 0 {
+				if s, ok := list.Elements[0].(*String); ok {
+					return &String{Value: strings.TrimSpace(s.Value)}, nil
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "strip() requires string argument"}
+		},
+	})
+
+	// str.startswith(prefix)
+	env.Set("str_startswith", &Function{
+		Name: "str_startswith",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 2 {
+				if s, ok := list.Elements[0].(*String); ok {
+					if prefix, ok := list.Elements[1].(*String); ok {
+						return &Boolean{Value: strings.HasPrefix(s.Value, prefix.Value)}, nil
+					}
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "startswith() requires string and prefix"}
+		},
+	})
+
+	// str.endswith(suffix)
+	env.Set("str_endswith", &Function{
+		Name: "str_endswith",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 2 {
+				if s, ok := list.Elements[0].(*String); ok {
+					if suffix, ok := list.Elements[1].(*String); ok {
+						return &Boolean{Value: strings.HasSuffix(s.Value, suffix.Value)}, nil
+					}
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "endswith() requires string and suffix"}
+		},
+	})
+
+	// str.find(sub)
+	env.Set("str_find", &Function{
+		Name: "str_find",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 2 {
+				if s, ok := list.Elements[0].(*String); ok {
+					if sub, ok := list.Elements[1].(*String); ok {
+						idx := strings.Index(s.Value, sub.Value)
+						return &Integer{Value: int64(idx)}, nil
+					}
+				}
+			}
+			return &Integer{Value: -1}, nil
+		},
+	})
+
+	// str.count(sub)
+	env.Set("str_count", &Function{
+		Name: "str_count",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 2 {
+				if s, ok := list.Elements[0].(*String); ok {
+					if sub, ok := list.Elements[1].(*String); ok {
+						count := strings.Count(s.Value, sub.Value)
+						return &Integer{Value: int64(count)}, nil
+					}
+				}
+			}
+			return &Integer{Value: 0}, nil
+		},
+	})
+}
+
+// addListMethods adds all Python-style list methods
+func addListMethods(env *Environment) {
+	// list.append(item)
+	env.Set("list_append", &Function{
+		Name: "list_append",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 2 {
+				if targetList, ok := list.Elements[0].(*List); ok {
+					item := list.Elements[1]
+					targetList.Elements = append(targetList.Elements, item)
+					return &Nil{}, nil
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "append() requires list and item"}
+		},
+	})
+
+	// list.pop([index])
+	env.Set("list_pop", &Function{
+		Name: "list_pop",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 1 {
+				if targetList, ok := list.Elements[0].(*List); ok {
+					if len(targetList.Elements) == 0 {
+						return &Nil{}, &RuntimeError{Message: "pop from empty list"}
+					}
+
+					idx := len(targetList.Elements) - 1
+					if len(list.Elements) >= 2 {
+						if idxVal, ok := list.Elements[1].(*Integer); ok {
+							idx = int(idxVal.Value)
+						}
+					}
+
+					if idx < 0 || idx >= len(targetList.Elements) {
+						return &Nil{}, &RuntimeError{Message: "pop index out of range"}
+					}
+
+					item := targetList.Elements[idx]
+					targetList.Elements = append(targetList.Elements[:idx], targetList.Elements[idx+1:]...)
+					return item, nil
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "pop() requires list"}
+		},
+	})
+
+	// list.insert(index, item)
+	env.Set("list_insert", &Function{
+		Name: "list_insert",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 3 {
+				if targetList, ok := list.Elements[0].(*List); ok {
+					if idx, ok := list.Elements[1].(*Integer); ok {
+						item := list.Elements[2]
+						i := int(idx.Value)
+
+						if i < 0 {
+							i = 0
+						}
+						if i > len(targetList.Elements) {
+							i = len(targetList.Elements)
+						}
+
+						targetList.Elements = append(targetList.Elements[:i], append([]Value{item}, targetList.Elements[i:]...)...)
+						return &Nil{}, nil
+					}
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "insert() requires list, index, item"}
+		},
+	})
+
+	// list.remove(item)
+	env.Set("list_remove", &Function{
+		Name: "list_remove",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 2 {
+				if targetList, ok := list.Elements[0].(*List); ok {
+					item := list.Elements[1]
+
+					for i, elem := range targetList.Elements {
+						if elem.String() == item.String() {
+							targetList.Elements = append(targetList.Elements[:i], targetList.Elements[i+1:]...)
+							return &Nil{}, nil
+						}
+					}
+					return &Nil{}, &RuntimeError{Message: "item not in list"}
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "remove() requires list and item"}
+		},
+	})
+
+	// list.clear()
+	env.Set("list_clear", &Function{
+		Name: "list_clear",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 1 {
+				if targetList, ok := list.Elements[0].(*List); ok {
+					targetList.Elements = []Value{}
+					return &Nil{}, nil
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "clear() requires list"}
+		},
+	})
+
+	// list.index(item)
+	env.Set("list_index", &Function{
+		Name: "list_index",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 2 {
+				if targetList, ok := list.Elements[0].(*List); ok {
+					item := list.Elements[1]
+
+					for i, elem := range targetList.Elements {
+						if elem.String() == item.String() {
+							return &Integer{Value: int64(i)}, nil
+						}
+					}
+					return &Integer{Value: -1}, nil
+				}
+			}
+			return &Integer{Value: -1}, nil
+		},
+	})
+
+	// list.count(item)
+	env.Set("list_count", &Function{
+		Name: "list_count",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 2 {
+				if targetList, ok := list.Elements[0].(*List); ok {
+					item := list.Elements[1]
+					count := int64(0)
+
+					for _, elem := range targetList.Elements {
+						if elem.String() == item.String() {
+							count++
+						}
+					}
+					return &Integer{Value: count}, nil
+				}
+			}
+			return &Integer{Value: 0}, nil
+		},
+	})
+
+	// list.reverse()
+	env.Set("list_reverse", &Function{
+		Name: "list_reverse",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 1 {
+				if targetList, ok := list.Elements[0].(*List); ok {
+					n := len(targetList.Elements)
+					for i := 0; i < n/2; i++ {
+						targetList.Elements[i], targetList.Elements[n-1-i] = targetList.Elements[n-1-i], targetList.Elements[i]
+					}
+					return &Nil{}, nil
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "reverse() requires list"}
+		},
+	})
+
+	// list.copy()
+	env.Set("list_copy", &Function{
+		Name: "list_copy",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 1 {
+				if targetList, ok := list.Elements[0].(*List); ok {
+					copied := make([]Value, len(targetList.Elements))
+					copy(copied, targetList.Elements)
+					return &List{Elements: copied}, nil
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "copy() requires list"}
+		},
+	})
+
+	// list.extend(other)
+	env.Set("list_extend", &Function{
+		Name: "list_extend",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 2 {
+				if targetList, ok := list.Elements[0].(*List); ok {
+					if otherList, ok := list.Elements[1].(*List); ok {
+						targetList.Elements = append(targetList.Elements, otherList.Elements...)
+						return &Nil{}, nil
+					}
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "extend() requires two lists"}
+		},
+	})
+}
+
+// addDictMethods adds all Python-style dict methods
+func addDictMethods(env *Environment) {
+	// dict.keys()
+	env.Set("dict_keys", &Function{
+		Name: "dict_keys",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 1 {
+				if d, ok := list.Elements[0].(*Dict); ok {
+					keys := make([]Value, 0, len(d.Pairs))
+					for k := range d.Pairs {
+						keys = append(keys, &String{Value: k})
+					}
+					return &List{Elements: keys}, nil
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "keys() requires dict"}
+		},
+	})
+
+	// dict.values()
+	env.Set("dict_values", &Function{
+		Name: "dict_values",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 1 {
+				if d, ok := list.Elements[0].(*Dict); ok {
+					values := make([]Value, 0, len(d.Pairs))
+					for _, v := range d.Pairs {
+						values = append(values, v)
+					}
+					return &List{Elements: values}, nil
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "values() requires dict"}
+		},
+	})
+
+	// dict.get(key, default)
+	env.Set("dict_get", &Function{
+		Name: "dict_get",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 2 {
+				if d, ok := list.Elements[0].(*Dict); ok {
+					if key, ok := list.Elements[1].(*String); ok {
+						if val, exists := d.Pairs[key.Value]; exists {
+							return val, nil
+						}
+						// Return default if provided
+						if len(list.Elements) >= 3 {
+							return list.Elements[2], nil
+						}
+						return &Nil{}, nil
+					}
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "get() requires dict and key"}
+		},
+	})
+
+	// dict.pop(key, [default])
+	env.Set("dict_pop", &Function{
+		Name: "dict_pop",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 2 {
+				if d, ok := list.Elements[0].(*Dict); ok {
+					if key, ok := list.Elements[1].(*String); ok {
+						if val, exists := d.Pairs[key.Value]; exists {
+							delete(d.Pairs, key.Value)
+							return val, nil
+						}
+						// Return default if provided
+						if len(list.Elements) >= 3 {
+							return list.Elements[2], nil
+						}
+						return &Nil{}, &RuntimeError{Message: "key not found"}
+					}
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "pop() requires dict and key"}
+		},
+	})
+
+	// dict.clear()
+	env.Set("dict_clear", &Function{
+		Name: "dict_clear",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 1 {
+				if d, ok := list.Elements[0].(*Dict); ok {
+					d.Pairs = make(map[string]Value)
+					return &Nil{}, nil
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "clear() requires dict"}
+		},
+	})
+
+	// dict.update(other)
+	env.Set("dict_update", &Function{
+		Name: "dict_update",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 2 {
+				if d, ok := list.Elements[0].(*Dict); ok {
+					if other, ok := list.Elements[1].(*Dict); ok {
+						for k, v := range other.Pairs {
+							d.Pairs[k] = v
+						}
+						return &Nil{}, nil
+					}
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "update() requires two dicts"}
+		},
+	})
 }
 
 // evalImportStatement handles module imports

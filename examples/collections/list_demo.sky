@@ -1,0 +1,39 @@
+# List (Array) demonstration
+
+function main
+  print("=== List Basics ===")
+  
+  # Empty list
+  let empty = []
+  print(len(empty))
+  
+  # Integer list
+  let numbers = [10, 20, 30, 40, 50]
+  print(len(numbers))
+  print(numbers[0])
+  print(numbers[4])
+  
+  # String list  
+  let names = ["Alice", "Bob", "Charlie"]
+  print(names[1])
+  
+  # Note: Mixed type lists need all same type
+  # let mixed = [1, "hello", 3]  # Would fail type check
+  
+  print("=== List with Type Annotation ===")
+  let typed: [int] = [100, 200, 300]
+  print(typed[1])
+  
+  print("=== Nested Lists ===")
+  let matrix: [[int]] = [[1, 2], [3, 4], [5, 6]]
+  print(matrix[0][1])
+  print(matrix[2][0])
+  
+  print("=== List Iteration ===")
+  for num in numbers
+    print(num)
+  end
+  
+  print("=== Done ===")
+end
+

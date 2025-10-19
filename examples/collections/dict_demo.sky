@@ -1,0 +1,33 @@
+# Dict (Dictionary/Map/Object) demonstration
+
+function main
+  print("=== Dict Basics ===")
+  
+  # Simple dict (string keys and values)
+  let person = {"name": "Alice", "age": "30", "city": "NYC"}
+  print(person["name"])
+  print(person["age"])
+  
+  # Empty dict
+  let empty = {}
+  print(len(empty))
+  
+  print("=== Dict with Type Annotation ===")
+  let config: {string:string} = {"host": "localhost", "port": "8080"}
+  print(config["host"])
+  
+  print("=== Dict Operations ===")
+  # Access existing key
+  print(person["city"])
+  
+  # Access non-existing key (returns nil/empty)
+  let missing = person["country"]
+  
+  print("=== Dict Iteration (Keys) ===")
+  for key in person
+    print(key)
+  end
+  
+  print("=== Done ===")
+end
+
