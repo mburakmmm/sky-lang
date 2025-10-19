@@ -1,0 +1,16 @@
+# TEST: Coroutines (coop/yield)
+# Expected: Should work according to .cursorrules
+
+coop function generator(max: int)
+  let i = 0
+  while i < max
+    yield i
+    i = i + 1
+  end
+end
+
+function main
+  let gen = generator(5)
+  print("Coroutine test")
+end
+

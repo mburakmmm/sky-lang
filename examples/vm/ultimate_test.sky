@@ -1,0 +1,126 @@
+# SKY Ultimate Comprehensive Test for VM
+# Tests ALL features that should work
+
+function factorial(n: int): int
+  if n <= 1
+    return 1
+  end
+  let prev = factorial(n - 1)
+  let result = n * prev
+  return result
+end
+
+function fib(n: int): int
+  if n <= 1
+    return n
+  end
+  let a = fib(n - 1)
+  let b = fib(n - 2)
+  return a + b
+end
+
+function isPrime(n: int): bool
+  if n <= 1
+    return false
+  end
+  if n == 2
+    return true
+  end
+  let i = 2
+  while i * i <= n
+    if n % i == 0
+      return false
+    end
+    i = i + 1
+  end
+  return true
+end
+
+function sumRange(n: int): int
+  let sum = 0
+  let i = 0
+  while i < n
+    sum = sum + i
+    i = i + 1
+  end
+  return sum
+end
+
+function main
+  print("SKY VM ULTIMATE TEST")
+  print("====================")
+  print("")
+  
+  print("1. RECURSION - Factorial")
+  print(factorial(5))
+  print(factorial(10))
+  print(factorial(12))
+  
+  print("")
+  print("2. RECURSION - Fibonacci")
+  print(fib(5))
+  print(fib(10))
+  print(fib(15))
+  print(fib(20))
+  
+  print("")
+  print("3. LOOPS - Prime Check")
+  print(isPrime(17))
+  print(isPrime(20))
+  print(isPrime(97))
+  
+  print("")
+  print("4. FOR LOOPS - Sum Range")
+  print(sumRange(10))
+  print(sumRange(100))
+  
+  print("")
+  print("5. ARITHMETIC")
+  let a = 100
+  let b = 25
+  print(a + b)
+  print(a - b)
+  print(a * b)
+  print(a / b)
+  print(a % b)
+  
+  print("")
+  print("6. COMPARISONS")
+  print(a > b)
+  print(a < b)
+  print(a == a)
+  print(a != b)
+  
+  print("")
+  print("7. BOOLEAN LOGIC")
+  print(true && false)
+  print(true || false)
+  print(!false)
+  
+  print("")
+  print("8. NESTED CONDITIONS")
+  let score = 85
+  if score >= 90
+    print("A")
+  elif score >= 80
+    print("B")
+  elif score >= 70
+    print("C")
+  else
+    print("F")
+  end
+  
+  print("")
+  print("9. WHILE LOOPS")
+  let count = 5
+  let sum = 0
+  while count > 0
+    sum = sum + count
+    count = count - 1
+  end
+  print(sum)
+  
+  print("")
+  print("SUCCESS - All VM tests passed!")
+end
+

@@ -26,6 +26,8 @@ func dumpCommand(args []string) {
 		dumpTokens(filename)
 	case "--ast", "-a":
 		dumpAST(filename)
+	case "--bytecode", "-b":
+		dumpBytecodeCommand(filename)
 	case "--json":
 		if len(args) < 3 {
 			fmt.Fprintln(os.Stderr, "Usage: sky dump --json <--tokens|--ast> <file>")
@@ -46,6 +48,7 @@ func dumpCommand(args []string) {
 		fmt.Fprintf(os.Stderr, "Unknown flag: %s\n", flag)
 		fmt.Fprintln(os.Stderr, "Usage: sky dump --tokens <file>")
 		fmt.Fprintln(os.Stderr, "       sky dump --ast <file>")
+		fmt.Fprintln(os.Stderr, "       sky dump --bytecode <file>")
 		os.Exit(1)
 	}
 }
@@ -183,6 +186,13 @@ func dumpAST(filename string) {
 
 	printAST(program, 0)
 	fmt.Println("\n=== End of AST ===")
+}
+
+func dumpBytecodeCommand(filename string) {
+	if err := dumpBytecode(filename); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
 }
 
 func printAST(node ast.Node, indent int) {

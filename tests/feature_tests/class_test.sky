@@ -1,0 +1,32 @@
+# TEST: Classes and OOP
+# Expected: Should work according to .cursorrules
+
+class Person
+  let name: string
+  let age: int
+  
+  function getName
+    return self.name
+  end
+  
+  function setAge(newAge: int)
+    self.age = newAge
+  end
+end
+
+class Student(Person)
+  let grade: int
+  
+  function getInfo
+    return super.getName() + " - Grade: " + self.grade
+  end
+end
+
+function main
+  let p = Person("Alice", 25)
+  print(p.getName())
+  
+  let s = Student("Bob", 20, 10)
+  print(s.getInfo())
+end
+

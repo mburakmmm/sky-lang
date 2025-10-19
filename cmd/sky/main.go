@@ -98,11 +98,34 @@ For more information, visit: https://github.com/mburakmmm/sky-lang
 func runCommand(args []string) {
 	if len(args) == 0 {
 		fmt.Fprintln(os.Stderr, "Error: no input file specified")
-		fmt.Fprintln(os.Stderr, "Usage: sky run <file>")
+		fmt.Fprintln(os.Stderr, "Usage: sky run [--vm] <file>")
 		os.Exit(1)
 	}
 
+	// Check for --vm flag
+	useVMMode := false
 	filename := args[0]
+	if args[0] == "--vm" {
+		if len(args) < 2 {
+			fmt.Fprintln(os.Stderr, "Error: no input file specified")
+			fmt.Fprintln(os.Stderr, "Usage: sky run --vm <file>")
+			os.Exit(1)
+		}
+		useVMMode = true
+		filename = args[1]
+	}
+
+	// Use VM mode if requested (better recursion support)
+	if useVMMode {
+		if err := runWithVM(filename); err != nil {
+			fmt.Fprintf(os.Stderr, "%v\n", err)
+			os.Exit(1)
+		}
+		return
+	}
+
+	// Regular interpreter mode
+	filename = args[0]
 	content, err := os.ReadFile(filename)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error reading file: %v\n", err)

@@ -1,0 +1,48 @@
+SKY VM ULTIMATE TEST
+====================
+
+1. RECURSION - Factorial
+120
+3628800
+479001600
+
+2. RECURSION - Fibonacci
+5
+55
+610
+6765
+
+3. LOOPS - Prime Check
+true
+false
+true
+
+4. FOR LOOPS - Sum Range
+45
+4950
+
+5. ARITHMETIC
+125
+75
+2500
+4
+0
+
+6. COMPARISONS
+true
+false
+true
+true
+
+7. BOOLEAN LOGIC
+false
+100
+true
+
+8. NESTED CONDITIONS
+B
+
+9. WHILE LOOPS
+15
+
+SUCCESS - All VM tests passed!

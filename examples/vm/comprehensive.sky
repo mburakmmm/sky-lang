@@ -1,0 +1,20 @@
+function factorial(n: int): int
+  if n <= 1
+    return 1
+  end
+  return n * factorial(n - 1)
+end
+
+function fib(n: int): int
+  if n <= 1
+    return n
+  end
+  return fib(n - 1) + fib(n - 2)
+end
+
+function main
+  print("VM Comprehensive Test")
+  print("Factorial(10) = " + factorial(10))
+  print("Fibonacci(20) = " + fib(20))
+  print("All tests passed!")
+end

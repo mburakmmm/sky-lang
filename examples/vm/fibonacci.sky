@@ -1,0 +1,22 @@
+# Fibonacci - VM Recursion Test
+# Demonstrates bytecode VM's ability to handle deep recursion
+
+function fib(n: int): int
+  if n <= 1
+    return n
+  end
+  let a = fib(n - 1)
+  let b = fib(n - 2)
+  return a + b
+end
+
+function main
+  print("Fibonacci with VM (No Stack Overflow!)")
+  print(fib(10))
+  print(fib(15))
+  print(fib(20))
+  print(fib(25))
+  print(fib(30))
+  print("Success!")
+end
+

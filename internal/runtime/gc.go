@@ -160,8 +160,8 @@ func (gc *GarbageCollector) Alloc(size uintptr, typeInfo *TypeInfo) unsafe.Point
 			gc.arenasMu.RUnlock()
 
 			// Object header oluştur
-			headerPtr := ptr
-			header := (*ObjectHeader)(unsafe.Pointer(headerPtr))
+			headerPtr := unsafe.Pointer(ptr)
+			header := (*ObjectHeader)(headerPtr)
 			header.marked = colorWhite
 			header.size = size
 			header.typeInfo = typeInfo
@@ -193,8 +193,8 @@ func (gc *GarbageCollector) Alloc(size uintptr, typeInfo *TypeInfo) unsafe.Point
 		panic("GC: failed to allocate memory")
 	}
 
-	headerPtr := ptr
-	header := (*ObjectHeader)(unsafe.Pointer(headerPtr))
+	headerPtr := unsafe.Pointer(ptr)
+	header := (*ObjectHeader)(headerPtr)
 	header.marked = colorWhite
 	header.size = size
 	header.typeInfo = typeInfo
@@ -294,7 +294,8 @@ func (gc *GarbageCollector) markObject(ptr unsafe.Pointer) {
 	// Header'ı bul
 	ptrAddr := uintptr(ptr)
 	headerAddr := ptrAddr - unsafe.Sizeof(ObjectHeader{})
-	header := (*ObjectHeader)(unsafe.Pointer(headerAddr))
+	headerPtr := unsafe.Pointer(headerAddr)
+	header := (*ObjectHeader)(headerPtr)
 
 	// Zaten işaretlendi mi?
 	if !atomic.CompareAndSwapUint32(&header.marked, colorWhite, colorGray) {
@@ -340,10 +341,11 @@ func (gc *GarbageCollector) markWorker() {
 		// Scan pointers
 		if obj.typeInfo != nil && len(obj.typeInfo.pointerMask) > 0 {
 			objAddr := uintptr(unsafe.Pointer(obj))
-			objPtr := objAddr + unsafe.Sizeof(ObjectHeader{})
+			objPtrAddr := objAddr + unsafe.Sizeof(ObjectHeader{})
 			for i, hasPtrGC := range obj.typeInfo.pointerMask {
 				if hasPtrGC != 0 {
-					fieldPtr := *(*unsafe.Pointer)(unsafe.Pointer(objPtr + uintptr(i)*unsafe.Sizeof(unsafe.Pointer(nil))))
+					fieldAddr := objPtrAddr + uintptr(i)*unsafe.Sizeof(unsafe.Pointer(nil))
+					fieldPtr := *(*unsafe.Pointer)(unsafe.Pointer(fieldAddr))
 					if fieldPtr != nil {
 						gc.markObject(fieldPtr)
 					}

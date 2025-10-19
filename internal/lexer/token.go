@@ -16,7 +16,7 @@ const (
 	INT    // 123, 0xFF, 0b1010
 	FLOAT  // 3.14, 1.0e10
 	STRING // "hello", 'world'
-	
+
 	// Keywords
 	FUNCTION // function
 	END      // end
@@ -29,6 +29,8 @@ const (
 	FOR      // for
 	WHILE    // while
 	RETURN   // return
+	BREAK    // break
+	CONTINUE // continue
 	ASYNC    // async
 	AWAIT    // await
 	COOP     // coop
@@ -44,49 +46,49 @@ const (
 	AND      // and
 	OR       // or
 	NOT      // not
-	
+
 	// Operators
-	PLUS     // +
-	MINUS    // -
-	STAR     // *
-	SLASH    // /
-	PERCENT  // %
-	POWER    // **
-	
-	EQ       // ==
-	NE       // !=
-	LT       // <
-	LE       // <=
-	GT       // >
-	GE       // >=
-	
-	LAND     // &&
-	LOR      // ||
-	LNOT     // !
-	
-	ASSIGN   // =
-	PLUSEQ   // +=
-	MINUSEQ  // -=
-	STAREQ   // *=
-	SLASHEQ  // /=
+	PLUS    // +
+	MINUS   // -
+	STAR    // *
+	SLASH   // /
+	PERCENT // %
+	POWER   // **
+
+	EQ // ==
+	NE // !=
+	LT // <
+	LE // <=
+	GT // >
+	GE // >=
+
+	LAND // &&
+	LOR  // ||
+	LNOT // !
+
+	ASSIGN    // =
+	PLUSEQ    // +=
+	MINUSEQ   // -=
+	STAREQ    // *=
+	SLASHEQ   // /=
 	PERCENTEQ // %=
-	
+
 	// Delimiters
-	LPAREN   // (
-	RPAREN   // )
-	LBRACK   // [
-	RBRACK   // ]
-	LBRACE   // {
-	RBRACE   // }
-	DOT      // .
-	COMMA    // ,
-	COLON    // :
-	ARROW    // =>
-	
+	LPAREN // (
+	RPAREN // )
+	LBRACK // [
+	RBRACK // ]
+	LBRACE // {
+	RBRACE // }
+	DOT    // .
+	COMMA  // ,
+	COLON  // :
+	ARROW  // =>
+
 	// Special indentation tokens
-	NEWLINE  // \n (significant newlines)
-	INDENT   // increase in indentation
-	DEDENT   // decrease in indentation
+	NEWLINE // \n (significant newlines)
+	INDENT  // increase in indentation
+	DEDENT  // decrease in indentation
 )
 
 var keywords = map[string]TokenType{
@@ -101,6 +103,8 @@ var keywords = map[string]TokenType{
 	"for":      FOR,
 	"while":    WHILE,
 	"return":   RETURN,
+	"break":    BREAK,
+	"continue": CONTINUE,
 	"async":    ASYNC,
 	"await":    AWAIT,
 	"coop":     COOP,
@@ -157,12 +161,12 @@ func (tt TokenType) String() string {
 		ILLEGAL: "ILLEGAL",
 		EOF:     "EOF",
 		COMMENT: "COMMENT",
-		
+
 		IDENT:  "IDENT",
 		INT:    "INT",
 		FLOAT:  "FLOAT",
 		STRING: "STRING",
-		
+
 		FUNCTION: "FUNCTION",
 		END:      "END",
 		CLASS:    "CLASS",
@@ -189,32 +193,32 @@ func (tt TokenType) String() string {
 		AND:      "AND",
 		OR:       "OR",
 		NOT:      "NOT",
-		
-		PLUS:     "PLUS",
-		MINUS:    "MINUS",
-		STAR:     "STAR",
-		SLASH:    "SLASH",
-		PERCENT:  "PERCENT",
-		POWER:    "POWER",
-		
+
+		PLUS:    "PLUS",
+		MINUS:   "MINUS",
+		STAR:    "STAR",
+		SLASH:   "SLASH",
+		PERCENT: "PERCENT",
+		POWER:   "POWER",
+
 		EQ: "EQ",
 		NE: "NE",
 		LT: "LT",
 		LE: "LE",
 		GT: "GT",
 		GE: "GE",
-		
+
 		LAND: "LAND",
 		LOR:  "LOR",
 		LNOT: "LNOT",
-		
+
 		ASSIGN:    "ASSIGN",
 		PLUSEQ:    "PLUSEQ",
 		MINUSEQ:   "MINUSEQ",
 		STAREQ:    "STAREQ",
 		SLASHEQ:   "SLASHEQ",
 		PERCENTEQ: "PERCENTEQ",
-		
+
 		LPAREN: "LPAREN",
 		RPAREN: "RPAREN",
 		LBRACK: "LBRACK",
@@ -225,12 +229,12 @@ func (tt TokenType) String() string {
 		COMMA:  "COMMA",
 		COLON:  "COLON",
 		ARROW:  "ARROW",
-		
+
 		NEWLINE: "NEWLINE",
 		INDENT:  "INDENT",
 		DEDENT:  "DEDENT",
 	}
-	
+
 	if name, ok := names[tt]; ok {
 		return name
 	}
@@ -259,4 +263,3 @@ func (t Token) Position() string {
 	}
 	return fmt.Sprintf("%d:%d", t.Line, t.Column)
 }
-

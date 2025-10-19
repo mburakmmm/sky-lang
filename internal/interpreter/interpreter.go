@@ -9,13 +9,15 @@ import (
 
 // Interpreter AST'yi yorumlar ve çalıştırır
 type Interpreter struct {
-	env    *Environment
-	output *os.File
+	env        *Environment
+	output     *os.File
+	trampoline *TrampolineStack // Custom call stack for recursion
 }
 
 // New yeni bir interpreter oluşturur
 func New() *Interpreter {
 	env := NewEnvironment(nil)
+	trampoline := NewTrampolineStack(10000) // 10K depth limit
 
 	// Built-in fonksiyonları ekle
 	env.Set("print", &Function{
@@ -73,8 +75,9 @@ func New() *Interpreter {
 	})
 
 	return &Interpreter{
-		env:    env,
-		output: os.Stdout,
+		env:        env,
+		output:     os.Stdout,
+		trampoline: trampoline,
 	}
 }
 
@@ -175,18 +178,28 @@ func (i *Interpreter) evalFunctionStatement(stmt *ast.FunctionStatement) error {
 		params[idx] = param.Name.Value
 	}
 
+	funcName := stmt.Name.Value
+	capturedStmt := stmt // Capture for closure
+
 	// Fonksiyonu closure olarak sakla
 	capturedEnv := i.env
 	fn := &Function{
-		Name:       stmt.Name.Value,
+		Name:       funcName,
 		Parameters: params,
 		Env:        capturedEnv,
 		Body: func(callEnv *Environment) (Value, error) {
+			// Check memoization cache first
+			args, _ := callEnv.Get("__args__")
+			if argList, ok := args.(*List); ok {
+				if cached, found := i.trampoline.GetCached(funcName, argList.Elements); found {
+					return cached, nil
+				}
+			}
+
 			// Yeni environment oluştur (fonksiyon tanımlandığı env'i parent olarak al)
 			fnEnv := NewEnvironment(capturedEnv)
 
 			// Parametreleri bind et
-			args, _ := callEnv.Get("__args__")
 			if argList, ok := args.(*List); ok {
 				for idx, paramName := range params {
 					if idx < len(argList.Elements) {
@@ -202,11 +215,20 @@ func (i *Interpreter) evalFunctionStatement(stmt *ast.FunctionStatement) error {
 			i.env = fnEnv
 			defer func() { i.env = oldEnv }()
 
-			return i.evalBlockStatement(stmt.Body, fnEnv)
+			result, err := i.evalBlockStatement(capturedStmt.Body, fnEnv)
+
+			// Cache successful results
+			if err == nil && result != nil {
+				if argList, ok := args.(*List); ok {
+					i.trampoline.SetCached(funcName, argList.Elements, result)
+				}
+			}
+
+			return result, err
 		},
 	}
 
-	i.env.Set(stmt.Name.Value, fn)
+	i.env.Set(funcName, fn)
 	return nil
 }
 
@@ -461,6 +483,53 @@ func (i *Interpreter) evalInfixExpression(expr *ast.InfixExpression) (Value, err
 }
 
 func (i *Interpreter) evalBinaryOp(left, right Value, op string) (Value, error) {
+	// String concatenation with type coercion
+	if op == "+" {
+		strL, okL := left.(*String)
+		strR, okR := right.(*String)
+
+		// String + String
+		if okL && okR {
+			return &String{Value: strL.Value + strR.Value}, nil
+		}
+
+		// String + Integer/Float/Boolean (auto-convert to string)
+		if okL {
+			var rightStr string
+			switch v := right.(type) {
+			case *Integer:
+				rightStr = fmt.Sprintf("%d", v.Value)
+			case *Float:
+				rightStr = fmt.Sprintf("%g", v.Value)
+			case *Boolean:
+				rightStr = fmt.Sprintf("%v", v.Value)
+			case *String:
+				rightStr = v.Value
+			default:
+				rightStr = fmt.Sprintf("%v", v)
+			}
+			return &String{Value: strL.Value + rightStr}, nil
+		}
+
+		// Integer/Float/Boolean + String (auto-convert to string)
+		if okR {
+			var leftStr string
+			switch v := left.(type) {
+			case *Integer:
+				leftStr = fmt.Sprintf("%d", v.Value)
+			case *Float:
+				leftStr = fmt.Sprintf("%g", v.Value)
+			case *Boolean:
+				leftStr = fmt.Sprintf("%v", v.Value)
+			case *String:
+				leftStr = v.Value
+			default:
+				leftStr = fmt.Sprintf("%v", v)
+			}
+			return &String{Value: leftStr + strR.Value}, nil
+		}
+	}
+
 	// Arithmetic operations
 	if intL, okL := left.(*Integer); okL {
 		if intR, okR := right.(*Integer); okR {
