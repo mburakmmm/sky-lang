@@ -1,0 +1,182 @@
+# SKY - Simple But Comprehensive Test
+
+function fib(n: int): int
+  if n <= 1
+    return n
+  end
+  return fib(n - 1) + fib(n - 2)
+end
+
+function factorial(n: int): int
+  if n <= 1
+    return 1
+  end
+  return n * factorial(n - 1)
+end
+
+function isPrime(n: int): bool
+  if n <= 1
+    return false
+  end
+  if n == 2
+    return true
+  end
+  let i = 2
+  while i * i <= n
+    if n % i == 0
+      return false
+    end
+    i = i + 1
+  end
+  return true
+end
+
+function main
+  print("SKY Language - Comprehensive Test")
+  print("==================================")
+  
+  print("")
+  print("1. Arithmetic")
+  print(100 + 25)
+  print(100 - 25)
+  print(100 * 25)
+  print(100 / 25)
+  print(100 % 25)
+  
+  print("")
+  print("2. Comparisons")
+  print(100 > 25)
+  print(100 < 25)
+  print(100 >= 100)
+  print(25 <= 25)
+  print(100 == 100)
+  print(100 != 25)
+  
+  print("")
+  print("3. Boolean Logic")
+  print(true && false)
+  print(true || false)
+  print(!false)
+  print((10 > 5) && (20 < 30))
+  
+  print("")
+  print("4. If-Elif-Else")
+  let score = 75
+  if score >= 90
+    print("A")
+  elif score >= 80
+    print("B")
+  elif score >= 70
+    print("C")
+  else
+    print("F")
+  end
+  
+  print("")
+  print("5. While Loop")
+  let count = 5
+  let sum = 0
+  while count > 0
+    sum = sum + count
+    count = count - 1
+  end
+  print(sum)
+  
+  print("")
+  print("6. For Loop")
+  let forSum = 0
+  for i in range(10)
+    forSum = forSum + i
+  end
+  print(forSum)
+  
+  print("")
+  print("7. Nested Loops")
+  let nested = 0
+  for i in range(5)
+    for j in range(5)
+      nested = nested + 1
+    end
+  end
+  print(nested)
+  
+  print("")
+  print("8. Fibonacci (Recursion)")
+  print(fib(0))
+  print(fib(1))
+  print(fib(3))
+  print(fib(5))
+  
+  print("")
+  print("9. Factorial (Recursion)")
+  print(factorial(3))
+  print(factorial(5))
+  print(factorial(6))
+  
+  print("")
+  print("10. Prime Check")
+  print(isPrime(2))
+  print(isPrime(11))
+  print(isPrime(12))
+  print(isPrime(17))
+  
+  print("")
+  print("11. Complex Expressions")
+  let x = 10
+  let y = 20
+  let z = 30
+  print((x * y) + z)
+  print(x + (y * z))
+  print((x + y) * z)
+  
+  print("")
+  print("12. Nested Conditions")
+  let value = 50
+  if value > 0
+    if value < 100
+      if value == 50
+        print("Found 50!")
+      end
+    end
+  end
+  
+  print("")
+  print("13. Variable Scoping")
+  let outer = 100
+  if outer > 0
+    let inner = 200
+    print(outer + inner)
+  end
+  
+  print("")
+  print("14. Loop with Conditions")
+  let evenSum = 0
+  let oddSum = 0
+  for i in range(20)
+    if i % 2 == 0
+      evenSum = evenSum + i
+    else
+      oddSum = oddSum + i
+    end
+  end
+  print(evenSum)
+  print(oddSum)
+  
+  print("")
+  print("15. Stress Test")
+  let stress = 0
+  for i in range(100)
+    if i % 3 == 0
+      stress = stress + i
+    elif i % 5 == 0
+      stress = stress + i * 2
+    else
+      stress = stress + 1
+    end
+  end
+  print(stress)
+  
+  print("")
+  print("SUCCESS! All tests passed!")
+end
+

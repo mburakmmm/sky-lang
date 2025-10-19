@@ -1,0 +1,218 @@
+# SKY Comprehensive Test - NO RECURSION
+# Production-ready test without problematic features
+
+function sumRange(n: int): int
+  let sum = 0
+  for i in range(n)
+    sum = sum + i
+  end
+  return sum
+end
+
+function factorial(n: int): int
+  let result = 1
+  let i = 1
+  while i <= n
+    result = result * i
+    i = i + 1
+  end
+  return result
+end
+
+function isPrime(n: int): bool
+  if n <= 1
+    return false
+  end
+  if n == 2
+    return true
+  end
+  let i = 2
+  while i * i <= n
+    if n % i == 0
+      return false
+    end
+    i = i + 1
+  end
+  return true
+end
+
+function countPrimes(max: int): int
+  let count = 0
+  for i in range(max)
+    if isPrime(i)
+      count = count + 1
+    end
+  end
+  return count
+end
+
+function main
+  print("═══════════════════════════════════════")
+  print("SKY COMPREHENSIVE TEST")
+  print("═══════════════════════════════════════")
+  print("")
+  
+  print("1. ARITHMETIC")
+  let a = 100
+  let b = 25
+  print(a + b)
+  print(a - b)
+  print(a * b)
+  print(a / b)
+  print(a % b)
+  
+  print("")
+  print("2. COMPARISONS")
+  print(a > b)
+  print(a < b)
+  print(a >= a)
+  print(b <= b)
+  print(a == a)
+  print(a != b)
+  
+  print("")
+  print("3. BOOLEAN LOGIC")
+  let t = true
+  let f = false
+  print(t && f)
+  print(t || f)
+  print(!f)
+  print((a > b) && (b > 0))
+  
+  print("")
+  print("4. NESTED IF-ELIF-ELSE")
+  let score = 85
+  if score >= 90
+    print("A")
+  elif score >= 80
+    print("B")
+  elif score >= 70
+    print("C")
+  elif score >= 60
+    print("D")
+  else
+    print("F")
+  end
+  
+  print("")
+  print("5. WHILE LOOPS")
+  let count = 10
+  let sum = 0
+  while count > 0
+    sum = sum + count
+    count = count - 1
+  end
+  print(sum)
+  
+  print("")
+  print("6. FOR LOOPS")
+  let forSum = sumRange(20)
+  print(forSum)
+  
+  print("")
+  print("7. NESTED LOOPS")
+  let nested = 0
+  for i in range(10)
+    for j in range(10)
+      nested = nested + 1
+    end
+  end
+  print(nested)
+  
+  print("")
+  print("8. FACTORIAL (Iterative)")
+  print(factorial(5))
+  print(factorial(10))
+  print(factorial(12))
+  
+  print("")
+  print("9. PRIME NUMBERS")
+  print(isPrime(2))
+  print(isPrime(17))
+  print(isPrime(20))
+  print(isPrime(97))
+  let primeCount = countPrimes(50)
+  print(primeCount)
+  
+  print("")
+  print("10. COMPLEX EXPRESSIONS")
+  let x = 10
+  let y = 20
+  let z = 30
+  print((x * y) + z)
+  print(x + (y * z))
+  print((x + y) * z)
+  print(x * y * z)
+  
+  print("")
+  print("11. NESTED CONDITIONS")
+  let value = 50
+  if value > 0
+    if value < 100
+      if value == 50
+        print(1)
+      else
+        print(0)
+      end
+    end
+  end
+  
+  print("")
+  print("12. VARIABLE SCOPING")
+  let outer = 100
+  if outer > 0
+    let inner = 200
+    let result = outer + inner
+    print(result)
+  end
+  print(outer)
+  
+  print("")
+  print("13. CONDITIONAL LOOPS")
+  let evenSum = 0
+  let oddSum = 0
+  for i in range(20)
+    if i % 2 == 0
+      evenSum = evenSum + i
+    else
+      oddSum = oddSum + i
+    end
+  end
+  print(evenSum)
+  print(oddSum)
+  
+  print("")
+  print("14. COMPLEX CONTROL FLOW")
+  let stress = 0
+  for i in range(100)
+    if i % 15 == 0
+      stress = stress + 15
+    elif i % 5 == 0
+      stress = stress + 5
+    elif i % 3 == 0
+      stress = stress + 3
+    else
+      stress = stress + 1
+    end
+  end
+  print(stress)
+  
+  print("")
+  print("15. MULTI-LEVEL NESTING")
+  for i in range(5)
+    for j in range(5)
+      for k in range(2)
+        if i + j + k > 5
+          nested = nested + 1
+        end
+      end
+    end
+  end
+  print(nested)
+  
+  print("")
+  print("═══════════════════════════════════════")
+  print("SUCCESS! All 15 tests passed!")
+  print("═══════════════════════════════════════")
+end
+

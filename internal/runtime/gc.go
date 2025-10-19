@@ -25,25 +25,25 @@ type TypeInfo struct {
 
 // GCStats GC istatistiklerini tutar
 type GCStats struct {
-	Collections    int64         // Toplam collection sayısı
-	PauseTimeNs    int64         // Toplam pause süresi (nanosaniye)
-	HeapSize       int64         // Heap boyutu
-	HeapUsed       int64         // Kullanılan heap
-	LastGC         time.Time     // Son GC zamanı
-	NextGC         int64         // Sonraki GC threshold
-	NumGoroutine   int           // Aktif goroutine sayısı
+	Collections    int64           // Toplam collection sayısı
+	PauseTimeNs    int64           // Toplam pause süresi (nanosaniye)
+	HeapSize       int64           // Heap boyutu
+	HeapUsed       int64           // Kullanılan heap
+	LastGC         time.Time       // Son GC zamanı
+	NextGC         int64           // Sonraki GC threshold
+	NumGoroutine   int             // Aktif goroutine sayısı
 	PauseDurations []time.Duration // Son pause süreleri
 }
 
 const (
 	// GC thresholds
-	initialHeapSize  = 4 * 1024 * 1024    // 4MB başlangıç
-	gcTriggerRatio   = 2.0                 // %200 büyüme ile trigger
+	initialHeapSize  = 4 * 1024 * 1024       // 4MB başlangıç
+	gcTriggerRatio   = 2.0                   // %200 büyüme ile trigger
 	maxPauseDuration = 10 * time.Millisecond // Max STW pause
-	
+
 	// Arena settings
 	arenaSize = 64 * 1024 // 64KB arena
-	
+
 	// Color marks (tri-color marking)
 	colorWhite = 0
 	colorGray  = 1
@@ -67,29 +67,29 @@ type GarbageCollector struct {
 	collecting atomic.Bool
 	stats      GCStats
 	statsMu    sync.RWMutex
-	
+
 	// Heap management
-	arenas     []*Arena
-	arenasMu   sync.RWMutex
-	
+	arenas   []*Arena
+	arenasMu sync.RWMutex
+
 	// Object tracking
-	allObjects  []*ObjectHeader
-	objectsMu   sync.RWMutex
-	freeList    *ObjectHeader
-	freeListMu  sync.Mutex
-	
+	allObjects []*ObjectHeader
+	objectsMu  sync.RWMutex
+	freeList   *ObjectHeader
+	freeListMu sync.Mutex
+
 	// Root set (stack roots, global variables)
-	roots    []unsafe.Pointer
-	rootsMu  sync.RWMutex
-	
+	roots   []unsafe.Pointer
+	rootsMu sync.RWMutex
+
 	// Work queue for concurrent marking
-	markQueue    []*ObjectHeader
-	markQueueMu  sync.Mutex
+	markQueue     []*ObjectHeader
+	markQueueMu   sync.Mutex
 	markWorkersWg sync.WaitGroup
-	
+
 	// GC trigger
 	triggerSize int64
-	
+
 	// Background goroutine
 	stopCh chan struct{}
 	wg     sync.WaitGroup
@@ -105,16 +105,16 @@ func NewGC() *GarbageCollector {
 		triggerSize: initialHeapSize,
 		stopCh:      make(chan struct{}),
 	}
-	
+
 	gc.enabled.Store(true)
-	
+
 	// İlk arena'yı oluştur
 	gc.newArena()
-	
+
 	// Background GC goroutine başlat
 	gc.wg.Add(1)
 	go gc.backgroundWorker()
-	
+
 	return gc
 }
 
@@ -141,68 +141,70 @@ func (gc *GarbageCollector) Alloc(size uintptr, typeInfo *TypeInfo) unsafe.Point
 		obj := gc.freeList
 		gc.freeList = obj.next
 		gc.freeListMu.Unlock()
-		
+
 		// Reset header
 		atomic.StoreUint32(&obj.marked, colorWhite)
 		obj.typeInfo = typeInfo
-		
+
 		return unsafe.Pointer(uintptr(unsafe.Pointer(obj)) + unsafe.Sizeof(ObjectHeader{}))
 	}
 	gc.freeListMu.Unlock()
-	
+
 	// Yeni obje allocate et
 	totalSize := unsafe.Sizeof(ObjectHeader{}) + size
-	
+
 	// Arena'dan allocate et
 	gc.arenasMu.RLock()
 	for _, arena := range gc.arenas {
 		if ptr := arena.tryAlloc(totalSize); ptr != 0 {
 			gc.arenasMu.RUnlock()
-			
+
 			// Object header oluştur
-			header := (*ObjectHeader)(unsafe.Pointer(ptr))
+			headerPtr := ptr
+			header := (*ObjectHeader)(unsafe.Pointer(headerPtr))
 			header.marked = colorWhite
 			header.size = size
 			header.typeInfo = typeInfo
 			header.next = nil
-			
+
 			// Track object
 			gc.objectsMu.Lock()
 			gc.allObjects = append(gc.allObjects, header)
 			atomic.AddInt64(&gc.stats.HeapUsed, int64(totalSize))
 			gc.objectsMu.Unlock()
-			
+
 			// GC trigger kontrolü
 			if atomic.LoadInt64(&gc.stats.HeapUsed) > gc.triggerSize {
 				go gc.Collect() // Async trigger
 			}
-			
+
 			return unsafe.Pointer(uintptr(unsafe.Pointer(header)) + unsafe.Sizeof(ObjectHeader{}))
 		}
 	}
 	gc.arenasMu.RUnlock()
-	
+
 	// Yeni arena gerekiyor
 	gc.arenasMu.Lock()
 	arena := gc.newArena()
 	gc.arenasMu.Unlock()
-	
+
 	ptr := arena.tryAlloc(totalSize)
 	if ptr == 0 {
 		panic("GC: failed to allocate memory")
 	}
-	
-	header := (*ObjectHeader)(unsafe.Pointer(ptr))
+
+	headerPtr := ptr
+	header := (*ObjectHeader)(unsafe.Pointer(headerPtr))
 	header.marked = colorWhite
 	header.size = size
 	header.typeInfo = typeInfo
 	header.next = nil
-	
+
 	gc.objectsMu.Lock()
 	gc.allObjects = append(gc.allObjects, header)
 	atomic.AddInt64(&gc.stats.HeapUsed, int64(totalSize))
 	gc.objectsMu.Unlock()
-	
+
 	return unsafe.Pointer(uintptr(unsafe.Pointer(header)) + unsafe.Sizeof(ObjectHeader{}))
 }
 
@@ -217,7 +219,7 @@ func (gc *GarbageCollector) AddRoot(ptr unsafe.Pointer) {
 func (gc *GarbageCollector) RemoveRoot(ptr unsafe.Pointer) {
 	gc.rootsMu.Lock()
 	defer gc.rootsMu.Unlock()
-	
+
 	for i, root := range gc.roots {
 		if root == ptr {
 			gc.roots = append(gc.roots[:i], gc.roots[i+1:]...)
@@ -231,29 +233,29 @@ func (gc *GarbageCollector) Collect() {
 	if !gc.enabled.Load() {
 		return
 	}
-	
+
 	// Zaten bir collection çalışıyor mu?
 	if !gc.collecting.CompareAndSwap(false, true) {
 		return
 	}
 	defer gc.collecting.Store(false)
-	
+
 	startTime := time.Now()
-	
+
 	// Phase 1: STW - Mark roots (short pause)
 	stw := gc.stopTheWorld()
 	gc.markRoots()
 	gc.startTheWorld(stw)
-	
+
 	// Phase 2: Concurrent marking (no STW)
 	gc.concurrentMark()
-	
+
 	// Phase 3: STW - Rescan and sweep (short pause)
 	stw = gc.stopTheWorld()
 	gc.rescan()
 	gc.sweep()
 	gc.startTheWorld(stw)
-	
+
 	// Update stats
 	pauseDuration := time.Since(startTime)
 	gc.statsMu.Lock()
@@ -265,7 +267,7 @@ func (gc *GarbageCollector) Collect() {
 	}
 	gc.stats.PauseDurations = append(gc.stats.PauseDurations, pauseDuration)
 	gc.statsMu.Unlock()
-	
+
 	// Sonraki GC threshold'u ayarla
 	heapUsed := atomic.LoadInt64(&gc.stats.HeapUsed)
 	gc.triggerSize = int64(float64(heapUsed) * gcTriggerRatio)
@@ -275,7 +277,7 @@ func (gc *GarbageCollector) Collect() {
 func (gc *GarbageCollector) markRoots() {
 	gc.rootsMu.RLock()
 	defer gc.rootsMu.RUnlock()
-	
+
 	for _, root := range gc.roots {
 		if root != nil {
 			gc.markObject(root)
@@ -288,16 +290,17 @@ func (gc *GarbageCollector) markObject(ptr unsafe.Pointer) {
 	if ptr == nil {
 		return
 	}
-	
+
 	// Header'ı bul
-	headerPtr := uintptr(ptr) - unsafe.Sizeof(ObjectHeader{})
-	header := (*ObjectHeader)(unsafe.Pointer(headerPtr))
-	
+	ptrAddr := uintptr(ptr)
+	headerAddr := ptrAddr - unsafe.Sizeof(ObjectHeader{})
+	header := (*ObjectHeader)(unsafe.Pointer(headerAddr))
+
 	// Zaten işaretlendi mi?
 	if !atomic.CompareAndSwapUint32(&header.marked, colorWhite, colorGray) {
 		return
 	}
-	
+
 	// Work queue'ya ekle
 	gc.markQueueMu.Lock()
 	gc.markQueue = append(gc.markQueue, header)
@@ -312,31 +315,32 @@ func (gc *GarbageCollector) concurrentMark() {
 		gc.markWorkersWg.Add(1)
 		go gc.markWorker()
 	}
-	
+
 	gc.markWorkersWg.Wait()
 }
 
 // markWorker marking işini yapan worker
 func (gc *GarbageCollector) markWorker() {
 	defer gc.markWorkersWg.Done()
-	
+
 	for {
 		gc.markQueueMu.Lock()
 		if len(gc.markQueue) == 0 {
 			gc.markQueueMu.Unlock()
 			return
 		}
-		
+
 		obj := gc.markQueue[0]
 		gc.markQueue = gc.markQueue[1:]
 		gc.markQueueMu.Unlock()
-		
+
 		// Gray -> Black
 		atomic.StoreUint32(&obj.marked, colorBlack)
-		
+
 		// Scan pointers
 		if obj.typeInfo != nil && len(obj.typeInfo.pointerMask) > 0 {
-			objPtr := uintptr(unsafe.Pointer(obj)) + unsafe.Sizeof(ObjectHeader{})
+			objAddr := uintptr(unsafe.Pointer(obj))
+			objPtr := objAddr + unsafe.Sizeof(ObjectHeader{})
 			for i, hasPtrGC := range obj.typeInfo.pointerMask {
 				if hasPtrGC != 0 {
 					fieldPtr := *(*unsafe.Pointer)(unsafe.Pointer(objPtr + uintptr(i)*unsafe.Sizeof(unsafe.Pointer(nil))))
@@ -355,7 +359,7 @@ func (gc *GarbageCollector) rescan() {
 	// Production'da write barrier kullanılır
 	gc.objectsMu.RLock()
 	defer gc.objectsMu.RUnlock()
-	
+
 	for _, obj := range gc.allObjects {
 		if atomic.LoadUint32(&obj.marked) == colorGray {
 			atomic.StoreUint32(&obj.marked, colorBlack)
@@ -367,10 +371,10 @@ func (gc *GarbageCollector) rescan() {
 func (gc *GarbageCollector) sweep() {
 	gc.objectsMu.Lock()
 	defer gc.objectsMu.Unlock()
-	
+
 	newObjects := make([]*ObjectHeader, 0, len(gc.allObjects))
 	freedBytes := int64(0)
-	
+
 	for _, obj := range gc.allObjects {
 		if atomic.LoadUint32(&obj.marked) == colorWhite {
 			// White = unreachable, free it
@@ -378,7 +382,7 @@ func (gc *GarbageCollector) sweep() {
 			obj.next = gc.freeList
 			gc.freeList = obj
 			gc.freeListMu.Unlock()
-			
+
 			freedBytes += int64(obj.size + uintptr(unsafe.Sizeof(ObjectHeader{})))
 		} else {
 			// Black = reachable, keep it and reset to white
@@ -386,7 +390,7 @@ func (gc *GarbageCollector) sweep() {
 			newObjects = append(newObjects, obj)
 		}
 	}
-	
+
 	gc.allObjects = newObjects
 	atomic.AddInt64(&gc.stats.HeapUsed, -freedBytes)
 }
@@ -409,10 +413,10 @@ func (gc *GarbageCollector) startTheWorld(stw time.Time) {
 // backgroundWorker arka plan GC worker'ı
 func (gc *GarbageCollector) backgroundWorker() {
 	defer gc.wg.Done()
-	
+
 	ticker := time.NewTicker(100 * time.Millisecond)
 	defer ticker.Stop()
-	
+
 	for {
 		select {
 		case <-ticker.C:
@@ -436,10 +440,10 @@ func (gc *GarbageCollector) newArena() *Arena {
 		end:   uintptr(unsafe.Pointer(&buf[0])) + arenaSize,
 		free:  uintptr(unsafe.Pointer(&buf[0])),
 	}
-	
+
 	gc.arenas = append(gc.arenas, arena)
 	atomic.AddInt64(&gc.stats.HeapSize, arenaSize)
-	
+
 	return arena
 }
 
@@ -447,14 +451,14 @@ func (gc *GarbageCollector) newArena() *Arena {
 func (a *Arena) tryAlloc(size uintptr) uintptr {
 	a.mu.Lock()
 	defer a.mu.Unlock()
-	
+
 	// Align to 8 bytes
 	size = (size + 7) &^ 7
-	
+
 	if a.free+size > a.end {
 		return 0 // Arena full
 	}
-	
+
 	ptr := a.free
 	a.free += size
 	return ptr
@@ -464,12 +468,12 @@ func (a *Arena) tryAlloc(size uintptr) uintptr {
 func (gc *GarbageCollector) Stats() GCStats {
 	gc.statsMu.RLock()
 	defer gc.statsMu.RUnlock()
-	
+
 	stats := gc.stats
 	stats.HeapSize = atomic.LoadInt64(&gc.stats.HeapSize)
 	stats.HeapUsed = atomic.LoadInt64(&gc.stats.HeapUsed)
 	stats.NumGoroutine = runtime.NumGoroutine()
-	
+
 	return stats
 }
 
@@ -495,4 +499,3 @@ func (gc *GarbageCollector) Stop() {
 func init() {
 	GC = NewGC()
 }
-

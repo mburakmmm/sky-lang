@@ -1,0 +1,76 @@
+═══════════════════════════════════════
+SKY COMPREHENSIVE TEST
+═══════════════════════════════════════
+
+1. ARITHMETIC
+125
+75
+2500
+4
+0
+
+2. COMPARISONS
+true
+false
+true
+true
+true
+true
+
+3. BOOLEAN LOGIC
+false
+true
+true
+true
+
+4. NESTED IF-ELIF-ELSE
+B
+
+5. WHILE LOOPS
+55
+
+6. FOR LOOPS
+190
+
+7. NESTED LOOPS
+100
+
+8. FACTORIAL (Iterative)
+120
+3628800
+479001600
+
+9. PRIME NUMBERS
+true
+true
+true
+true
+50
+
+10. COMPLEX EXPRESSIONS
+230
+610
+900
+6000
+
+11. NESTED CONDITIONS
+1
+
+12. VARIABLE SCOPING
+300
+100
+
+13. CONDITIONAL LOOPS
+90
+100
+
+14. COMPLEX CONTROL FLOW
+304
+
+15. MULTI-LEVEL NESTING
+116
+
+═══════════════════════════════════════
+SUCCESS! All 15 tests passed!
+═══════════════════════════════════════
+

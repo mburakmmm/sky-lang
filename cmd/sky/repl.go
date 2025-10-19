@@ -22,7 +22,7 @@ func replCommand(args []string) {
 
 	interp := interpreter.New()
 	scanner := bufio.NewScanner(os.Stdin)
-	
+
 	lineBuffer := ""
 	inBlock := false
 	indentLevel := 0
@@ -57,12 +57,12 @@ func replCommand(args []string) {
 
 		// Check for block start/continuation
 		trimmed := strings.TrimSpace(line)
-		if strings.HasSuffix(trimmed, ":") || 
-		   strings.HasPrefix(trimmed, "if ") ||
-		   strings.HasPrefix(trimmed, "while ") ||
-		   strings.HasPrefix(trimmed, "for ") ||
-		   strings.HasPrefix(trimmed, "function ") ||
-		   strings.HasPrefix(trimmed, "class ") {
+		if strings.HasSuffix(trimmed, ":") ||
+			strings.HasPrefix(trimmed, "if ") ||
+			strings.HasPrefix(trimmed, "while ") ||
+			strings.HasPrefix(trimmed, "for ") ||
+			strings.HasPrefix(trimmed, "function ") ||
+			strings.HasPrefix(trimmed, "class ") {
 			inBlock = true
 			indentLevel++
 		}
@@ -101,7 +101,7 @@ func replCommand(args []string) {
 func evalREPL(input string, interp *interpreter.Interpreter) (string, error) {
 	// Lexer
 	l := lexer.New(input, "repl")
-	
+
 	// Parser
 	p := parser.New(l)
 	program := p.ParseProgram()
@@ -153,7 +153,5 @@ Multi-line statements:
     print("big")
   end
 
-Note: REPL maintains state between statements.
-`)
+Note: REPL maintains state between statements.`)
 }
-
