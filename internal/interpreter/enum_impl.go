@@ -114,26 +114,23 @@ func (i *Interpreter) evalMatchExpression(expr *ast.MatchExpression) (Value, err
 				matchEnv.Set(name, value)
 			}
 
-			// Execute arm body
+			// Execute arm body with proper environment
 			oldEnv := i.env
 			i.env = matchEnv
 
-			// Evaluate the expression in the arm body
-			if len(arm.Body.Statements) > 0 {
-				if exprStmt, ok := arm.Body.Statements[0].(*ast.ExpressionStatement); ok {
-					result, err := i.evalExpression(exprStmt.Expression)
+			// Execute all statements in the body
+			var result Value = &Nil{}
+			for _, stmt := range arm.Body.Statements {
+				val, err := i.evalStatement(stmt)
+				if err != nil {
 					i.env = oldEnv
-					if err != nil {
-						return nil, err
-					}
-					return result, nil
+					return nil, err
 				}
+				result = val
 			}
 
-			// Fallback: eval block
-			result, err := i.evalBlockStatement(arm.Body, matchEnv)
 			i.env = oldEnv
-			return result, err
+			return result, nil
 		}
 	}
 

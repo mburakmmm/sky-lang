@@ -1,0 +1,19 @@
+import _enum_bypass
+
+enum Result
+  Ok(int)
+  Err(string)
+end
+
+function main
+  let r = Err("test error")
+  print("Created:", r)
+  
+  match r
+    Ok(v) => print("Ok:", v)
+    Err(m) => print("Err:", m)
+  end
+  
+  print("Done")
+end
+

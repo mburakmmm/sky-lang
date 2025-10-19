@@ -1,0 +1,17 @@
+import _enum_bypass
+
+# This is a comment
+enum Color
+  Red
+  Green
+end
+
+# Another comment
+function main
+  # Comment inside function
+  let c = Red()
+  print("Color:", c)
+  # Final comment
+  print("Done!")
+end
+

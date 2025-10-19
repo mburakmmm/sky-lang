@@ -1,0 +1,14 @@
+import _enum_bypass
+
+enum Color
+  Red
+  Green
+end
+
+function main
+  print("1")
+  let c = Red()
+  print("2")
+  print("3")
+end
+

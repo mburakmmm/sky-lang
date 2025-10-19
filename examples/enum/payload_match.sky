@@ -1,0 +1,27 @@
+import _enum_bypass
+
+enum Result
+  Ok(int)
+  Err(string)
+end
+
+function handle_result(r)
+  match r
+    Ok(value) => print("Success! Value:", value)
+    Err(msg) => print("Error:", msg)
+  end
+end
+
+function main
+  let r1 = Ok(42)
+  let r2 = Err("file not found")
+  
+  print("Testing r1:")
+  handle_result(r1)
+  
+  print("Testing r2:")
+  handle_result(r2)
+  
+  print("All payload matching works!")
+end
+
