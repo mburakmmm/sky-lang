@@ -17,6 +17,14 @@ func (p *Parser) parseFunctionStatement() *ast.FunctionStatement {
 		}
 	}
 
+	// coop kontrol (coroutine/generator)
+	if p.curTokenIs(lexer.COOP) {
+		stmt.Coop = true
+		if !p.expectPeek(lexer.FUNCTION) {
+			return nil
+		}
+	}
+
 	// Fonksiyon adı
 	if !p.expectPeek(lexer.IDENT) {
 		return nil

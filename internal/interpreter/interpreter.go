@@ -15,12 +15,13 @@ import (
 
 // Interpreter AST'yi yorumlar ve çalıştırır
 type Interpreter struct {
-	env         *Environment
-	output      *os.File
-	trampoline  *TrampolineStack        // Custom call stack for recursion
-	moduleCache map[string]*Environment // Cached loaded modules
-	currentDir  string                  // Current working directory for relative imports
-	sourceFile  string                  // Source file path for relative imports
+	env            *Environment
+	output         *os.File
+	trampoline     *TrampolineStack        // Custom call stack for recursion
+	moduleCache    map[string]*Environment // Cached loaded modules
+	currentDir     string                  // Current working directory for relative imports
+	sourceFile     string                  // Source file path for relative imports
+	recursionDepth int                     // Track recursion depth
 }
 
 // New yeni bir interpreter oluşturur
@@ -265,6 +266,15 @@ func (i *Interpreter) evalFunctionStatement(stmt *ast.FunctionStatement) error {
 					}
 				}
 			}
+
+			// Check recursion depth
+			if i.recursionDepth >= 1000 {
+				return nil, &RuntimeError{Message: fmt.Sprintf("maximum recursion depth exceeded (1000) in function '%s'", funcName)}
+			}
+			i.recursionDepth++
+			defer func() {
+				i.recursionDepth--
+			}()
 
 			// Fonksiyon body'sini çalıştır
 			oldEnv := i.env
@@ -849,7 +859,7 @@ func (i *Interpreter) evalCallExpression(expr *ast.CallExpression) (Value, error
 		constructorChain := []*Function{}
 		currentClass := class
 		for currentClass != nil {
-			if constructor, hasConstructor := currentClass.Methods["__init__"]; hasConstructor {
+			if constructor, hasConstructor := currentClass.Methods["init"]; hasConstructor {
 				constructorChain = append([]*Function{constructor}, constructorChain...)
 			}
 			currentClass = currentClass.SuperClass
@@ -1088,6 +1098,84 @@ func (i *Interpreter) evalMemberExpression(expr *ast.MemberExpression) (Value, e
 			return value, nil
 		}
 		return &Nil{}, nil
+	}
+
+	// Handle String methods
+	if str, ok := object.(*String); ok {
+		methodName := "str_" + memberName
+		if method, found := i.env.Get(methodName); found {
+			if fn, ok := method.(*Function); ok {
+				// Return bound method
+				return &Function{
+					Name:       memberName,
+					Parameters: fn.Parameters,
+					Env:        fn.Env,
+					Body: func(callEnv *Environment) (Value, error) {
+						// Inject string as first argument
+						args, _ := callEnv.Get("__args__")
+						if argList, ok := args.(*List); ok {
+							newArgs := append([]Value{str}, argList.Elements...)
+							callEnv.Set("__args__", &List{Elements: newArgs})
+						} else {
+							callEnv.Set("__args__", &List{Elements: []Value{str}})
+						}
+						return fn.Body(callEnv)
+					},
+				}, nil
+			}
+		}
+	}
+
+	// Handle List methods
+	if list, ok := object.(*List); ok {
+		methodName := "list_" + memberName
+		if method, found := i.env.Get(methodName); found {
+			if fn, ok := method.(*Function); ok {
+				// Return bound method
+				return &Function{
+					Name:       memberName,
+					Parameters: fn.Parameters,
+					Env:        fn.Env,
+					Body: func(callEnv *Environment) (Value, error) {
+						// Inject list as first argument
+						args, _ := callEnv.Get("__args__")
+						if argList, ok := args.(*List); ok {
+							newArgs := append([]Value{list}, argList.Elements...)
+							callEnv.Set("__args__", &List{Elements: newArgs})
+						} else {
+							callEnv.Set("__args__", &List{Elements: []Value{list}})
+						}
+						return fn.Body(callEnv)
+					},
+				}, nil
+			}
+		}
+	}
+
+	// Handle Dict methods
+	if dict, ok := object.(*Dict); ok {
+		methodName := "dict_" + memberName
+		if method, found := i.env.Get(methodName); found {
+			if fn, ok := method.(*Function); ok {
+				// Return bound method
+				return &Function{
+					Name:       memberName,
+					Parameters: fn.Parameters,
+					Env:        fn.Env,
+					Body: func(callEnv *Environment) (Value, error) {
+						// Inject dict as first argument
+						args, _ := callEnv.Get("__args__")
+						if argList, ok := args.(*List); ok {
+							newArgs := append([]Value{dict}, argList.Elements...)
+							callEnv.Set("__args__", &List{Elements: newArgs})
+						} else {
+							callEnv.Set("__args__", &List{Elements: []Value{dict}})
+						}
+						return fn.Body(callEnv)
+					},
+				}, nil
+			}
+		}
 	}
 
 	return nil, &RuntimeError{Message: fmt.Sprintf("cannot access member of %T", object)}

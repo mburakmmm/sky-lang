@@ -192,6 +192,7 @@ type FunctionStatement struct {
 	Token      lexer.Token // FUNCTION token
 	Name       *Identifier
 	Async      bool
+	Coop       bool // Coroutine/Generator flag
 	Parameters []*FunctionParameter
 	ReturnType TypeAnnotation
 	Body       *BlockStatement

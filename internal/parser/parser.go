@@ -147,7 +147,12 @@ func (p *Parser) nextToken() {
 	p.curToken = p.peekToken
 	p.peekToken = p.l.NextToken()
 
-	// Yorumları atla
+	// Yorumları atla (hem current hem peek)
+	for p.curToken.Type == lexer.COMMENT {
+		p.curToken = p.peekToken
+		p.peekToken = p.l.NextToken()
+	}
+
 	for p.peekToken.Type == lexer.COMMENT {
 		p.peekToken = p.l.NextToken()
 	}
@@ -226,7 +231,7 @@ func (p *Parser) parseStatement() ast.Statement {
 		return p.parseBreakStatement()
 	case lexer.CONTINUE:
 		return p.parseContinueStatement()
-	case lexer.FUNCTION, lexer.ASYNC:
+	case lexer.FUNCTION, lexer.ASYNC, lexer.COOP:
 		return p.parseFunctionStatement()
 	case lexer.IF:
 		return p.parseIfStatement()
@@ -666,7 +671,8 @@ func (p *Parser) parseEnumStatement() *ast.EnumStatement {
 
 	// Parse variants
 	for !p.curTokenIs(lexer.END) && !p.curTokenIs(lexer.DEDENT) && !p.curTokenIs(lexer.EOF) {
-		if p.curTokenIs(lexer.NEWLINE) {
+		// Skip NEWLINE and COMMENT tokens
+		if p.curTokenIs(lexer.NEWLINE) || p.curTokenIs(lexer.COMMENT) {
 			p.nextToken()
 			continue
 		}
@@ -745,7 +751,8 @@ func (p *Parser) parseMatchExpression() ast.Expression {
 	expr.Arms = []*ast.MatchArm{}
 
 	for !p.curTokenIs(lexer.END) && !p.curTokenIs(lexer.DEDENT) && !p.curTokenIs(lexer.EOF) {
-		if p.curTokenIs(lexer.NEWLINE) {
+		// Skip NEWLINE and COMMENT tokens
+		if p.curTokenIs(lexer.NEWLINE) || p.curTokenIs(lexer.COMMENT) {
 			p.nextToken()
 			continue
 		}

@@ -1,0 +1,20 @@
+# Simple recursion test
+import _bypass
+
+function count(n)
+  print("  count called with n =", n)
+  if n <= 0
+    print("  returning from n =", n)
+    return n
+  end
+  let result = count(n - 1)
+  print("  returning", result, "+ 1 =", result + 1, "from n =", n)
+  return result + 1
+end
+
+function main()
+  print("Starting...")
+  let r = count(3)
+  print("Final result:", r)
+end
+
