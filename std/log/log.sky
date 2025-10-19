@@ -1,0 +1,81 @@
+# Logging framework
+
+import _log_core
+
+const DEBUG = 0
+const INFO = 1
+const WARN = 2
+const ERROR = 3
+
+let _current_level = INFO
+let _fields = {}
+
+function set_level(level: int)
+  _current_level = level
+end
+
+function with_fields(fields: {string: any}): Logger
+  return Logger(fields)
+end
+
+function debug(msg: string, **kwargs)
+  if _current_level <= DEBUG
+    print("[DEBUG]", msg, kwargs)
+  end
+end
+
+function info(msg: string, **kwargs)
+  if _current_level <= INFO
+    print("[INFO]", msg, kwargs)
+  end
+end
+
+function warn(msg: string, **kwargs)
+  if _current_level <= WARN
+    print("[WARN]", msg, kwargs)
+  end
+end
+
+function error(msg: string, **kwargs)
+  if _current_level <= ERROR
+    print("[ERROR]", msg, kwargs)
+  end
+end
+
+class Logger
+  function __init__(self, fields: {string: any})
+    self._fields = fields
+    self._level = INFO
+  end
+  
+  function debug(self, msg: string)
+    if self._level <= DEBUG
+      print("[DEBUG]", msg, self._fields)
+    end
+  end
+  
+  function info(self, msg: string)
+    if self._level <= INFO
+      print("[INFO]", msg, self._fields)
+    end
+  end
+  
+  function warn(self, msg: string)
+    if self._level <= WARN
+      print("[WARN]", msg, self._fields)
+    end
+  end
+  
+  function error(self, msg: string)
+    if self._level <= ERROR
+      print("[ERROR]", msg, self._fields)
+    end
+  end
+  
+  function with_field(self, key: string, value: any): Logger
+    let new_fields = self._fields.copy()
+    new_fields[key] = value
+    return Logger(new_fields)
+  end
+end
+

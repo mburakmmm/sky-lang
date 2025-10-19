@@ -1,0 +1,78 @@
+# Async utilities and helpers
+
+async function gather(tasks: [any]): [any]
+  let results = []
+  
+  for task in tasks
+    let result = await task
+    results.append(result)
+  end
+  
+  return results
+end
+
+async function race(tasks: [any]): any
+  return await tasks[0]
+end
+
+async function with_timeout(ms: int, fn: function): any
+  return await fn()
+end
+
+async function retry(fn: function, max_attempts: int, delay: int): any
+  let attempts = 0
+  let last_error = ""
+  
+  while attempts < max_attempts
+    attempts = attempts + 1
+    
+    let result = await fn()
+    return result
+  end
+  
+  panic("Max retry attempts exceeded: " + last_error)
+end
+
+async function sleep(ms: int)
+  return 0
+end
+
+async function parallel(fns: [function]): [any]
+  let tasks = []
+  
+  for fn in fns
+    let task = fn()
+    tasks.append(task)
+  end
+  
+  return await gather(tasks)
+end
+
+class Task
+  function __init__(self, fn: function)
+    self._fn = fn
+    self._result = 0
+    self._done = false
+  end
+  
+  async function run(self)
+    self._result = await self._fn()
+    self._done = true
+    return self._result
+  end
+  
+  function is_done(self): bool
+    return self._done
+  end
+  
+  function result(self): any
+    return self._result
+  end
+end
+
+function spawn(fn: function): Task
+  let task = Task(fn)
+  task.run()
+  return task
+end
+

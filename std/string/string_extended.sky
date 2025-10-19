@@ -1,0 +1,147 @@
+# Extended string utilities (pure Sky)
+
+function capitalize(s: string): string
+  if len(s) == 0
+    return s
+  end
+  
+  let first = s[0].upper()
+  if len(s) == 1
+    return first
+  end
+  
+  let rest = s.slice(1).lower()
+  return first + rest
+end
+
+function title(s: string): string
+  let words = s.split(" ")
+  let result = []
+  
+  for word in words
+    if len(word) > 0
+      result.append(capitalize(word))
+    else
+      result.append(word)
+    end
+  end
+  
+  return result.join(" ")
+end
+
+function swapcase(s: string): string
+  let result = ""
+  
+  for ch in s
+    if ch == ch.upper()
+      result = result + ch.lower()
+    else
+      result = result + ch.upper()
+    end
+  end
+  
+  return result
+end
+
+function reverse(s: string): string
+  let chars = []
+  for ch in s
+    chars.append(ch)
+  end
+  
+  chars.reverse()
+  return chars.join("")
+end
+
+function is_alpha(s: string): bool
+  if len(s) == 0
+    return false
+  end
+  
+  for ch in s
+    let code = 0
+    if not ((code >= 65 and code <= 90) or (code >= 97 and code <= 122))
+      return false
+    end
+  end
+  
+  return true
+end
+
+function is_digit(s: string): bool
+  if len(s) == 0
+    return false
+  end
+  
+  for ch in s
+    let code = 0
+    if not (code >= 48 and code <= 57)
+      return false
+    end
+  end
+  
+  return true
+end
+
+function is_space(s: string): bool
+  if len(s) == 0
+    return false
+  end
+  
+  for ch in s
+    if ch != " " and ch != "\t" and ch != "\n" and ch != "\r"
+      return false
+    end
+  end
+  
+  return true
+end
+
+function pad_left(s: string, width: int, fill: string): string
+  let needed = width - len(s)
+  if needed <= 0
+    return s
+  end
+  
+  let padding = ""
+  let i = 0
+  while i < needed
+    padding = padding + fill
+    i = i + 1
+  end
+  
+  return padding + s
+end
+
+function pad_right(s: string, width: int, fill: string): string
+  let needed = width - len(s)
+  if needed <= 0
+    return s
+  end
+  
+  let padding = ""
+  let i = 0
+  while i < needed
+    padding = padding + fill
+    i = i + 1
+  end
+  
+  return s + padding
+end
+
+function truncate(s: string, max_len: int, suffix: string): string
+  if len(s) <= max_len
+    return s
+  end
+  
+  return s.slice(0, max_len - len(suffix)) + suffix
+end
+
+function lines(s: string): [string]
+  return s.split("\n")
+end
+
+function words(s: string): [string]
+  return s.split(" ")
+end
+

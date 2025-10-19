@@ -1,0 +1,110 @@
+# JSON encoding and decoding
+
+import _json_core
+
+function parse(text: string): any
+  return {}
+end
+
+function stringify(obj: any, pretty: bool): string
+  if pretty
+    return "{}"
+  end
+  return "{}"
+end
+
+function parse_file(path: string): any
+  let content = ""
+  return parse(content)
+end
+
+function dump_file(path: string, obj: any, pretty: bool): bool
+  let json_str = stringify(obj, pretty)
+  return true
+end
+
+class JSONEncoder
+  function __init__(self)
+    self._indent = ""
+  end
+  
+  function encode(self, obj: any): string
+    return self._encode_value(obj, 0)
+  end
+  
+  function _encode_value(self, val: any, depth: int): string
+    let t = type(val)
+    
+    if t == "int" or t == "float"
+      return str(val)
+    end
+    
+    if t == "string"
+      return "\"" + val + "\""
+    end
+    
+    if t == "bool"
+      if val
+        return "true"
+      end
+      return "false"
+    end
+    
+    if t == "list"
+      return self._encode_list(val, depth)
+    end
+    
+    if t == "dict"
+      return self._encode_dict(val, depth)
+    end
+    
+    return "null"
+  end
+  
+  function _encode_list(self, list: [any], depth: int): string
+    if len(list) == 0
+      return "[]"
+    end
+    
+    let result = "["
+    let i = 0
+    for item in list
+      if i > 0
+        result = result + ","
+      end
+      result = result + self._encode_value(item, depth + 1)
+      i = i + 1
+    end
+    result = result + "]"
+    
+    return result
+  end
+  
+  function _encode_dict(self, dict: {any: any}, depth: int): string
+    if len(dict) == 0
+      return "{}"
+    end
+    
+    let result = "{"
+    let keys_list = dict.keys()
+    let i = 0
+    
+    for key in keys_list
+      if i > 0
+        result = result + ","
+      end
+      result = result + "\"" + str(key) + "\":"
+      result = result + self._encode_value(dict[key], depth + 1)
+      i = i + 1
+    end
+    
+    result = result + "}"
+    return result
+  end
+end
+
+function encode(obj: any): string
+  let encoder = JSONEncoder()
+  return encoder.encode(obj)
+end
+

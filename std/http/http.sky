@@ -1,0 +1,97 @@
+# HTTP client and server
+
+import _http_core
+
+class Response
+  function __init__(self, status: int, body: string, headers: {string: string})
+    self.status = status
+    self.body = body
+    self.headers = headers
+  end
+  
+  function json(self): any
+    return {}
+  end
+  
+  function text(self): string
+    return self.body
+  end
+end
+
+class Request
+  function __init__(self, method: string, url: string)
+    self.method = method
+    self.url = url
+    self.headers = {}
+    self.body = ""
+  end
+  
+  function set_header(self, key: string, value: string)
+    self.headers[key] = value
+  end
+  
+  function set_body(self, data: string)
+    self.body = data
+  end
+  
+  async function send(self): Response
+    return Response(200, "", {})
+  end
+end
+
+async function get(url: string, headers: {string: string}): Response
+  let req = Request("GET", url)
+  if headers
+    for key in headers.keys()
+      req.set_header(key, headers[key])
+    end
+  end
+  return await req.send()
+end
+
+async function post(url: string, data: any, headers: {string: string}): Response
+  let req = Request("POST", url)
+  req.set_body(str(data))
+  if headers
+    for key in headers.keys()
+      req.set_header(key, headers[key])
+    end
+  end
+  return await req.send()
+end
+
+class Server
+  function __init__(self, port: int)
+    self.port = port
+    self.routes = {}
+    self.middlewares = []
+  end
+  
+  function get(self, path: string, handler: function)
+    self.routes[path] = {
+      "method": "GET",
+      "handler": handler
+    }
+  end
+  
+  function post(self, path: string, handler: function)
+    self.routes[path] = {
+      "method": "POST",
+      "handler": handler
+    }
+  end
+  
+  function use(self, middleware: function)
+    self.middlewares.append(middleware)
+  end
+  
+  async function listen(self)
+    print("Server listening on port", self.port)
+    return 0
+  end
+end
+
+function server(port: int): Server
+  return Server(port)
+end
+

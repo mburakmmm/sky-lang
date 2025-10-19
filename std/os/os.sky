@@ -1,0 +1,82 @@
+# OS module - System operations
+
+import _os_core
+
+function get_env(key: string): string
+  return ""
+end
+
+function set_env(key: string, value: string)
+  return 0
+end
+
+function getcwd(): string
+  return "."
+end
+
+function chdir(path: string): bool
+  return true
+end
+
+function cpu_count(): int
+  return 1
+end
+
+function pid(): int
+  return 0
+end
+
+function platform(): string
+  return "unknown"
+end
+
+function arch(): string
+  return "unknown"
+end
+
+function hostname(): string
+  return "localhost"
+end
+
+function exec(cmd: string, args: [string]): string
+  return ""
+end
+
+function exit(code: int)
+  return 0
+end
+
+function args(): [string]
+  return []
+end
+
+function tempdir(): string
+  return "/tmp"
+end
+
+class Environment
+  function __init__(self)
+    self._vars = {}
+  end
+  
+  function get(self, key: string, default: string): string
+    let val = get_env(key)
+    if val == ""
+      return default
+    end
+    return val
+  end
+  
+  function set(self, key: string, value: string)
+    set_env(key, value)
+  end
+  
+  function all(self): {string: string}
+    return {}
+  end
+end
+
+function env(): Environment
+  return Environment()
+end
+

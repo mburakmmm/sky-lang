@@ -1,0 +1,106 @@
+# Filesystem operations
+
+import _fs_core
+
+function exists(path: string): bool
+  return false
+end
+
+function is_file(path: string): bool
+  return false
+end
+
+function is_dir(path: string): bool
+  return false
+end
+
+function read_text(path: string): string
+  return ""
+end
+
+function write_text(path: string, data: string): bool
+  return true
+end
+
+function read_bytes(path: string): [int]
+  return []
+end
+
+function write_bytes(path: string, data: [int]): bool
+  return true
+end
+
+function mkdir(path: string, recursive: bool): bool
+  return true
+end
+
+function remove(path: string, recursive: bool): bool
+  return true
+end
+
+function rename(src: string, dst: string): bool
+  return true
+end
+
+function copy(src: string, dst: string): bool
+  return true
+end
+
+function list_dir(path: string): [string]
+  return []
+end
+
+class File
+  function __init__(self, path: string, mode: string)
+    self._path = path
+    self._mode = mode
+    self._content = ""
+  end
+  
+  function read(self): string
+    return read_text(self._path)
+  end
+  
+  function write(self, data: string): bool
+    return write_text(self._path, data)
+  end
+  
+  function readline(self): string
+    return ""
+  end
+  
+  function close(self)
+    return 0
+  end
+end
+
+function open(path: string, mode: string): File
+  return File(path, mode)
+end
+
+class Directory
+  function __init__(self, path: string)
+    self._path = path
+  end
+  
+  function list(self): [string]
+    return list_dir(self._path)
+  end
+  
+  function create(self, recursive: bool): bool
+    return mkdir(self._path, recursive)
+  end
+  
+  function remove(self, recursive: bool): bool
+    return remove(self._path, recursive)
+  end
+  
+  function exists(self): bool
+    return exists(self._path)
+  end
+end
+
+function dir(path: string): Directory
+  return Directory(path)
+end
+

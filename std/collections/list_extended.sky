@@ -1,0 +1,152 @@
+# Extended list utilities (pure Sky implementations)
+
+function unique(list: [any]): [any]
+  let seen = {}
+  let result = []
+  
+  for item in list
+    let key = str(item)
+    if not seen.get(key)
+      seen[key] = true
+      result.append(item)
+    end
+  end
+  
+  return result
+end
+
+function group_by(list: [any], key_fn: function): {any: [any]}
+  let groups = {}
+  
+  for item in list
+    let key = key_fn(item)
+    let key_str = str(key)
+    
+    if not groups.get(key_str)
+      groups[key_str] = []
+    end
+    
+    groups[key_str].append(item)
+  end
+  
+  return groups
+end
+
+function zip(list1: [any], list2: [any]): [[any]]
+  let result = []
+  let min_len = len(list1)
+  
+  if len(list2) < min_len
+    min_len = len(list2)
+  end
+  
+  let i = 0
+  while i < min_len
+    result.append([list1[i], list2[i]])
+    i = i + 1
+  end
+  
+  return result
+end
+
+function enumerate(list: [any]): [[int, any]]
+  let result = []
+  let i = 0
+  
+  for item in list
+    result.append([i, item])
+    i = i + 1
+  end
+  
+  return result
+end
+
+function reduce(list: [any], fn: function, initial: any): any
+  let acc = initial
+  
+  for item in list
+    acc = fn(acc, item)
+  end
+  
+  return acc
+end
+
+function flatten(list: [[any]]): [any]
+  let result = []
+  
+  for sublist in list
+    for item in sublist
+      result.append(item)
+    end
+  end
+  
+  return result
+end
+
+function partition(list: [any], fn: function): [[any], [any]]
+  let true_list = []
+  let false_list = []
+  
+  for item in list
+    if fn(item)
+      true_list.append(item)
+    else
+      false_list.append(item)
+    end
+  end
+  
+  return [true_list, false_list]
+end
+
+function chunk(list: [any], size: int): [[any]]
+  let result = []
+  let current = []
+  let i = 0
+  
+  for item in list
+    current.append(item)
+    i = i + 1
+    
+    if i >= size
+      result.append(current)
+      current = []
+      i = 0
+    end
+  end
+  
+  if len(current) > 0
+    result.append(current)
+  end
+  
+  return result
+end
+
+function take(list: [any], n: int): [any]
+  let result = []
+  let i = 0
+  
+  for item in list
+    if i >= n
+      break
+    end
+    result.append(item)
+    i = i + 1
+  end
+  
+  return result
+end
+
+function drop(list: [any], n: int): [any]
+  let result = []
+  let i = 0
+  
+  for item in list
+    if i >= n
+      result.append(item)
+    end
+    i = i + 1
+  end
+  
+  return result
+end
+

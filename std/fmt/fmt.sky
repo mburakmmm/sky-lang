@@ -1,0 +1,45 @@
+# String formatting utilities
+
+function format(template: string, **kwargs): string
+  let result = template
+  
+  for key in kwargs.keys()
+    let placeholder = "${" + key + "}"
+    let value = str(kwargs[key])
+    result = result.replace(placeholder, value)
+  end
+  
+  return result
+end
+
+function sprintf(fmt_str: string, *args): string
+  let result = fmt_str
+  let i = 0
+  
+  for arg in args
+    let placeholder = "{" + str(i) + "}"
+    result = result.replace(placeholder, str(arg))
+    i = i + 1
+  end
+  
+  return result
+end
+
+function printf(fmt_str: string, *args)
+  print(sprintf(fmt_str, args))
+end
+
+class Formatter
+  function __init__(self, template: string)
+    self._template = template
+  end
+  
+  function format(self, **kwargs): string
+    return format(self._template, kwargs)
+  end
+end
+
+function template(t: string): Formatter
+  return Formatter(t)
+end
+
