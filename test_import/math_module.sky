@@ -1,0 +1,11 @@
+# Math Module
+
+function add(a, b): int
+  return a + b
+end
+
+function multiply(a, b): int
+  return a * b
+end
+
+const PI = 3.14159

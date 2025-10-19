@@ -1,0 +1,18 @@
+# Import Test
+
+import math_module
+
+function main
+  print("=== Import System Test ===")
+  
+  # Direct import - symbols are imported directly
+  let result = add(5, 3)
+  print("5 + 3 = " + str(result))
+  
+  let product = multiply(4, 6)
+  print("4 * 6 = " + str(product))
+  
+  print("PI = " + str(PI))
+  
+  print("=== Test Complete ===")
+end
