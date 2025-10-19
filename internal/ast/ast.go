@@ -133,6 +133,26 @@ func (rs *ReturnStatement) String() string {
 	return out.String()
 }
 
+// BreakStatement döngüden çıkış
+type BreakStatement struct {
+	Token lexer.Token // BREAK token
+}
+
+func (bs *BreakStatement) statementNode()       {}
+func (bs *BreakStatement) TokenLiteral() string { return bs.Token.Literal }
+func (bs *BreakStatement) Pos() lexer.Token     { return bs.Token }
+func (bs *BreakStatement) String() string       { return "break" }
+
+// ContinueStatement döngüyü devam ettirme
+type ContinueStatement struct {
+	Token lexer.Token // CONTINUE token
+}
+
+func (cs *ContinueStatement) statementNode()       {}
+func (cs *ContinueStatement) TokenLiteral() string { return cs.Token.Literal }
+func (cs *ContinueStatement) Pos() lexer.Token     { return cs.Token }
+func (cs *ContinueStatement) String() string       { return "continue" }
+
 // ExpressionStatement bir expression'ı statement olarak kullanma
 type ExpressionStatement struct {
 	Token      lexer.Token // expression'ın ilk token'ı
@@ -244,14 +264,14 @@ func (is *IfStatement) String() string {
 	out.WriteString(is.Condition.String())
 	out.WriteString("\n")
 	out.WriteString(is.Consequence.String())
-	
+
 	for _, elif := range is.Elif {
 		out.WriteString("elif ")
 		out.WriteString(elif.Condition.String())
 		out.WriteString("\n")
 		out.WriteString(elif.Consequence.String())
 	}
-	
+
 	if is.Alternative != nil {
 		out.WriteString("else\n")
 		out.WriteString(is.Alternative.String())
@@ -591,10 +611,10 @@ type BasicType struct {
 	Name  string
 }
 
-func (bt *BasicType) typeNode()              {}
-func (bt *BasicType) TokenLiteral() string   { return bt.Token.Literal }
-func (bt *BasicType) Pos() lexer.Token       { return bt.Token }
-func (bt *BasicType) String() string         { return bt.Name }
+func (bt *BasicType) typeNode()            {}
+func (bt *BasicType) TokenLiteral() string { return bt.Token.Literal }
+func (bt *BasicType) Pos() lexer.Token     { return bt.Token }
+func (bt *BasicType) String() string       { return bt.Name }
 
 // ListType list tip anotasyonu [T]
 type ListType struct {
@@ -640,4 +660,3 @@ func (ft *FunctionType) String() string {
 	}
 	return fmt.Sprintf("(%s) => %s", strings.Join(params, ", "), ft.ReturnType.String())
 }
-

@@ -221,6 +221,10 @@ func (p *Parser) parseStatement() ast.Statement {
 		return p.parseConstStatement()
 	case lexer.RETURN:
 		return p.parseReturnStatement()
+	case lexer.BREAK:
+		return p.parseBreakStatement()
+	case lexer.CONTINUE:
+		return p.parseContinueStatement()
 	case lexer.FUNCTION, lexer.ASYNC:
 		return p.parseFunctionStatement()
 	case lexer.IF:
@@ -311,6 +315,28 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 		stmt.ReturnValue = p.parseExpression(LOWEST)
 	}
 
+	for !p.curTokenIs(lexer.NEWLINE) && !p.curTokenIs(lexer.EOF) {
+		p.nextToken()
+	}
+
+	return stmt
+}
+
+func (p *Parser) parseBreakStatement() *ast.BreakStatement {
+	stmt := &ast.BreakStatement{Token: p.curToken}
+
+	// Skip to end of line
+	for !p.curTokenIs(lexer.NEWLINE) && !p.curTokenIs(lexer.EOF) {
+		p.nextToken()
+	}
+
+	return stmt
+}
+
+func (p *Parser) parseContinueStatement() *ast.ContinueStatement {
+	stmt := &ast.ContinueStatement{Token: p.curToken}
+
+	// Skip to end of line
 	for !p.curTokenIs(lexer.NEWLINE) && !p.curTokenIs(lexer.EOF) {
 		p.nextToken()
 	}

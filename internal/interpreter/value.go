@@ -134,6 +134,20 @@ func (e *RuntimeError) Error() string {
 	return e.Message
 }
 
+// BreakSignal signals a break statement execution
+type BreakSignal struct{}
+
+func (b *BreakSignal) Error() string {
+	return "break"
+}
+
+// ContinueSignal signals a continue statement execution
+type ContinueSignal struct{}
+
+func (c *ContinueSignal) Error() string {
+	return "continue"
+}
+
 // Environment değişken ortamını temsil eder
 type Environment struct {
 	store  map[string]Value

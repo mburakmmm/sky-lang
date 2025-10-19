@@ -129,6 +129,10 @@ func (i *Interpreter) evalStatement(stmt ast.Statement) (Value, error) {
 		return i.evalConstStatement(s)
 	case *ast.ReturnStatement:
 		return i.evalReturnStatement(s)
+	case *ast.BreakStatement:
+		return nil, &BreakSignal{}
+	case *ast.ContinueStatement:
+		return nil, &ContinueSignal{}
 	case *ast.ExpressionStatement:
 		return i.evalExpression(s.Expression)
 	case *ast.FunctionStatement:
@@ -275,6 +279,14 @@ func (i *Interpreter) evalWhileStatement(stmt *ast.WhileStatement) (Value, error
 
 		_, err = i.evalBlockStatement(stmt.Body, i.env)
 		if err != nil {
+			// Handle break/continue signals
+			if _, isBreak := err.(*BreakSignal); isBreak {
+				break // Exit the loop
+			}
+			if _, isContinue := err.(*ContinueSignal); isContinue {
+				continue // Continue to next iteration
+			}
+			// Real error
 			return nil, err
 		}
 	}
@@ -299,6 +311,14 @@ func (i *Interpreter) evalForStatement(stmt *ast.ForStatement) (Value, error) {
 			i.env.Set(stmt.Iterator.Value, elem)
 			_, err := i.evalBlockStatement(stmt.Body, i.env)
 			if err != nil {
+				// Handle break/continue signals
+				if _, isBreak := err.(*BreakSignal); isBreak {
+					break // Exit the loop
+				}
+				if _, isContinue := err.(*ContinueSignal); isContinue {
+					continue // Continue to next iteration
+				}
+				// Real error
 				return nil, err
 			}
 		}

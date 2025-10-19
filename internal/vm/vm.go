@@ -358,6 +358,14 @@ func (vm *VM) Run() error {
 			value := vm.pop()
 			vm.push(value)
 
+		case OpBreak:
+			// Signal break to loop (will be caught by loop compilation)
+			return fmt.Errorf("__break__")
+
+		case OpContinue:
+			// Signal continue to loop (will be caught by loop compilation)
+			return fmt.Errorf("__continue__")
+
 		case OpHalt:
 			return nil
 

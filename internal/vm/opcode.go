@@ -43,6 +43,8 @@ const (
 	OpJumpIfFalse // Jump if top of stack is false
 	OpJumpIfTrue  // Jump if top of stack is true
 	OpLoop        // Jump backward (for loops)
+	OpBreak       // Break from loop
+	OpContinue    // Continue to next iteration
 
 	// Functions
 	OpCall      // Call function
@@ -120,6 +122,10 @@ func (op OpCode) String() string {
 		return "JUMP_IF_TRUE"
 	case OpLoop:
 		return "LOOP"
+	case OpBreak:
+		return "BREAK"
+	case OpContinue:
+		return "CONTINUE"
 	case OpCall:
 		return "CALL"
 	case OpCallAsync:

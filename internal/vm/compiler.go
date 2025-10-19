@@ -112,6 +112,12 @@ func (c *Compiler) compileStatement(stmt ast.Statement) error {
 		return c.compileConstStatement(s)
 	case *ast.ReturnStatement:
 		return c.compileReturnStatement(s)
+	case *ast.BreakStatement:
+		c.emit(Instruction{Op: OpBreak})
+		return nil
+	case *ast.ContinueStatement:
+		c.emit(Instruction{Op: OpContinue})
+		return nil
 	case *ast.ExpressionStatement:
 		if err := c.compileExpression(s.Expression); err != nil {
 			return err

@@ -1,0 +1,29 @@
+# Break and Continue test
+
+function main
+  print("=== Break Test ===")
+  let i = 0
+  while i < 10
+    if i == 5
+      break
+    end
+    print(i)
+    i = i + 1
+  end
+
+  print("=== Continue Test ===")
+  let j = 0
+  while j < 10
+    j = j + 1
+    if j == 3
+      continue
+    end
+    if j == 7
+      continue
+    end
+    print(j)
+  end
+
+  print("=== Done ===")
+end
+
