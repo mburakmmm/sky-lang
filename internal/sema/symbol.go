@@ -153,19 +153,56 @@ func NewSymbolTable() *SymbolTable {
 		name string
 		typ  Type
 	}{
-		{"print", &FunctionType{
-			Params:     []Type{AnyType},
-			ReturnType: VoidType,
-			Variadic:   true,
-		}},
-		{"len", &FunctionType{
-			Params:     []Type{AnyType},
-			ReturnType: IntType,
-		}},
-		{"range", &FunctionType{
-			Params:     []Type{IntType},
-			ReturnType: &ListType{ElementType: IntType},
-		}},
+		// Core builtins
+		{"print", &FunctionType{Params: []Type{AnyType}, ReturnType: VoidType, Variadic: true}},
+		{"len", &FunctionType{Params: []Type{AnyType}, ReturnType: IntType}},
+		{"range", &FunctionType{Params: []Type{IntType}, ReturnType: &ListType{ElementType: IntType}}},
+
+		// Type conversions
+		{"int", &FunctionType{Params: []Type{AnyType}, ReturnType: IntType}},
+		{"float", &FunctionType{Params: []Type{AnyType}, ReturnType: FloatType}},
+		{"str", &FunctionType{Params: []Type{AnyType}, ReturnType: StringType}},
+		{"bool", &FunctionType{Params: []Type{AnyType}, ReturnType: BoolType}},
+		{"list", &FunctionType{Params: []Type{AnyType}, ReturnType: AnyType}},
+		{"dict", &FunctionType{Params: []Type{AnyType}, ReturnType: AnyType}},
+
+		// Utilities
+		{"type", &FunctionType{Params: []Type{AnyType}, ReturnType: StringType}},
+		{"isinstance", &FunctionType{Params: []Type{AnyType, AnyType}, ReturnType: BoolType}},
+		{"input", &FunctionType{Params: []Type{AnyType}, ReturnType: StringType}},
+
+		// Functional
+		{"sum", &FunctionType{Params: []Type{&ListType{ElementType: AnyType}}, ReturnType: AnyType}},
+		{"map", &FunctionType{Params: []Type{AnyType, AnyType}, ReturnType: AnyType}},
+		{"filter", &FunctionType{Params: []Type{AnyType, AnyType}, ReturnType: AnyType}},
+		{"any", &FunctionType{Params: []Type{AnyType}, ReturnType: BoolType}},
+		{"all", &FunctionType{Params: []Type{AnyType}, ReturnType: BoolType}},
+
+		// File System
+		{"fs_exists", &FunctionType{Params: []Type{StringType}, ReturnType: BoolType}},
+		{"fs_read_text", &FunctionType{Params: []Type{StringType}, ReturnType: StringType}},
+		{"fs_write_text", &FunctionType{Params: []Type{StringType, StringType}, ReturnType: BoolType}},
+
+		// OS
+		{"os_platform", &FunctionType{Params: []Type{}, ReturnType: StringType}},
+		{"os_getcwd", &FunctionType{Params: []Type{}, ReturnType: StringType}},
+		{"os_getenv", &FunctionType{Params: []Type{StringType}, ReturnType: StringType}},
+
+		// Crypto
+		{"crypto_md5", &FunctionType{Params: []Type{StringType}, ReturnType: StringType}},
+		{"crypto_sha256", &FunctionType{Params: []Type{StringType}, ReturnType: StringType}},
+
+		// JSON
+		{"json_encode", &FunctionType{Params: []Type{AnyType}, ReturnType: StringType}},
+		{"json_decode", &FunctionType{Params: []Type{StringType}, ReturnType: AnyType}},
+
+		// Time
+		{"time_now", &FunctionType{Params: []Type{}, ReturnType: IntType}},
+		{"time_sleep", &FunctionType{Params: []Type{IntType}, ReturnType: VoidType}},
+
+		// Random
+		{"rand_int", &FunctionType{Params: []Type{IntType}, ReturnType: IntType}},
+		{"rand_uuid", &FunctionType{Params: []Type{}, ReturnType: StringType}},
 	}
 
 	for _, builtin := range builtins {

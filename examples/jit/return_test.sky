@@ -1,6 +1,0 @@
-# JIT return test
-
-function main(): int
-  return 42
-end
-

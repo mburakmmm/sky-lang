@@ -1,4 +1,0 @@
-function main
-  print("Simple test")
-end
-

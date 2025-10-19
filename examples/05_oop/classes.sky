@@ -1,0 +1,30 @@
+# Basic OOP test with class and self
+
+class Person
+  function init(name, age)
+    self.name = name
+    self.age = age
+  end
+
+  function greet()
+    print("Hello, I'm", self.name)
+  end
+
+  function get_age()
+    return self.age
+  end
+end
+
+function main
+  print("=== CLASS EXAMPLE ===")
+  
+  let person = Person("Alice", 30)
+  person.greet()
+  
+  let age = person.get_age()
+  print("Age:", age)
+  
+  print("✅ Classes working!")
+end
+
+

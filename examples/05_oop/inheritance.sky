@@ -1,0 +1,38 @@
+# Inheritance example
+
+class Animal
+  function init(name)
+    self.name = name
+  end
+  
+  function speak()
+    print(self.name, "makes a sound")
+  end
+end
+
+class Dog
+  function init(name, breed)
+    self.name = name
+    self.breed = breed
+  end
+  
+  function speak()
+    print(self.name, "barks!")
+  end
+  
+  function info()
+    print("Breed:", self.breed)
+  end
+end
+
+function main
+  print("=== INHERITANCE ===")
+  
+  let animal = Animal("Generic")
+  animal.speak()
+  
+  let dog = Dog("Buddy", "Golden Retriever")
+  dog.speak()
+  dog.info()
+end
+

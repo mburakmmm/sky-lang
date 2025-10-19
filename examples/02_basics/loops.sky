@@ -1,0 +1,29 @@
+# Loops and control flow examples
+
+function main
+  print("=== FOR LOOP ===")
+  for i in range(5)
+    print("Count:", i)
+  end
+  
+  print("")
+  print("=== WHILE LOOP ===")
+  let counter = 0
+  while counter < 3
+    print("Counter:", counter)
+    counter = counter + 1
+  end
+  
+  print("")
+  print("=== BREAK & CONTINUE ===")
+  for i in range(10)
+    if i == 3
+      continue
+    end
+    if i == 7
+      break
+    end
+    print("i =", i)
+  end
+end
+

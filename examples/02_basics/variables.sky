@@ -1,0 +1,38 @@
+# Variable and constant examples
+
+function main
+  print("=== VARIABLES ===")
+  
+  # Integer
+  let age = 25
+  print("Age:", age)
+  
+  # Float
+  let pi = 3.14159
+  print("Pi:", pi)
+  
+  # String
+  let name = "Sky Language"
+  print("Name:", name)
+  
+  # Boolean
+  let is_active = true
+  print("Active:", is_active)
+  
+  print("")
+  print("=== CONSTANTS ===")
+  
+  const MAX_SIZE = 100
+  print("Max size:", MAX_SIZE)
+  
+  print("")
+  print("=== TYPE CONVERSIONS ===")
+  
+  let num_str = "42"
+  let num = int(num_str)
+  print("int('42') =", num)
+  
+  let text = str(123)
+  print("str(123) =", text)
+end
+

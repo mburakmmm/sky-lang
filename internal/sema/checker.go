@@ -72,6 +72,8 @@ func (c *Checker) checkStatement(stmt ast.Statement) {
 		// Import statements are handled at a higher level
 	case *ast.UnsafeStatement:
 		c.checkUnsafeStatement(s)
+	case *ast.EnumStatement:
+		c.checkEnumStatement(s)
 	case *ast.BlockStatement:
 		c.checkBlockStatement(s)
 	}
@@ -390,6 +392,45 @@ func (c *Checker) checkUnsafeStatement(stmt *ast.UnsafeStatement) {
 	c.symTable.EnterScope()
 	c.checkBlockStatement(stmt.Body)
 	c.symTable.ExitScope()
+}
+
+func (c *Checker) checkEnumStatement(stmt *ast.EnumStatement) {
+	// Enum tipini tanımla
+	enumSymbol := &Symbol{
+		Name: stmt.Name.Value,
+		Kind: ClassSymbol, // Enum'u class gibi ele al
+		Type: AnyType,
+		Pos:  stmt.Token,
+	}
+
+	if err := c.symTable.Define(enumSymbol); err != nil {
+		c.addError(err)
+		return
+	}
+
+	// Her variant için constructor fonksiyonu tanımla
+	for _, variant := range stmt.Variants {
+		paramTypes := make([]Type, len(variant.Payload))
+		for i, payloadType := range variant.Payload {
+			paramTypes[i] = ResolveType(payloadType)
+		}
+
+		constructorType := &FunctionType{
+			Params:     paramTypes,
+			ReturnType: AnyType, // Enum instance döndürür
+		}
+
+		variantSymbol := &Symbol{
+			Name: variant.Name.Value,
+			Kind: FunctionSymbol,
+			Type: constructorType,
+			Pos:  stmt.Token,
+		}
+
+		if err := c.symTable.Define(variantSymbol); err != nil {
+			c.addError(err)
+		}
+	}
 }
 
 func (c *Checker) checkBlockStatement(block *ast.BlockStatement) {

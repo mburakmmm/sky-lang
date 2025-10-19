@@ -1,0 +1,26 @@
+# Cryptography examples
+
+function main
+  print("=== CRYPTOGRAPHY ===")
+  
+  let password = "mySecretPassword123"
+  
+  # MD5 Hash
+  let md5 = crypto_md5(password)
+  print("MD5:", md5)
+  
+  # SHA256 Hash
+  let sha256 = crypto_sha256(password)
+  print("SHA256:", sha256)
+  
+  print("")
+  print("=== JSON ===")
+  
+  let user = {"name": "Alice", "age": "30", "role": "admin"}
+  let json_str = json_encode(user)
+  print("JSON:", json_str)
+  
+  let parsed = json_decode(json_str)
+  print("Parsed name:", parsed["name"])
+end
+

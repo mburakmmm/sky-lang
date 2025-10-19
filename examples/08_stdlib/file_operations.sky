@@ -1,0 +1,30 @@
+# File system operations example
+
+function main
+  print("=== FILE OPERATIONS ===")
+  
+  let filename = "example.txt"
+  let content = "Hello from SKY!"
+  
+  # Write file
+  print("Writing file...")
+  fs_write_text(filename, content)
+  
+  # Check if exists
+  let exists = fs_exists(filename)
+  print("File exists:", exists)
+  
+  # Read file
+  let read_content = fs_read_text(filename)
+  print("File content:", read_content)
+  
+  print("")
+  print("=== OS OPERATIONS ===")
+  
+  let platform = os_platform()
+  print("Platform:", platform)
+  
+  let cwd = os_getcwd()
+  print("Current directory:", cwd)
+end
+

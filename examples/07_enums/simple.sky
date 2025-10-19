@@ -1,0 +1,18 @@
+# Basic enum test
+
+enum Color
+  Red
+  Green
+  Blue
+end
+
+function main
+  let c = Red()
+  print("Color:", c)
+  
+  match c
+    Red() => print("It's red!")
+    Green() => print("It's green!")
+    Blue() => print("It's blue!")
+  end
+end

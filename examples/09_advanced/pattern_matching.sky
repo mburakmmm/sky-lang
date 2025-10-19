@@ -1,0 +1,39 @@
+# Pattern matching with enums
+
+enum Result
+  Success(int)
+  Error(string)
+end
+
+enum Status
+  Pending
+  Processing
+  Completed
+end
+
+function handle_result(res)
+  match res
+    Success(value) => print("✅ Success:", value)
+    Error(msg) => print("❌ Error:", msg)
+  end
+end
+
+function main
+  print("=== PATTERN MATCHING ===")
+  
+  let ok = Success(42)
+  let err = Error("Not found")
+  
+  handle_result(ok)
+  handle_result(err)
+  
+  print("")
+  
+  let status = Pending()
+  match status
+    Pending() => print("Waiting...")
+    Processing() => print("Working...")
+    Completed() => print("Done!")
+  end
+end
+
