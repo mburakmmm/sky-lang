@@ -1,0 +1,24 @@
+# For...in iterator protocol test
+
+function main
+  print("=== List Iteration ===")
+  let numbers = [10, 20, 30]
+  for num in numbers
+    print(num)
+  end
+  
+  print("=== Dict Iteration ===")
+  let person = {"name": "Bob", "age": "25"}
+  for key in person
+    print(key)
+  end
+  
+  print("=== String Iteration ===")
+  let text = "SKY"
+  for char in text
+    print(char)
+  end
+  
+  print("=== Done ===")
+end
+

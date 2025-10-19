@@ -319,28 +319,116 @@ func (i *Interpreter) evalForStatement(stmt *ast.ForStatement) (Value, error) {
 		return nil, err
 	}
 
-	if list, ok := iterable.(*List); ok {
-		// Yeni scope oluştur
-		forEnv := NewEnvironment(i.env)
-		oldEnv := i.env
-		i.env = forEnv
-		defer func() { i.env = oldEnv }()
+	// Create new scope
+	forEnv := NewEnvironment(i.env)
+	oldEnv := i.env
+	i.env = forEnv
+	defer func() { i.env = oldEnv }()
 
-		for _, elem := range list.Elements {
+	// Handle different iterable types
+	switch iter := iterable.(type) {
+	case *List:
+		// Iterate over list elements
+		for _, elem := range iter.Elements {
 			i.env.Set(stmt.Iterator.Value, elem)
 			_, err := i.evalBlockStatement(stmt.Body, i.env)
 			if err != nil {
-				// Handle break/continue signals
 				if _, isBreak := err.(*BreakSignal); isBreak {
-					break // Exit the loop
+					break
 				}
 				if _, isContinue := err.(*ContinueSignal); isContinue {
-					continue // Continue to next iteration
+					continue
 				}
-				// Real error
 				return nil, err
 			}
 		}
+
+	case *Dict:
+		// Iterate over dict keys
+		for key := range iter.Pairs {
+			i.env.Set(stmt.Iterator.Value, &String{Value: key})
+			_, err := i.evalBlockStatement(stmt.Body, i.env)
+			if err != nil {
+				if _, isBreak := err.(*BreakSignal); isBreak {
+					break
+				}
+				if _, isContinue := err.(*ContinueSignal); isContinue {
+					continue
+				}
+				return nil, err
+			}
+		}
+
+	case *String:
+		// Iterate over string characters
+		for _, ch := range iter.Value {
+			i.env.Set(stmt.Iterator.Value, &String{Value: string(ch)})
+			_, err := i.evalBlockStatement(stmt.Body, i.env)
+			if err != nil {
+				if _, isBreak := err.(*BreakSignal); isBreak {
+					break
+				}
+				if _, isContinue := err.(*ContinueSignal); isContinue {
+					continue
+				}
+				return nil, err
+			}
+		}
+
+	case *Instance:
+		// Check for __iter__ method (iterator protocol)
+		if iterMethod, hasIter := iter.Get("__iter__"); hasIter {
+			if fn, ok := iterMethod.(*Function); ok {
+				// Call __iter__ to get iterator
+				callEnv := NewEnvironment(fn.Env)
+				callEnv.Set("__args__", &List{Elements: []Value{}})
+				callEnv.Set("self", iter)
+
+				iterator, err := fn.Body(callEnv)
+				if err != nil {
+					return nil, err
+				}
+
+				// Use iterator protocol
+				if iterInstance, ok := iterator.(*Instance); ok {
+					for {
+						// Call __next__
+						if nextMethod, hasNext := iterInstance.Get("__next__"); hasNext {
+							if nextFn, ok := nextMethod.(*Function); ok {
+								nextEnv := NewEnvironment(nextFn.Env)
+								nextEnv.Set("__args__", &List{Elements: []Value{}})
+								nextEnv.Set("self", iterInstance)
+
+								value, err := nextFn.Body(nextEnv)
+								if err != nil {
+									// StopIteration signal
+									break
+								}
+
+								i.env.Set(stmt.Iterator.Value, value)
+								_, err = i.evalBlockStatement(stmt.Body, i.env)
+								if err != nil {
+									if _, isBreak := err.(*BreakSignal); isBreak {
+										break
+									}
+									if _, isContinue := err.(*ContinueSignal); isContinue {
+										continue
+									}
+									return nil, err
+								}
+							}
+						} else {
+							break
+						}
+					}
+				}
+			}
+		} else {
+			return nil, &RuntimeError{Message: fmt.Sprintf("%T is not iterable", iterable)}
+		}
+
+	default:
+		return nil, &RuntimeError{Message: fmt.Sprintf("%T is not iterable", iterable)}
 	}
 
 	return &Nil{}, nil
