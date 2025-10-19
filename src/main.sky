@@ -1,5 +1,0 @@
-# test-project
-
-function main
-  print("Hello from test-project!")
-end
