@@ -94,6 +94,7 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerPrefix(lexer.SELF, p.parseIdentifier)
 	p.registerPrefix(lexer.SUPER, p.parseIdentifier)
 	p.registerPrefix(lexer.MATCH, p.parseMatchExpression)
+	p.registerPrefix(lexer.FUNCTION, p.parseLambdaExpression)
 
 	// Infix parse fonksiyonları
 	p.infixParseFns = make(map[lexer.TokenType]infixParseFn)
@@ -392,6 +393,51 @@ func (p *Parser) noPrefixParseFnError(t lexer.TokenType) {
 
 func (p *Parser) parseIdentifier() ast.Expression {
 	return &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+}
+
+func (p *Parser) parseLambdaExpression() ast.Expression {
+	// Lambda syntax: function(x) x * x end
+	lambda := &ast.LambdaExpression{Token: p.curToken}
+
+	// Parametreler
+	if !p.expectPeek(lexer.LPAREN) {
+		return nil
+	}
+	lambda.Parameters = p.parseFunctionParameters()
+
+	// Return type (opsiyonel)
+	if p.peekTokenIs(lexer.COLON) {
+		p.nextToken() // :
+		p.nextToken() // tip
+		lambda.ReturnType = p.parseTypeAnnotation()
+	}
+
+	// Lambda body - single expression
+	p.nextToken() // move to first token of expression
+
+	// Parse expression as return value
+	returnExpr := p.parseExpression(LOWEST)
+	if returnExpr == nil {
+		return nil
+	}
+
+	// Lambda body oluştur
+	lambda.Body = &ast.BlockStatement{
+		Token: p.curToken,
+		Statements: []ast.Statement{
+			&ast.ReturnStatement{
+				Token:       p.curToken,
+				ReturnValue: returnExpr,
+			},
+		},
+	}
+
+	// END token'ını bekle
+	if !p.expectPeek(lexer.END) {
+		return nil
+	}
+
+	return lambda
 }
 
 func (p *Parser) parseIntegerLiteral() ast.Expression {

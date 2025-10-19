@@ -583,7 +583,7 @@ func (ae *AwaitExpression) String() string {
 // YieldExpression yield ifadesi
 type YieldExpression struct {
 	Token lexer.Token // YIELD token
-	Value Expression
+	Value Expression  // yielded value
 }
 
 func (ye *YieldExpression) expressionNode()      {}
@@ -594,6 +594,25 @@ func (ye *YieldExpression) String() string {
 		return fmt.Sprintf("yield %s", ye.Value.String())
 	}
 	return "yield"
+}
+
+// LambdaExpression anonymous function expression
+type LambdaExpression struct {
+	Token      lexer.Token          // FUNCTION token
+	Parameters []*FunctionParameter // parameters
+	ReturnType TypeAnnotation       // return type (optional)
+	Body       *BlockStatement      // function body
+}
+
+func (le *LambdaExpression) expressionNode()      {}
+func (le *LambdaExpression) TokenLiteral() string { return le.Token.Literal }
+func (le *LambdaExpression) Pos() lexer.Token     { return le.Token }
+func (le *LambdaExpression) String() string {
+	params := []string{}
+	for _, p := range le.Parameters {
+		params = append(params, p.Name.Value)
+	}
+	return fmt.Sprintf("function(%s)", strings.Join(params, ", "))
 }
 
 // ==============================================

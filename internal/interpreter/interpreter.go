@@ -624,9 +624,58 @@ func (i *Interpreter) evalExpression(expr ast.Expression) (Value, error) {
 	case *ast.MatchExpression:
 		return i.evalMatchExpression(e)
 
+	case *ast.LambdaExpression:
+		return i.evalLambdaExpression(e)
+
 	default:
 		return nil, &RuntimeError{Message: fmt.Sprintf("unknown expression type: %T", expr)}
 	}
+}
+
+// evalLambdaExpression evaluates a lambda expression
+func (i *Interpreter) evalLambdaExpression(expr *ast.LambdaExpression) (Value, error) {
+	// Convert lambda to function
+	params := make([]string, len(expr.Parameters))
+	for idx, param := range expr.Parameters {
+		params[idx] = param.Name.Value
+	}
+
+	return &Function{
+		Name:       "lambda",
+		Parameters: params,
+		Env:        i.env,
+		Body: func(callEnv *Environment) (Value, error) {
+			// Create function environment
+			fnEnv := NewEnvironment(i.env)
+
+			// Get arguments
+			args, _ := callEnv.Get("__args__")
+			if argList, ok := args.(*List); ok {
+				for idx, paramName := range params {
+					if idx < len(argList.Elements) {
+						fnEnv.Set(paramName, argList.Elements[idx])
+					} else {
+						fnEnv.Set(paramName, &Nil{})
+					}
+				}
+			}
+
+			// Execute lambda body
+			oldEnv := i.env
+			i.env = fnEnv
+			defer func() { i.env = oldEnv }()
+
+			result, err := i.evalBlockStatement(expr.Body, fnEnv)
+			if err != nil {
+				// Handle return signal
+				if returnSignal, isReturn := err.(*ReturnSignal); isReturn {
+					return returnSignal.Value, nil
+				}
+				return nil, err
+			}
+			return result, nil
+		},
+	}, nil
 }
 
 func (i *Interpreter) evalPrefixExpression(expr *ast.PrefixExpression) (Value, error) {
@@ -1137,7 +1186,15 @@ func (i *Interpreter) evalClassStatement(stmt *ast.ClassStatement) error {
 					i.env = fnEnv
 					defer func() { i.env = oldMethodEnv }()
 
-					return i.evalBlockStatement(capturedStmt.Body, fnEnv)
+					result, err := i.evalBlockStatement(capturedStmt.Body, fnEnv)
+					if err != nil {
+						// Handle return signal
+						if returnSignal, isReturn := err.(*ReturnSignal); isReturn {
+							return returnSignal.Value, nil
+						}
+						return nil, err
+					}
+					return result, nil
 				},
 			}
 

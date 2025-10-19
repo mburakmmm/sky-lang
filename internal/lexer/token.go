@@ -76,16 +76,17 @@ const (
 	PERCENTEQ // %=
 
 	// Delimiters
-	LPAREN // (
-	RPAREN // )
-	LBRACK // [
-	RBRACK // ]
-	LBRACE // {
-	RBRACE // }
-	DOT    // .
-	COMMA  // ,
-	COLON  // :
-	ARROW  // =>
+	LPAREN   // (
+	RPAREN   // )
+	LBRACK   // [
+	RBRACK   // ]
+	LBRACE   // {
+	RBRACE   // }
+	DOT      // .
+	COMMA    // ,
+	COLON    // :
+	ARROW    // =>
+	ELLIPSIS // ...
 
 	// Special indentation tokens
 	NEWLINE // \n (significant newlines)
