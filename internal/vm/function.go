@@ -3,7 +3,8 @@ package vm
 // CompiledFunction represents a compiled function with its bytecode
 type CompiledFunction struct {
 	Name         string
-	Arity        int // number of parameters
+	Arity        int  // number of parameters
+	Async        bool // async function flag
 	Instructions []Instruction
 	Constants    []interface{}
 	LocalCount   int // number of local variables

@@ -322,6 +322,7 @@ func (c *Compiler) compileFunctionStatement(stmt *ast.FunctionStatement) error {
 	compiledFunc := &CompiledFunction{
 		Name:         funcName,
 		Arity:        arity,
+		Async:        stmt.Async, // Store async flag
 		Instructions: funcCompiler.instructions,
 		Constants:    funcCompiler.constants,
 		LocalCount:   funcCompiler.symbolTable.numDefs,
@@ -385,6 +386,12 @@ func (c *Compiler) compileExpression(expr ast.Expression) error {
 
 	case *ast.CallExpression:
 		return c.compileCallExpression(e)
+
+	case *ast.AwaitExpression:
+		return c.compileAwaitExpression(e)
+
+	case *ast.YieldExpression:
+		return c.compileYieldExpression(e)
 
 	default:
 		return fmt.Errorf("unknown expression type: %T", expr)
@@ -666,4 +673,31 @@ func (c *Compiler) enterScope() {
 func (c *Compiler) leaveScope() {
 	c.symbolTable = c.symbolTable.outer
 	c.scopeDepth--
+}
+
+func (c *Compiler) compileAwaitExpression(expr *ast.AwaitExpression) error {
+	// Compile the expression being awaited
+	if err := c.compileExpression(expr.Expression); err != nil {
+		return err
+	}
+
+	// Emit OpAwait instruction
+	c.emit(Instruction{Op: OpAwait})
+	return nil
+}
+
+func (c *Compiler) compileYieldExpression(expr *ast.YieldExpression) error {
+	// Compile the value to yield
+	if expr.Value != nil {
+		if err := c.compileExpression(expr.Value); err != nil {
+			return err
+		}
+	} else {
+		// Yield nil if no value
+		c.emit(Instruction{Op: OpNil})
+	}
+
+	// Emit OpYield instruction
+	c.emit(Instruction{Op: OpYield})
+	return nil
 }

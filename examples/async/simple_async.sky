@@ -1,0 +1,15 @@
+# Simple async/await test
+
+async function fetchData(): int
+  print("Fetching data...")
+  return 42
+end
+
+async function main
+  print("Start")
+  let result = await fetchData()
+  print("Result:")
+  print(result)
+  print("Done")
+end
+

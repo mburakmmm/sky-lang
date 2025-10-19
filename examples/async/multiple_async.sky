@@ -1,0 +1,28 @@
+# Multiple async functions test
+
+async function delay(ms: int): int
+  print("Waiting...")
+  return ms * 2
+end
+
+async function fetchUser(): string
+  let id = await delay(100)
+  print("User ID:")
+  print(id)
+  return "Alice"
+end
+
+async function main
+  print("=== Multiple Async Test ===")
+  
+  let name = await fetchUser()
+  print("User name:")
+  print(name)
+  
+  let result = await delay(50)
+  print("Final result:")
+  print(result)
+  
+  print("=== Test Complete ===")
+end
+

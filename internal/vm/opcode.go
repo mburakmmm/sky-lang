@@ -45,8 +45,13 @@ const (
 	OpLoop        // Jump backward (for loops)
 
 	// Functions
-	OpCall   // Call function
-	OpReturn // Return from function
+	OpCall      // Call function
+	OpCallAsync // Call async function (returns Promise)
+	OpReturn    // Return from function
+
+	// Async
+	OpAwait // Await a promise
+	OpYield // Yield a value (for coroutines)
 
 	// Built-ins
 	OpPrint // print() built-in
@@ -117,8 +122,14 @@ func (op OpCode) String() string {
 		return "LOOP"
 	case OpCall:
 		return "CALL"
+	case OpCallAsync:
+		return "CALL_ASYNC"
 	case OpReturn:
 		return "RETURN"
+	case OpAwait:
+		return "AWAIT"
+	case OpYield:
+		return "YIELD"
 	case OpPrint:
 		return "PRINT"
 	case OpLen:

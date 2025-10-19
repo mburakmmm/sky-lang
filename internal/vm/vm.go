@@ -342,6 +342,22 @@ func (vm *VM) Run() error {
 			}
 			vm.push(list)
 
+		case OpAwait:
+			// For now, await just passes through the value
+			// In a full implementation, this would suspend execution
+			// and wait for promise resolution
+			value := vm.pop()
+			// If it's a promise-like structure, resolve it
+			// For simplicity, we just push the value back
+			vm.push(value)
+
+		case OpYield:
+			// For now, yield just returns the value
+			// In a full implementation, this would suspend the coroutine
+			// and yield control back to the caller
+			value := vm.pop()
+			vm.push(value)
+
 		case OpHalt:
 			return nil
 

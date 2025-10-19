@@ -14,6 +14,7 @@ const (
 	ListValue
 	DictValue
 	FunctionValue
+	PromiseValue
 )
 
 // Value runtime değerlerini temsil eder
@@ -112,11 +113,17 @@ type Function struct {
 	Parameters []string
 	Body       func(*Environment) (Value, error)
 	Env        *Environment
+	Async      bool // async function flag
 }
 
 func (f *Function) Kind() ValueKind { return FunctionValue }
-func (f *Function) String() string  { return fmt.Sprintf("<function %s>", f.Name) }
-func (f *Function) IsTruthy() bool  { return true }
+func (f *Function) String() string {
+	if f.Async {
+		return fmt.Sprintf("<async function %s>", f.Name)
+	}
+	return fmt.Sprintf("<function %s>", f.Name)
+}
+func (f *Function) IsTruthy() bool { return true }
 
 // RuntimeError runtime hatalarını temsil eder
 type RuntimeError struct {
@@ -167,4 +174,57 @@ func (e *Environment) Update(name string, value Value) error {
 		return e.parent.Update(name, value)
 	}
 	return &RuntimeError{Message: fmt.Sprintf("undefined variable: %s", name)}
+}
+
+// Promise represents an async value that will be resolved later
+type Promise struct {
+	State    string // "pending", "fulfilled", "rejected"
+	Value    Value  // resolved value
+	Error    error  // rejection reason
+	executor func() (Value, error)
+}
+
+func (p *Promise) Kind() ValueKind { return PromiseValue }
+func (p *Promise) String() string {
+	switch p.State {
+	case "fulfilled":
+		return fmt.Sprintf("<Promise resolved: %v>", p.Value)
+	case "rejected":
+		return fmt.Sprintf("<Promise rejected: %v>", p.Error)
+	default:
+		return "<Promise pending>"
+	}
+}
+func (p *Promise) IsTruthy() bool { return p.State == "fulfilled" }
+
+// NewPromise creates a new promise with an executor function
+func NewPromise(executor func() (Value, error)) *Promise {
+	p := &Promise{
+		State:    "pending",
+		executor: executor,
+	}
+	// Execute immediately for now (will be async with event loop)
+	go func() {
+		result, err := executor()
+		if err != nil {
+			p.State = "rejected"
+			p.Error = err
+		} else {
+			p.State = "fulfilled"
+			p.Value = result
+		}
+	}()
+	return p
+}
+
+// Await blocks until the promise is resolved and returns the value
+func (p *Promise) Await() (Value, error) {
+	// Simple busy-wait (will be improved with event loop)
+	for p.State == "pending" {
+		// In production, this would yield to event loop
+	}
+	if p.State == "rejected" {
+		return nil, p.Error
+	}
+	return p.Value, nil
 }

@@ -187,6 +187,7 @@ func (i *Interpreter) evalFunctionStatement(stmt *ast.FunctionStatement) error {
 		Name:       funcName,
 		Parameters: params,
 		Env:        capturedEnv,
+		Async:      stmt.Async, // Store async flag
 		Body: func(callEnv *Environment) (Value, error) {
 			// Check memoization cache first
 			args, _ := callEnv.Get("__args__")
@@ -388,6 +389,12 @@ func (i *Interpreter) evalExpression(expr ast.Expression) (Value, error) {
 
 	case *ast.IndexExpression:
 		return i.evalIndexExpression(e)
+
+	case *ast.AwaitExpression:
+		return i.evalAwaitExpression(e)
+
+	case *ast.YieldExpression:
+		return i.evalYieldExpression(e)
 
 	default:
 		return nil, &RuntimeError{Message: fmt.Sprintf("unknown expression type: %T", expr)}
@@ -620,7 +627,16 @@ func (i *Interpreter) evalCallExpression(expr *ast.CallExpression) (Value, error
 		args[idx] = val
 	}
 
-	// Fonksiyonu çağır
+	// If async function, return a Promise
+	if fn.Async {
+		return NewPromise(func() (Value, error) {
+			callEnv := NewEnvironment(fn.Env)
+			callEnv.Set("__args__", &List{Elements: args})
+			return fn.Body(callEnv)
+		}), nil
+	}
+
+	// Synchronous function: execute immediately
 	callEnv := NewEnvironment(fn.Env)
 	callEnv.Set("__args__", &List{Elements: args})
 
@@ -656,4 +672,37 @@ func (i *Interpreter) evalIndexExpression(expr *ast.IndexExpression) (Value, err
 	}
 
 	return nil, &RuntimeError{Message: "index operation not supported"}
+}
+
+// evalAwaitExpression waits for a promise to resolve and returns its value
+func (i *Interpreter) evalAwaitExpression(expr *ast.AwaitExpression) (Value, error) {
+	value, err := i.evalExpression(expr.Expression)
+	if err != nil {
+		return nil, err
+	}
+
+	// If it's a promise, await it
+	if promise, ok := value.(*Promise); ok {
+		return promise.Await()
+	}
+
+	// If not a promise, return as-is (await on non-promise is identity)
+	return value, nil
+}
+
+// evalYieldExpression yields a value (for coroutines/generators)
+func (i *Interpreter) evalYieldExpression(expr *ast.YieldExpression) (Value, error) {
+	if expr.Value == nil {
+		return &Nil{}, nil
+	}
+
+	value, err := i.evalExpression(expr.Value)
+	if err != nil {
+		return nil, err
+	}
+
+	// For now, yield just returns the value
+	// In a full implementation, this would suspend the coroutine
+	// and pass control back to the caller
+	return value, nil
 }
