@@ -157,6 +157,17 @@ func (i *Interpreter) Eval(program *ast.Program) error {
 			// main'i çağır
 			newEnv := NewEnvironment(i.env)
 			newEnv.Set("__args__", &List{Elements: []Value{}})
+
+			// If main is async, it returns a Promise - await it
+			if fn.Async {
+				promise := NewPromise(func() (Value, error) {
+					return fn.Body(newEnv)
+				})
+				_, err := promise.Await()
+				return err
+			}
+
+			// Synchronous main
 			_, err := fn.Body(newEnv)
 			return err
 		}
