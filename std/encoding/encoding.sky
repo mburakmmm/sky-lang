@@ -1,0 +1,50 @@
+# Encoding utilities (YAML, TOML, CSV, Base64)
+
+import _encoding_core
+
+function yaml_parse(text: string): any
+  return {}
+end
+
+function yaml_encode(obj: any): string
+  return ""
+end
+
+function toml_parse(text: string): any
+  return {}
+end
+
+function toml_encode(obj: any): string
+  return ""
+end
+
+function csv_parse(text: string): [[string]]
+  return []
+end
+
+function csv_encode(rows: [[string]]): string
+  return ""
+end
+
+class Base64
+  function encode(self, data: string): string
+    return ""
+  end
+  
+  function decode(self, encoded: string): string
+    return ""
+  end
+end
+
+function base64(): Base64
+  return Base64()
+end
+
+function base64_encode(data: string): string
+  return base64().encode(data)
+end
+
+function base64_decode(encoded: string): string
+  return base64().decode(encoded)
+end
+

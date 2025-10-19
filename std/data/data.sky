@@ -1,0 +1,200 @@
+# Data analysis utilities (pure Sky)
+
+function mean(numbers: [any]): float
+  if len(numbers) == 0
+    return 0.0
+  end
+  
+  let total = 0.0
+  for n in numbers
+    total = total + float(n)
+  end
+  
+  return total / float(len(numbers))
+end
+
+function median(numbers: [any]): float
+  if len(numbers) == 0
+    return 0.0
+  end
+  
+  let sorted_nums = numbers.copy()
+  sorted_nums.sort()
+  
+  let mid = len(sorted_nums) / 2
+  
+  if len(sorted_nums) % 2 == 0
+    return (float(sorted_nums[mid - 1]) + float(sorted_nums[mid])) / 2.0
+  else
+    return float(sorted_nums[mid])
+  end
+end
+
+function mode(numbers: [any]): any
+  if len(numbers) == 0
+    return 0
+  end
+  
+  let counts = {}
+  for n in numbers
+    let key = str(n)
+    if not counts.get(key)
+      counts[key] = 0
+    end
+    counts[key] = counts[key] + 1
+  end
+  
+  let max_count = 0
+  let mode_val = numbers[0]
+  
+  for key in counts.keys()
+    if counts[key] > max_count
+      max_count = counts[key]
+      mode_val = key
+    end
+  end
+  
+  return mode_val
+end
+
+function variance(numbers: [any]): float
+  if len(numbers) == 0
+    return 0.0
+  end
+  
+  let avg = mean(numbers)
+  let sum_sq_diff = 0.0
+  
+  for n in numbers
+    let diff = float(n) - avg
+    sum_sq_diff = sum_sq_diff + (diff * diff)
+  end
+  
+  return sum_sq_diff / float(len(numbers))
+end
+
+function std_dev(numbers: [any]): float
+  let v = variance(numbers)
+  return v ** 0.5
+end
+
+function percentile(numbers: [any], p: float): float
+  if len(numbers) == 0
+    return 0.0
+  end
+  
+  let sorted_nums = numbers.copy()
+  sorted_nums.sort()
+  
+  let idx = int(float(len(sorted_nums)) * p / 100.0)
+  if idx >= len(sorted_nums)
+    idx = len(sorted_nums) - 1
+  end
+  
+  return float(sorted_nums[idx])
+end
+
+function quartiles(numbers: [any]): [float]
+  return [
+    percentile(numbers, 25.0),
+    percentile(numbers, 50.0),
+    percentile(numbers, 75.0)
+  ]
+end
+
+function correlation(x: [any], y: [any]): float
+  if len(x) != len(y) or len(x) == 0
+    return 0.0
+  end
+  
+  let mean_x = mean(x)
+  let mean_y = mean(y)
+  
+  let sum_xy = 0.0
+  let sum_x_sq = 0.0
+  let sum_y_sq = 0.0
+  
+  let i = 0
+  while i < len(x)
+    let dx = float(x[i]) - mean_x
+    let dy = float(y[i]) - mean_y
+    
+    sum_xy = sum_xy + (dx * dy)
+    sum_x_sq = sum_x_sq + (dx * dx)
+    sum_y_sq = sum_y_sq + (dy * dy)
+    
+    i = i + 1
+  end
+  
+  let denominator = (sum_x_sq * sum_y_sq) ** 0.5
+  if denominator == 0.0
+    return 0.0
+  end
+  
+  return sum_xy / denominator
+end
+
+class DataFrame
+  function __init__(self, data: [[any]], columns: [string])
+    self._data = data
+    self._columns = columns
+  end
+  
+  function shape(self): [int]
+    if len(self._data) == 0
+      return [0, 0]
+    end
+    return [len(self._data), len(self._data[0])]
+  end
+  
+  function column(self, name: string): [any]
+    let col_idx = -1
+    let i = 0
+    
+    for col in self._columns
+      if col == name
+        col_idx = i
+        break
+      end
+      i = i + 1
+    end
+    
+    if col_idx < 0
+      return []
+    end
+    
+    let result = []
+    for row in self._data
+      if col_idx < len(row)
+        result.append(row[col_idx])
+      end
+    end
+    
+    return result
+  end
+  
+  function filter_rows(self, fn: function): DataFrame
+    let filtered = []
+    
+    for row in self._data
+      if fn(row)
+        filtered.append(row)
+      end
+    end
+    
+    return DataFrame(filtered, self._columns)
+  end
+  
+  function head(self, n: int): DataFrame
+    let rows = []
+    let i = 0
+    
+    while i < n and i < len(self._data)
+      rows.append(self._data[i])
+      i = i + 1
+    end
+    
+    return DataFrame(rows, self._columns)
+  end
+end
+

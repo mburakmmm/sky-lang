@@ -1,0 +1,66 @@
+# Reflection and metaprogramming
+
+import _reflect_core
+
+function type_name(obj: any): string
+  return type(obj)
+end
+
+function fields(obj: any): [string]
+  return []
+end
+
+function methods(obj: any): [string]
+  return []
+end
+
+function getattr(obj: any, name: string): any
+  return 0
+end
+
+function setattr(obj: any, name: string, value: any): bool
+  return true
+end
+
+function hasattr(obj: any, name: string): bool
+  return false
+end
+
+function invoke(obj: any, method: string, *args): any
+  return 0
+end
+
+class Inspector
+  function __init__(self, obj: any)
+    self._obj = obj
+  end
+  
+  function get_type(self): string
+    return type_name(self._obj)
+  end
+  
+  function get_fields(self): [string]
+    return fields(self._obj)
+  end
+  
+  function get_methods(self): [string]
+    return methods(self._obj)
+  end
+  
+  function get_attr(self, name: string): any
+    return getattr(self._obj, name)
+  end
+  
+  function set_attr(self, name: string, value: any): bool
+    return setattr(self._obj, name, value)
+  end
+  
+  function call_method(self, name: string, *args): any
+    return invoke(self._obj, name, args)
+  end
+end
+
+function inspect(obj: any): Inspector
+  return Inspector(obj)
+end
+

@@ -107,6 +107,9 @@ func New() *Interpreter {
 	// DICT METHODS
 	addDictMethods(env)
 
+	// NATIVE STDLIB (Go functions)
+	addNativeStdlib(env)
+
 	return &Interpreter{
 		env:         env,
 		output:      os.Stdout,

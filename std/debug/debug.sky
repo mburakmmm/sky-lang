@@ -1,0 +1,105 @@
+# Debugging utilities (pure Sky)
+
+let _debug_enabled = false
+
+function enable_debug()
+  _debug_enabled = true
+end
+
+function disable_debug()
+  _debug_enabled = false
+end
+
+function debug_print(*args)
+  if _debug_enabled
+    print("[DEBUG]", args)
+  end
+end
+
+function trace(fn: function, name: string): function
+  return function(*args)
+    if _debug_enabled
+      print("[TRACE] Entering:", name, "args:", args)
+    end
+    
+    let result = fn(args)
+    
+    if _debug_enabled
+      print("[TRACE] Exiting:", name, "result:", result)
+    end
+    
+    return result
+  end
+end
+
+class Profiler
+  function __init__(self)
+    self._calls = {}
+    self._times = {}
+  end
+  
+  function start(self, name: string)
+    if not self._calls.get(name)
+      self._calls[name] = 0
+      self._times[name] = 0
+    end
+    
+    self._calls[name] = self._calls[name] + 1
+  end
+  
+  function stop(self, name: string, duration: int)
+    if self._times.get(name)
+      self._times[name] = self._times[name] + duration
+    end
+  end
+  
+  function report(self)
+    print("=== Profiling Report ===")
+    print("")
+    
+    for name in self._calls.keys()
+      let calls = self._calls[name]
+      let total_time = self._times[name]
+      let avg_time = 0
+      
+      if calls > 0
+        avg_time = total_time / calls
+      end
+      
+      print(name + ":")
+      print("  Calls:", calls)
+      print("  Total time:", total_time, "ms")
+      print("  Avg time:", avg_time, "ms")
+      print("")
+    end
+  end
+  
+  function wrap(self, fn: function, name: string): function
+    return function(*args)
+      self.start(name)
+      let start_time = 0
+      
+      let result = fn(args)
+      
+      let end_time = 0
+      self.stop(name, end_time - start_time)
+      
+      return result
+    end
+  end
+end
+
+let _global_profiler = Profiler()
+
+function profiler(): Profiler
+  return _global_profiler
+end
+
+function profile(fn: function, name: string): function
+  return _global_profiler.wrap(fn, name)
+end
+
+function profile_report()
+  _global_profiler.report()
+end
+

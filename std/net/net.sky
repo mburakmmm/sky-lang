@@ -1,0 +1,90 @@
+# Network utilities
+
+import _net_core
+
+function resolve(host: string): [string]
+  return []
+end
+
+class TCPConnection
+  function __init__(self, addr: string)
+    self._addr = addr
+    self._connected = false
+  end
+  
+  function connect(self): bool
+    self._connected = true
+    return true
+  end
+  
+  function send(self, data: string): int
+    return len(data)
+  end
+  
+  function recv(self, n: int): string
+    return ""
+  end
+  
+  function close(self)
+    self._connected = false
+  end
+  
+  function is_connected(self): bool
+    return self._connected
+  end
+end
+
+class TCPServer
+  function __init__(self, addr: string)
+    self._addr = addr
+    self._listening = false
+  end
+  
+  function listen(self): bool
+    self._listening = true
+    return true
+  end
+  
+  function accept(self): TCPConnection
+    return TCPConnection("client")
+  end
+  
+  function close(self)
+    self._listening = false
+  end
+end
+
+class UDPSocket
+  function __init__(self, addr: string)
+    self._addr = addr
+  end
+  
+  function send_to(self, data: string, addr: string): int
+    return len(data)
+  end
+  
+  function recv_from(self, n: int): [string, string]
+    return ["", ""]
+  end
+  
+  function close(self)
+    return 0
+  end
+end
+
+function tcp_connect(addr: string): TCPConnection
+  let conn = TCPConnection(addr)
+  conn.connect()
+  return conn
+end
+
+function tcp_listen(addr: string): TCPServer
+  let server = TCPServer(addr)
+  server.listen()
+  return server
+end
+
+function udp_socket(addr: string): UDPSocket
+  return UDPSocket(addr)
+end
+

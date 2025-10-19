@@ -1,0 +1,74 @@
+# Regular expression utilities (pure Sky - basic patterns)
+
+class Pattern
+  function __init__(self, pattern: string)
+    self._pattern = pattern
+    self._compiled = self._compile(pattern)
+  end
+  
+  function _compile(self, pattern: string): {string: any}
+    return {"pattern": pattern, "type": "literal"}
+  end
+  
+  function match(self, text: string): bool
+    return text.contains(self._pattern)
+  end
+  
+  function find(self, text: string): string
+    let idx = text.find(self._pattern)
+    if idx >= 0
+      return self._pattern
+    end
+    return ""
+  end
+  
+  function findall(self, text: string): [string]
+    let results = []
+    let remaining = text
+    
+    while true
+      let idx = remaining.find(self._pattern)
+      if idx < 0
+        break
+      end
+      
+      results.append(self._pattern)
+      remaining = remaining.slice(idx + len(self._pattern))
+    end
+    
+    return results
+  end
+  
+  function replace(self, text: string, replacement: string): string
+    return text.replace(self._pattern, replacement)
+  end
+  
+  function split(self, text: string): [string]
+    return text.split(self._pattern)
+  end
+end
+
+function compile(pattern: string): Pattern
+  return Pattern(pattern)
+end
+
+function match(pattern: string, text: string): bool
+  let p = compile(pattern)
+  return p.match(text)
+end
+
+function search(pattern: string, text: string): string
+  let p = compile(pattern)
+  return p.find(text)
+end
+
+function findall(pattern: string, text: string): [string]
+  let p = compile(pattern)
+  return p.findall(text)
+end
+
+function sub(pattern: string, replacement: string, text: string): string
+  let p = compile(pattern)
+  return p.replace(text, replacement)
+end
+

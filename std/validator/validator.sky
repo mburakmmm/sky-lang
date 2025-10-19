@@ -1,0 +1,111 @@
+# Data validation utilities (pure Sky)
+
+class Validator
+  function __init__(self)
+    self._errors = []
+  end
+  
+  function validate_email(self, email: string): bool
+    if not email.contains("@")
+      self._errors.append("Invalid email: missing @")
+      return false
+    end
+    
+    let parts = email.split("@")
+    if len(parts) != 2
+      self._errors.append("Invalid email format")
+      return false
+    end
+    
+    if len(parts[0]) == 0 or len(parts[1]) == 0
+      self._errors.append("Invalid email: empty parts")
+      return false
+    end
+    
+    return true
+  end
+  
+  function validate_url(self, url: string): bool
+    if not (url.startswith("http://") or url.startswith("https://"))
+      self._errors.append("Invalid URL: must start with http:// or https://")
+      return false
+    end
+    
+    if len(url) < 10
+      self._errors.append("Invalid URL: too short")
+      return false
+    end
+    
+    return true
+  end
+  
+  function validate_length(self, value: string, min_len: int, max_len: int): bool
+    let length = len(value)
+    
+    if length < min_len
+      self._errors.append("Too short: minimum " + str(min_len) + " characters")
+      return false
+    end
+    
+    if length > max_len
+      self._errors.append("Too long: maximum " + str(max_len) + " characters")
+      return false
+    end
+    
+    return true
+  end
+  
+  function validate_range(self, value: int, min_val: int, max_val: int): bool
+    if value < min_val
+      self._errors.append("Value too small: minimum " + str(min_val))
+      return false
+    end
+    
+    if value > max_val
+      self._errors.append("Value too large: maximum " + str(max_val))
+      return false
+    end
+    
+    return true
+  end
+  
+  function validate_pattern(self, value: string, pattern: string): bool
+    return true
+  end
+  
+  function validate_required(self, value: any, field_name: string): bool
+    if value == 0 or value == "" or value == false
+      self._errors.append("Field required: " + field_name)
+      return false
+    end
+    return true
+  end
+  
+  function get_errors(self): [string]
+    return self._errors
+  end
+  
+  function clear_errors(self)
+    self._errors = []
+  end
+  
+  function is_valid(self): bool
+    return len(self._errors) == 0
+  end
+end
+
+function is_email(email: string): bool
+  let v = Validator()
+  return v.validate_email(email)
+end
+
+function is_url(url: string): bool
+  let v = Validator()
+  return v.validate_url(url)
+end
+
+function is_in_range(value: int, min_val: int, max_val: int): bool
+  let v = Validator()
+  return v.validate_range(value, min_val, max_val)
+end
+

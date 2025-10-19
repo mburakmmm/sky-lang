@@ -1,0 +1,140 @@
+# Graph data structures and algorithms (pure Sky)
+
+class Graph
+  function __init__(self, directed: bool)
+    self._directed = directed
+    self._nodes = {}
+    self._edges = {}
+  end
+  
+  function add_node(self, node: any)
+    let node_str = str(node)
+    self._nodes[node_str] = node
+    if not self._edges.get(node_str)
+      self._edges[node_str] = []
+    end
+  end
+  
+  function add_edge(self, from_node: any, to_node: any, weight: int)
+    let from_str = str(from_node)
+    let to_str = str(to_node)
+    
+    self.add_node(from_node)
+    self.add_node(to_node)
+    
+    self._edges[from_str].append({
+      "to": to_str,
+      "weight": weight
+    })
+    
+    if not self._directed
+      self._edges[to_str].append({
+        "to": from_str,
+        "weight": weight
+      })
+    end
+  end
+  
+  function neighbors(self, node: any): [any]
+    let node_str = str(node)
+    let edges = self._edges.get(node_str)
+    
+    if not edges
+      return []
+    end
+    
+    let result = []
+    for edge in edges
+      result.append(edge["to"])
+    end
+    return result
+  end
+  
+  function bfs(self, start: any): [any]
+    let visited = {}
+    let queue = [str(start)]
+    let result = []
+    
+    while len(queue) > 0
+      let current = queue[0]
+      queue = queue.slice(1)
+      
+      if visited.get(current)
+        continue
+      end
+      
+      visited[current] = true
+      result.append(current)
+      
+      let neighbors_list = self.neighbors(current)
+      for neighbor in neighbors_list
+        if not visited.get(neighbor)
+          queue.append(neighbor)
+        end
+      end
+    end
+    
+    return result
+  end
+  
+  function dfs(self, start: any): [any]
+    let visited = {}
+    let stack = [str(start)]
+    let result = []
+    
+    while len(stack) > 0
+      let current = stack.pop()
+      
+      if visited.get(current)
+        continue
+      end
+      
+      visited[current] = true
+      result.append(current)
+      
+      let neighbors_list = self.neighbors(current)
+      for neighbor in neighbors_list
+        if not visited.get(neighbor)
+          stack.append(neighbor)
+        end
+      end
+    end
+    
+    return result
+  end
+  
+  function has_path(self, from_node: any, to_node: any): bool
+    let visited = self.bfs(from_node)
+    let to_str = str(to_node)
+    
+    for node in visited
+      if node == to_str
+        return true
+      end
+    end
+    
+    return false
+  end
+  
+  function node_count(self): int
+    return len(self._nodes)
+  end
+  
+  function edge_count(self): int
+    let count = 0
+    for node in self._edges.keys()
+      count = count + len(self._edges[node])
+    end
+    
+    if not self._directed
+      count = count / 2
+    end
+    
+    return count
+  end
+end
+
+function graph(directed: bool): Graph
+  return Graph(directed)
+end
+

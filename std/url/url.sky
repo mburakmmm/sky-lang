@@ -1,0 +1,135 @@
+# URL parsing and manipulation (pure Sky)
+
+class URL
+  function __init__(self, url_string: string)
+    self._url = url_string
+    self._parsed = self._parse(url_string)
+  end
+  
+  function _parse(self, url: string): {string: any}
+    let result = {
+      "scheme": "",
+      "host": "",
+      "port": "",
+      "path": "",
+      "query": "",
+      "fragment": ""
+    }
+    
+    let remaining = url
+    
+    if remaining.contains("://")
+      let parts = remaining.split("://")
+      result["scheme"] = parts[0]
+      remaining = parts[1]
+    end
+    
+    if remaining.contains("#")
+      let parts = remaining.split("#")
+      remaining = parts[0]
+      result["fragment"] = parts[1]
+    end
+    
+    if remaining.contains("?")
+      let parts = remaining.split("?")
+      remaining = parts[0]
+      result["query"] = parts[1]
+    end
+    
+    if remaining.contains("/")
+      let idx = remaining.find("/")
+      result["host"] = remaining.slice(0, idx)
+      result["path"] = remaining.slice(idx)
+    else
+      result["host"] = remaining
+      result["path"] = "/"
+    end
+    
+    if result["host"].contains(":")
+      let parts = result["host"].split(":")
+      result["host"] = parts[0]
+      result["port"] = parts[1]
+    end
+    
+    return result
+  end
+  
+  function scheme(self): string
+    return self._parsed["scheme"]
+  end
+  
+  function host(self): string
+    return self._parsed["host"]
+  end
+  
+  function port(self): string
+    return self._parsed["port"]
+  end
+  
+  function path(self): string
+    return self._parsed["path"]
+  end
+  
+  function query(self): string
+    return self._parsed["query"]
+  end
+  
+  function fragment(self): string
+    return self._parsed["fragment"]
+  end
+  
+  function query_params(self): {string: string}
+    let params = {}
+    let query = self._parsed["query"]
+    
+    if query == ""
+      return params
+    end
+    
+    let pairs = query.split("&")
+    for pair in pairs
+      if pair.contains("=")
+        let kv = pair.split("=")
+        params[kv[0]] = kv[1]
+      end
+    end
+    
+    return params
+  end
+  
+  function to_string(self): string
+    return self._url
+  end
+end
+
+function parse(url: string): URL
+  return URL(url)
+end
+
+function encode_component(s: string): string
+  let result = s
+  result = result.replace(" ", "%20")
+  result = result.replace("&", "%26")
+  result = result.replace("=", "%3D")
+  return result
+end
+
+function decode_component(s: string): string
+  let result = s
+  result = result.replace("%20", " ")
+  result = result.replace("%26", "&")
+  result = result.replace("%3D", "=")
+  return result
+end
+
+function build_query(params: {string: string}): string
+  let parts = []
+  
+  for key in params.keys()
+    let value = params[key]
+    parts.append(encode_component(key) + "=" + encode_component(value))
+  end
+  
+  return parts.join("&")
+end
+

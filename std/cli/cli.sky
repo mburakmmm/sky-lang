@@ -1,0 +1,152 @@
+# Command-line interface utilities (pure Sky)
+
+class ArgParser
+  function __init__(self)
+    self._args = []
+    self._flags = {}
+    self._options = {}
+  end
+  
+  function add_flag(self, name: string, short: string, description: string)
+    self._flags[name] = {
+      "short": short,
+      "desc": description,
+      "value": false
+    }
+  end
+  
+  function add_option(self, name: string, short: string, default: any, description: string)
+    self._options[name] = {
+      "short": short,
+      "default": default,
+      "desc": description,
+      "value": default
+    }
+  end
+  
+  function parse(self, args: [string])
+    let i = 0
+    
+    while i < len(args)
+      let arg = args[i]
+      
+      if arg.startswith("--")
+        let name = arg.slice(2)
+        
+        if self._flags.get(name)
+          self._flags[name]["value"] = true
+        elif self._options.get(name)
+          i = i + 1
+          if i < len(args)
+            self._options[name]["value"] = args[i]
+          end
+        end
+      elif arg.startswith("-")
+        let short = arg.slice(1)
+        
+        for flag_name in self._flags.keys()
+          if self._flags[flag_name]["short"] == short
+            self._flags[flag_name]["value"] = true
+          end
+        end
+        
+        for opt_name in self._options.keys()
+          if self._options[opt_name]["short"] == short
+            i = i + 1
+            if i < len(args)
+              self._options[opt_name]["value"] = args[i]
+            end
+          end
+        end
+      else
+        self._args.append(arg)
+      end
+      
+      i = i + 1
+    end
+  end
+  
+  function get_flag(self, name: string): bool
+    if self._flags.get(name)
+      return self._flags[name]["value"]
+    end
+    return false
+  end
+  
+  function get_option(self, name: string): any
+    if self._options.get(name)
+      return self._options[name]["value"]
+    end
+    return 0
+  end
+  
+  function get_args(self): [string]
+    return self._args
+  end
+  
+  function print_help(self)
+    print("Flags:")
+    for name in self._flags.keys()
+      let flag = self._flags[name]
+      print("  --" + name + ", -" + flag["short"] + ": " + flag["desc"])
+    end
+    
+    print("")
+    print("Options:")
+    for name in self._options.keys()
+      let opt = self._options[name]
+      print("  --" + name + ", -" + opt["short"] + " <value>: " + opt["desc"])
+      print("    default:", opt["default"])
+    end
+  end
+end
+
+function prompt(text: string): string
+  print(text)
+  return input()
+end
+
+function confirm(text: string): bool
+  let response = prompt(text + " (y/n): ")
+  return response.lower() == "y" or response.lower() == "yes"
+end
+
+function color(text: string, color_name: string): string
+  let colors = {
+    "red": "\x1b[31m",
+    "green": "\x1b[32m",
+    "yellow": "\x1b[33m",
+    "blue": "\x1b[34m",
+    "magenta": "\x1b[35m",
+    "cyan": "\x1b[36m",
+    "white": "\x1b[37m",
+    "reset": "\x1b[0m"
+  }
+  
+  let code = colors.get(color_name)
+  if code
+    return code + text + colors["reset"]
+  end
+  return text
+end
+
+function progress_bar(current: int, total: int, width: int): string
+  let percent = float(current) / float(total)
+  let filled = int(percent * float(width))
+  
+  let bar = "["
+  let i = 0
+  while i < width
+    if i < filled
+      bar = bar + "="
+    else
+      bar = bar + " "
+    end
+    i = i + 1
+  end
+  bar = bar + "]"
+  
+  let percent_str = str(int(percent * 100.0)) + "%"
+  return bar + " " + percent_str
+end
+

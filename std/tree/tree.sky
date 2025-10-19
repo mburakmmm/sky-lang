@@ -1,0 +1,145 @@
+# Tree data structures (pure Sky)
+
+class TreeNode
+  function __init__(self, value: any)
+    self.value = value
+    self.children = []
+    self.parent = 0
+  end
+  
+  function add_child(self, child: TreeNode)
+    child.parent = self
+    self.children.append(child)
+  end
+  
+  function remove_child(self, child: TreeNode)
+    let new_children = []
+    for c in self.children
+      if c != child
+        new_children.append(c)
+      end
+    end
+    self.children = new_children
+  end
+  
+  function is_leaf(self): bool
+    return len(self.children) == 0
+  end
+  
+  function is_root(self): bool
+    return self.parent == 0
+  end
+  
+  function depth(self): int
+    if self.is_root()
+      return 0
+    end
+    return 1 + self.parent.depth()
+  end
+  
+  function traverse_pre_order(self, visit: function)
+    visit(self.value)
+    for child in self.children
+      child.traverse_pre_order(visit)
+    end
+  end
+  
+  function traverse_post_order(self, visit: function)
+    for child in self.children
+      child.traverse_post_order(visit)
+    end
+    visit(self.value)
+  end
+  
+  function traverse_level_order(self, visit: function)
+    let queue = [self]
+    
+    while len(queue) > 0
+      let node = queue[0]
+      queue = queue.slice(1)
+      
+      visit(node.value)
+      
+      for child in node.children
+        queue.append(child)
+      end
+    end
+  end
+end
+
+class BinaryTreeNode
+  function __init__(self, value: any)
+    self.value = value
+    self.left = 0
+    self.right = 0
+  end
+  
+  function insert(self, value: any)
+    if value < self.value
+      if self.left == 0
+        self.left = BinaryTreeNode(value)
+      else
+        self.left.insert(value)
+      end
+    else
+      if self.right == 0
+        self.right = BinaryTreeNode(value)
+      else
+        self.right.insert(value)
+      end
+    end
+  end
+  
+  function search(self, value: any): bool
+    if self.value == value
+      return true
+    end
+    
+    if value < self.value and self.left != 0
+      return self.left.search(value)
+    end
+    
+    if value > self.value and self.right != 0
+      return self.right.search(value)
+    end
+    
+    return false
+  end
+  
+  function inorder(self, visit: function)
+    if self.left != 0
+      self.left.inorder(visit)
+    end
+    
+    visit(self.value)
+    
+    if self.right != 0
+      self.right.inorder(visit)
+    end
+  end
+  
+  function preorder(self, visit: function)
+    visit(self.value)
+    
+    if self.left != 0
+      self.left.preorder(visit)
+    end
+    
+    if self.right != 0
+      self.right.preorder(visit)
+    end
+  end
+  
+  function postorder(self, visit: function)
+    if self.left != 0
+      self.left.postorder(visit)
+    end
+    
+    if self.right != 0
+      self.right.postorder(visit)
+    end
+    
+    visit(self.value)
+  end
+end
+

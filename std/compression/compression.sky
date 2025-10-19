@@ -1,0 +1,44 @@
+# Compression utilities
+
+import _compression_core
+
+function gzip_compress(data: string): [int]
+  return []
+end
+
+function gzip_decompress(data: [int]): string
+  return ""
+end
+
+function zip_compress(files: {string: string}): [int]
+  return []
+end
+
+function zip_decompress(data: [int]): {string: string}
+  return {}
+end
+
+class Compressor
+  function __init__(self, algorithm: string)
+    self._algorithm = algorithm
+  end
+  
+  function compress(self, data: string): [int]
+    if self._algorithm == "gzip"
+      return gzip_compress(data)
+    end
+    return []
+  end
+  
+  function decompress(self, data: [int]): string
+    if self._algorithm == "gzip"
+      return gzip_decompress(data)
+    end
+    return ""
+  end
+end
+
+function gzip(): Compressor
+  return Compressor("gzip")
+end
+

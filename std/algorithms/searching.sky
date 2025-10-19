@@ -1,0 +1,83 @@
+# Searching algorithms (pure Sky implementations)
+
+function binary_search(arr: [any], target: any, compare_fn: function): int
+  let left = 0
+  let right = len(arr) - 1
+  
+  while left <= right
+    let mid = (left + right) / 2
+    let cmp = compare_fn(arr[mid], target)
+    
+    if cmp == 0
+      return mid
+    elif cmp < 0
+      left = mid + 1
+    else
+      right = mid - 1
+    end
+  end
+  
+  return -1
+end
+
+function linear_search(arr: [any], target: any): int
+  let i = 0
+  for item in arr
+    if item == target
+      return i
+    end
+    i = i + 1
+  end
+  return -1
+end
+
+function find_min(arr: [any], compare_fn: function): any
+  if len(arr) == 0
+    return 0
+  end
+  
+  let min_val = arr[0]
+  for item in arr
+    if compare_fn(item, min_val) < 0
+      min_val = item
+    end
+  end
+  return min_val
+end
+
+function find_max(arr: [any], compare_fn: function): any
+  if len(arr) == 0
+    return 0
+  end
+  
+  let max_val = arr[0]
+  for item in arr
+    if compare_fn(item, max_val) > 0
+      max_val = item
+    end
+  end
+  return max_val
+end
+
+function find_kth_largest(arr: [any], k: int, compare_fn: function): any
+  if k > len(arr) or k <= 0
+    return 0
+  end
+  
+  let sorted_arr = arr.copy()
+  sorted_arr.sort()
+  sorted_arr.reverse()
+  
+  return sorted_arr[k - 1]
+end
+
+function count_occurrences(arr: [any], target: any): int
+  let count = 0
+  for item in arr
+    if item == target
+      count = count + 1
+    end
+  end
+  return count
+end
+

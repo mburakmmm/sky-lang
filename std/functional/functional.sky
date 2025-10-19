@@ -1,0 +1,115 @@
+# Functional programming utilities (pure Sky)
+
+function compose(*fns): function
+  return function(x)
+    let result = x
+    for fn in fns
+      result = fn(result)
+    end
+    return result
+  end
+end
+
+function pipe(*fns): function
+  return function(x)
+    let result = x
+    let reversed = []
+    let i = len(fns) - 1
+    while i >= 0
+      reversed.append(fns[i])
+      i = i - 1
+    end
+    
+    for fn in reversed
+      result = fn(result)
+    end
+    return result
+  end
+end
+
+function curry(fn: function, n: int): function
+  let args = []
+  
+  return function(*new_args)
+    for arg in new_args
+      args.append(arg)
+    end
+    
+    if len(args) >= n
+      return fn(args)
+    end
+    
+    return curry(fn, n)
+  end
+end
+
+function partial(fn: function, *fixed_args): function
+  return function(*args)
+    let all_args = []
+    for arg in fixed_args
+      all_args.append(arg)
+    end
+    for arg in args
+      all_args.append(arg)
+    end
+    return fn(all_args)
+  end
+end
+
+function memoize(fn: function): function
+  let cache = {}
+  
+  return function(*args)
+    let key = str(args)
+    if cache.get(key)
+      return cache[key]
+    end
+    
+    let result = fn(args)
+    cache[key] = result
+    return result
+  end
+end
+
+function debounce(fn: function, delay: int): function
+  let last_call = 0
+  
+  return function(*args)
+    let now = 0
+    if now - last_call >= delay
+      last_call = now
+      return fn(args)
+    end
+    return 0
+  end
+end
+
+function throttle(fn: function, limit: int): function
+  let last_call = 0
+  
+  return function(*args)
+    let now = 0
+    if now - last_call >= limit
+      last_call = now
+      return fn(args)
+    end
+    return 0
+  end
+end
+
+function identity(x: any): any
+  return x
+end
+
+function constant(value: any): function
+  return function(*args)
+    return value
+  end
+end
+
+function negate(fn: function): function
+  return function(*args)
+    return not fn(args)
+  end
+end
+

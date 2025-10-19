@@ -1,0 +1,135 @@
+# Sorting algorithms (pure Sky implementations)
+
+function bubble_sort(arr: [any], compare_fn: function): [any]
+  let result = arr.copy()
+  let n = len(result)
+  
+  let i = 0
+  while i < n
+    let j = 0
+    while j < n - i - 1
+      if compare_fn(result[j], result[j + 1]) > 0
+        let temp = result[j]
+        result[j] = result[j + 1]
+        result[j + 1] = temp
+      end
+      j = j + 1
+    end
+    i = i + 1
+  end
+  
+  return result
+end
+
+function quick_sort(arr: [any], compare_fn: function): [any]
+  if len(arr) <= 1
+    return arr
+  end
+  
+  let pivot = arr[len(arr) / 2]
+  let left = []
+  let middle = []
+  let right = []
+  
+  for item in arr
+    let cmp = compare_fn(item, pivot)
+    if cmp < 0
+      left.append(item)
+    elif cmp == 0
+      middle.append(item)
+    else
+      right.append(item)
+    end
+  end
+  
+  let sorted_left = quick_sort(left, compare_fn)
+  let sorted_right = quick_sort(right, compare_fn)
+  
+  let result = []
+  for item in sorted_left
+    result.append(item)
+  end
+  for item in middle
+    result.append(item)
+  end
+  for item in sorted_right
+    result.append(item)
+  end
+  
+  return result
+end
+
+function merge_sort(arr: [any], compare_fn: function): [any]
+  if len(arr) <= 1
+    return arr
+  end
+  
+  let mid = len(arr) / 2
+  let left = arr.slice(0, mid)
+  let right = arr.slice(mid)
+  
+  left = merge_sort(left, compare_fn)
+  right = merge_sort(right, compare_fn)
+  
+  return _merge(left, right, compare_fn)
+end
+
+function _merge(left: [any], right: [any], compare_fn: function): [any]
+  let result = []
+  let i = 0
+  let j = 0
+  
+  while i < len(left) and j < len(right)
+    if compare_fn(left[i], right[j]) <= 0
+      result.append(left[i])
+      i = i + 1
+    else
+      result.append(right[j])
+      j = j + 1
+    end
+  end
+  
+  while i < len(left)
+    result.append(left[i])
+    i = i + 1
+  end
+  
+  while j < len(right)
+    result.append(right[j])
+    j = j + 1
+  end
+  
+  return result
+end
+
+function insertion_sort(arr: [any], compare_fn: function): [any]
+  let result = arr.copy()
+  let i = 1
+  
+  while i < len(result)
+    let key = result[i]
+    let j = i - 1
+    
+    while j >= 0 and compare_fn(result[j], key) > 0
+      result[j + 1] = result[j]
+      j = j - 1
+    end
+    
+    result[j + 1] = key
+    i = i + 1
+  end
+  
+  return result
+end
+
+function is_sorted(arr: [any], compare_fn: function): bool
+  let i = 0
+  while i < len(arr) - 1
+    if compare_fn(arr[i], arr[i + 1]) > 0
+      return false
+    end
+    i = i + 1
+  end
+  return true
+end
+

@@ -1,0 +1,124 @@
+# Extended dictionary utilities (pure Sky)
+
+function merge(d1: {any: any}, d2: {any: any}, prefer: string): {any: any}
+  let result = d1.copy()
+  
+  for key in d2.keys()
+    if prefer == "other"
+      result[key] = d2[key]
+    elif prefer == "self"
+      if not result.get(key)
+        result[key] = d2[key]
+      end
+    else
+      result[key] = d2[key]
+    end
+  end
+  
+  return result
+end
+
+function invert(dict: {any: any}): {any: any}
+  let result = {}
+  
+  for key in dict.keys()
+    let value = dict[key]
+    result[str(value)] = key
+  end
+  
+  return result
+end
+
+function map_values(dict: {any: any}, fn: function): {any: any}
+  let result = {}
+  
+  for key in dict.keys()
+    result[key] = fn(dict[key])
+  end
+  
+  return result
+end
+
+function map_keys(dict: {any: any}, fn: function): {any: any}
+  let result = {}
+  
+  for key in dict.keys()
+    let new_key = fn(key)
+    result[str(new_key)] = dict[key]
+  end
+  
+  return result
+end
+
+function filter_keys(dict: {any: any}, fn: function): {any: any}
+  let result = {}
+  
+  for key in dict.keys()
+    if fn(key)
+      result[key] = dict[key]
+    end
+  end
+  
+  return result
+end
+
+function filter_values(dict: {any: any}, fn: function): {any: any}
+  let result = {}
+  
+  for key in dict.keys()
+    if fn(dict[key])
+      result[key] = dict[key]
+    end
+  end
+  
+  return result
+end
+
+function from_pairs(pairs: [[any, any]]): {any: any}
+  let result = {}
+  
+  for pair in pairs
+    if len(pair) >= 2
+      result[str(pair[0])] = pair[1]
+    end
+  end
+  
+  return result
+end
+
+function to_pairs(dict: {any: any}): [[any, any]]
+  let result = []
+  
+  for key in dict.keys()
+    result.append([key, dict[key]])
+  end
+  
+  return result
+end
+
+function pick(dict: {any: any}, keys: [any]): {any: any}
+  let result = {}
+  
+  for key in keys
+    let key_str = str(key)
+    if dict.get(key_str)
+      result[key_str] = dict[key_str]
+    end
+  end
+  
+  return result
+end
+
+function omit(dict: {any: any}, keys: [any]): {any: any}
+  let result = dict.copy()
+  
+  for key in keys
+    let key_str = str(key)
+    if result.get(key_str)
+      result.pop(key_str)
+    end
+  end
+  
+  return result
+end
+

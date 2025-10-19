@@ -1,0 +1,136 @@
+# Event emitter and pub/sub (pure Sky)
+
+class EventEmitter
+  function __init__(self)
+    self._listeners = {}
+  end
+  
+  function on(self, event: string, callback: function)
+    let event_listeners = self._listeners.get(event)
+    
+    if not event_listeners
+      self._listeners[event] = []
+    end
+    
+    self._listeners[event].append(callback)
+  end
+  
+  function once(self, event: string, callback: function)
+    let wrapped = function(*args)
+      callback(args)
+      self.off(event, wrapped)
+    end
+    
+    self.on(event, wrapped)
+  end
+  
+  function off(self, event: string, callback: function)
+    let event_listeners = self._listeners.get(event)
+    
+    if not event_listeners
+      return 0
+    end
+    
+    let new_listeners = []
+    for listener in event_listeners
+      if listener != callback
+        new_listeners.append(listener)
+      end
+    end
+    
+    self._listeners[event] = new_listeners
+  end
+  
+  function emit(self, event: string, *args)
+    let event_listeners = self._listeners.get(event)
+    
+    if not event_listeners
+      return 0
+    end
+    
+    for listener in event_listeners
+      listener(args)
+    end
+  end
+  
+  function remove_all_listeners(self, event: string)
+    if event
+      self._listeners[event] = []
+    else
+      self._listeners = {}
+    end
+  end
+  
+  function listener_count(self, event: string): int
+    let event_listeners = self._listeners.get(event)
+    if event_listeners
+      return len(event_listeners)
+    end
+    return 0
+  end
+end
+
+class PubSub
+  function __init__(self)
+    self._subscriptions = {}
+    self._topics = {}
+  end
+  
+  function subscribe(self, topic: string, callback: function): string
+    let sub_id = topic + "_" + str(len(self._subscriptions))
+    
+    if not self._topics.get(topic)
+      self._topics[topic] = []
+    end
+    
+    self._topics[topic].append(sub_id)
+    self._subscriptions[sub_id] = callback
+    
+    return sub_id
+  end
+  
+  function unsubscribe(self, sub_id: string)
+    self._subscriptions.pop(sub_id)
+    
+    for topic in self._topics.keys()
+      let new_subs = []
+      for sid in self._topics[topic]
+        if sid != sub_id
+          new_subs.append(sid)
+        end
+      end
+      self._topics[topic] = new_subs
+    end
+  end
+  
+  function publish(self, topic: string, *args)
+    let topic_subs = self._topics.get(topic)
+    
+    if not topic_subs
+      return 0
+    end
+    
+    for sub_id in topic_subs
+      let callback = self._subscriptions.get(sub_id)
+      if callback
+        callback(args)
+      end
+    end
+  end
+  
+  function clear(self, topic: string)
+    if topic
+      let topic_subs = self._topics.get(topic)
+      if topic_subs
+        for sub_id in topic_subs
+          self._subscriptions.pop(sub_id)
+        end
+        self._topics[topic] = []
+      end
+    else
+      self._subscriptions = {}
+      self._topics = {}
+    end
+  end
+end
+

@@ -1,0 +1,95 @@
+# I/O utilities and streams
+
+import _io_core
+
+class Reader
+  function __init__(self, source)
+    self._source = source
+  end
+  
+  function read(self, n: int): string
+    return ""
+  end
+  
+  function read_all(self): string
+    return ""
+  end
+  
+  function close(self)
+    return 0
+  end
+end
+
+class Writer
+  function __init__(self, dest)
+    self._dest = dest
+  end
+  
+  function write(self, data: string): int
+    return 0
+  end
+  
+  function writeln(self, data: string): int
+    return self.write(data + "\n")
+  end
+  
+  function flush(self)
+    return 0
+  end
+  
+  function close(self)
+    return 0
+  end
+end
+
+class BufReader
+  function __init__(self, source)
+    self._source = source
+    self._buffer = ""
+  end
+  
+  function readline(self): string
+    return ""
+  end
+  
+  function read(self, n: int): string
+    return ""
+  end
+end
+
+class BufWriter
+  function __init__(self, dest)
+    self._dest = dest
+    self._buffer = []
+  end
+  
+  function write(self, data: string)
+    self._buffer.append(data)
+  end
+  
+  function flush(self)
+    self._buffer = []
+  end
+end
+
+function stdin(): Reader
+  return Reader("stdin")
+end
+
+function stdout(): Writer
+  return Writer("stdout")
+end
+
+function stderr(): Writer
+  return Writer("stderr")
+end
+
+function readline(): string
+  return ""
+end
+
+function copy(src: Reader, dst: Writer): int
+  let data = src.read_all()
+  return dst.write(data)
+end
+

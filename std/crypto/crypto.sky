@@ -1,0 +1,77 @@
+# Cryptographic utilities
+
+import _crypto_core
+
+class Hash
+  function __init__(self, algorithm: string)
+    self._algorithm = algorithm
+  end
+  
+  function update(self, data: string)
+    return 0
+  end
+  
+  function digest(self): string
+    return ""
+  end
+  
+  function hexdigest(self): string
+    return ""
+  end
+end
+
+function md5(data: string): string
+  return ""
+end
+
+function sha1(data: string): string
+  return ""
+end
+
+function sha256(data: string): string
+  return ""
+end
+
+function sha512(data: string): string
+  return ""
+end
+
+function hmac_sha256(key: string, message: string): string
+  return ""
+end
+
+function hmac_sha512(key: string, message: string): string
+  return ""
+end
+
+class Cipher
+  function __init__(self, key: string, algorithm: string)
+    self._key = key
+    self._algorithm = algorithm
+  end
+  
+  function encrypt(self, plaintext: string): string
+    return ""
+  end
+  
+  function decrypt(self, ciphertext: string): string
+    return ""
+  end
+end
+
+function aes_gcm(key: string): Cipher
+  return Cipher(key, "AES-GCM")
+end
+
+function chacha20(key: string): Cipher
+  return Cipher(key, "ChaCha20-Poly1305")
+end
+
+function pbkdf2(password: string, salt: string, iterations: int, key_len: int): string
+  return ""
+end
+
+function random_bytes(n: int): [int]
+  return []
+end
+

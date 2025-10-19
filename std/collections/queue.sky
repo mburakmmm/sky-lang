@@ -1,0 +1,150 @@
+# Queue data structure (pure Sky)
+
+class Queue
+  function __init__(self)
+    self._items = []
+  end
+  
+  function enqueue(self, item: any)
+    self._items.append(item)
+  end
+  
+  function dequeue(self): any
+    if self.is_empty()
+      panic("Queue is empty")
+    end
+    return self._items.pop(0)
+  end
+  
+  function peek(self): any
+    if self.is_empty()
+      panic("Queue is empty")
+    end
+    return self._items[0]
+  end
+  
+  function is_empty(self): bool
+    return len(self._items) == 0
+  end
+  
+  function size(self): int
+    return len(self._items)
+  end
+  
+  function clear(self)
+    self._items = []
+  end
+  
+  function to_list(self): [any]
+    return self._items.copy()
+  end
+end
+
+class Stack
+  function __init__(self)
+    self._items = []
+  end
+  
+  function push(self, item: any)
+    self._items.append(item)
+  end
+  
+  function pop(self): any
+    if self.is_empty()
+      panic("Stack is empty")
+    end
+    return self._items.pop()
+  end
+  
+  function peek(self): any
+    if self.is_empty()
+      panic("Stack is empty")
+    end
+    return self._items[len(self._items) - 1]
+  end
+  
+  function is_empty(self): bool
+    return len(self._items) == 0
+  end
+  
+  function size(self): int
+    return len(self._items)
+  end
+  
+  function clear(self)
+    self._items = []
+  end
+end
+
+class PriorityQueue
+  function __init__(self)
+    self._items = []
+  end
+  
+  function enqueue(self, item: any, priority: int)
+    self._items.append({"item": item, "priority": priority})
+    self._heapify_up(len(self._items) - 1)
+  end
+  
+  function dequeue(self): any
+    if self.is_empty()
+      panic("PriorityQueue is empty")
+    end
+    
+    let result = self._items[0]["item"]
+    let last_idx = len(self._items) - 1
+    self._items[0] = self._items[last_idx]
+    self._items.pop()
+    
+    if not self.is_empty()
+      self._heapify_down(0)
+    end
+    
+    return result
+  end
+  
+  function _heapify_up(self, idx: int)
+    if idx == 0
+      return 0
+    end
+    
+    let parent_idx = (idx - 1) / 2
+    if self._items[idx]["priority"] < self._items[parent_idx]["priority"]
+      let temp = self._items[idx]
+      self._items[idx] = self._items[parent_idx]
+      self._items[parent_idx] = temp
+      self._heapify_up(parent_idx)
+    end
+  end
+  
+  function _heapify_down(self, idx: int)
+    let size = len(self._items)
+    let smallest = idx
+    let left = 2 * idx + 1
+    let right = 2 * idx + 2
+    
+    if left < size and self._items[left]["priority"] < self._items[smallest]["priority"]
+      smallest = left
+    end
+    
+    if right < size and self._items[right]["priority"] < self._items[smallest]["priority"]
+      smallest = right
+    end
+    
+    if smallest != idx
+      let temp = self._items[idx]
+      self._items[idx] = self._items[smallest]
+      self._items[smallest] = temp
+      self._heapify_down(smallest)
+    end
+  end
+  
+  function is_empty(self): bool
+    return len(self._items) == 0
+  end
+  
+  function size(self): int
+    return len(self._items)
+  end
+end
+

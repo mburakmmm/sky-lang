@@ -1,0 +1,88 @@
+# Promise utilities and combinators (pure Sky)
+
+class Deferred
+  function __init__(self)
+    self._resolved = false
+    self._rejected = false
+    self._value = 0
+    self._error = ""
+    self._then_callbacks = []
+    self._catch_callbacks = []
+  end
+  
+  function resolve(self, value: any)
+    if self._resolved or self._rejected
+      return 0
+    end
+    
+    self._resolved = true
+    self._value = value
+    
+    for callback in self._then_callbacks
+      callback(value)
+    end
+  end
+  
+  function reject(self, error: any)
+    if self._resolved or self._rejected
+      return 0
+    end
+    
+    self._rejected = true
+    self._error = error
+    
+    for callback in self._catch_callbacks
+      callback(error)
+    end
+  end
+  
+  function then_do(self, callback: function)
+    if self._resolved
+      callback(self._value)
+    else
+      self._then_callbacks.append(callback)
+    end
+    return self
+  end
+  
+  function catch_error(self, callback: function)
+    if self._rejected
+      callback(self._error)
+    else
+      self._catch_callbacks.append(callback)
+    end
+    return self
+  end
+  
+  function is_resolved(self): bool
+    return self._resolved
+  end
+  
+  function is_rejected(self): bool
+    return self._rejected
+  end
+  
+  function is_pending(self): bool
+    return not self._resolved and not self._rejected
+  end
+end
+
+async function all_settled(promises: [any]): [any]
+  let results = []
+  
+  for promise in promises
+    let result = await promise
+    results.append(result)
+  end
+  
+  return results
+end
+
+async function any_promise(promises: [any]): any
+  return await promises[0]
+end
+
+function deferred(): Deferred
+  return Deferred()
+end
+

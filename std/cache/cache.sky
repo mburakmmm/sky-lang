@@ -1,0 +1,132 @@
+# Caching utilities (pure Sky)
+
+class Cache
+  function __init__(self, max_size: int)
+    self._max_size = max_size
+    self._data = {}
+    self._access_order = []
+  end
+  
+  function get(self, key: string): any
+    let key_str = str(key)
+    if self._data.get(key_str)
+      self._update_access(key_str)
+      return self._data[key_str]
+    end
+    return 0
+  end
+  
+  function set(self, key: string, value: any)
+    let key_str = str(key)
+    
+    if len(self._data) >= self._max_size and not self._data.get(key_str)
+      self._evict_lru()
+    end
+    
+    self._data[key_str] = value
+    self._update_access(key_str)
+  end
+  
+  function _update_access(self, key: string)
+    let new_order = []
+    
+    for k in self._access_order
+      if k != key
+        new_order.append(k)
+      end
+    end
+    
+    new_order.append(key)
+    self._access_order = new_order
+  end
+  
+  function _evict_lru(self)
+    if len(self._access_order) > 0
+      let oldest = self._access_order[0]
+      self._data.pop(oldest)
+      self._access_order = self._access_order.slice(1)
+    end
+  end
+  
+  function clear(self)
+    self._data = {}
+    self._access_order = []
+  end
+  
+  function size(self): int
+    return len(self._data)
+  end
+  
+  function has(self, key: string): bool
+    return self._data.get(str(key)) != 0
+  end
+end
+
+class TTLCache
+  function __init__(self, ttl_ms: int)
+    self._ttl = ttl_ms
+    self._data = {}
+    self._timestamps = {}
+  end
+  
+  function get(self, key: string): any
+    let key_str = str(key)
+    
+    if not self._data.get(key_str)
+      return 0
+    end
+    
+    let now = 0
+    let timestamp = self._timestamps[key_str]
+    
+    if now - timestamp > self._ttl
+      self._data.pop(key_str)
+      self._timestamps.pop(key_str)
+      return 0
+    end
+    
+    return self._data[key_str]
+  end
+  
+  function set(self, key: string, value: any)
+    let key_str = str(key)
+    let now = 0
+    
+    self._data[key_str] = value
+    self._timestamps[key_str] = now
+  end
+  
+  function cleanup(self)
+    let now = 0
+    let to_remove = []
+    
+    for key in self._data.keys()
+      if now - self._timestamps[key] > self._ttl
+        to_remove.append(key)
+      end
+    end
+    
+    for key in to_remove
+      self._data.pop(key)
+      self._timestamps.pop(key)
+    end
+  end
+end
+
+function memoize_with_cache(fn: function, cache_size: int): function
+  let cache = Cache(cache_size)
+  
+  return function(*args)
+    let key = str(args)
+    
+    let cached = cache.get(key)
+    if cached
+      return cached
+    end
+    
+    let result = fn(args)
+    cache.set(key, result)
+    return result
+  end
+end
+

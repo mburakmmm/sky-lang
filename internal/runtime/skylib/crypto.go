@@ -3,12 +3,16 @@ package skylib
 import (
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/hmac"
 	"crypto/md5"
 	"crypto/sha1"
 	"crypto/sha256"
 	"crypto/sha512"
 	"encoding/hex"
 	"fmt"
+
+	"golang.org/x/crypto/chacha20poly1305"
+	"golang.org/x/crypto/pbkdf2"
 )
 
 // Hash functions
@@ -77,4 +81,64 @@ func CryptoAESGCMDecrypt(key, ciphertext []byte) ([]byte, error) {
 
 	nonce, ciphertext := ciphertext[:nonceSize], ciphertext[nonceSize:]
 	return gcm.Open(nil, nonce, ciphertext, nil)
+}
+
+// HMAC functions
+
+// HMACSHA256 computes HMAC-SHA256
+func CryptoHMACSHA256(key, message []byte) string {
+	h := hmac.New(sha256.New, key)
+	h.Write(message)
+	return hex.EncodeToString(h.Sum(nil))
+}
+
+// HMACSHA512 computes HMAC-SHA512
+func CryptoHMACSHA512(key, message []byte) string {
+	h := hmac.New(sha512.New, key)
+	h.Write(message)
+	return hex.EncodeToString(h.Sum(nil))
+}
+
+// ChaCha20-Poly1305 encryption
+
+// ChaCha20Encrypt encrypts with ChaCha20-Poly1305
+func CryptoChaCha20Encrypt(key, plaintext []byte) ([]byte, error) {
+	aead, err := chacha20poly1305.New(key)
+	if err != nil {
+		return nil, err
+	}
+
+	nonce := make([]byte, aead.NonceSize())
+	// TODO: Fill nonce with crypto random
+
+	ciphertext := aead.Seal(nonce, nonce, plaintext, nil)
+	return ciphertext, nil
+}
+
+// ChaCha20Decrypt decrypts with ChaCha20-Poly1305
+func CryptoChaCha20Decrypt(key, ciphertext []byte) ([]byte, error) {
+	aead, err := chacha20poly1305.New(key)
+	if err != nil {
+		return nil, err
+	}
+
+	nonceSize := aead.NonceSize()
+	if len(ciphertext) < nonceSize {
+		return nil, fmt.Errorf("ciphertext too short")
+	}
+
+	nonce, ciphertext := ciphertext[:nonceSize], ciphertext[nonceSize:]
+	return aead.Open(nil, nonce, ciphertext, nil)
+}
+
+// Key derivation functions
+
+// PBKDF2 derives a key using PBKDF2
+func CryptoPBKDF2(password, salt []byte, iterations, keyLen int) []byte {
+	return pbkdf2.Key(password, salt, iterations, keyLen, sha256.New)
+}
+
+// PBKDF2SHA512 derives a key using PBKDF2-SHA512
+func CryptoPBKDF2SHA512(password, salt []byte, iterations, keyLen int) []byte {
+	return pbkdf2.Key(password, salt, iterations, keyLen, sha512.New)
 }

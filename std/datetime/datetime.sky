@@ -1,0 +1,123 @@
+# Enhanced datetime utilities (pure Sky)
+
+import std.time.time
+
+class Duration
+  function __init__(self, milliseconds: int)
+    self._ms = milliseconds
+  end
+  
+  function milliseconds(self): int
+    return self._ms
+  end
+  
+  function seconds(self): float
+    return float(self._ms) / 1000.0
+  end
+  
+  function minutes(self): float
+    return float(self._ms) / 60000.0
+  end
+  
+  function hours(self): float
+    return float(self._ms) / 3600000.0
+  end
+  
+  function days(self): float
+    return float(self._ms) / 86400000.0
+  end
+  
+  function add(self, other: Duration): Duration
+    return Duration(self._ms + other.milliseconds())
+  end
+  
+  function subtract(self, other: Duration): Duration
+    return Duration(self._ms - other.milliseconds())
+  end
+end
+
+function milliseconds(ms: int): Duration
+  return Duration(ms)
+end
+
+function seconds(s: int): Duration
+  return Duration(s * 1000)
+end
+
+function minutes(m: int): Duration
+  return Duration(m * 60000)
+end
+
+function hours(h: int): Duration
+  return Duration(h * 3600000)
+end
+
+function days(d: int): Duration
+  return Duration(d * 86400000)
+end
+
+class Calendar
+  function __init__(self)
+    self._events = []
+  end
+  
+  function add_event(self, name: string, timestamp: int)
+    self._events.append({
+      "name": name,
+      "timestamp": timestamp
+    })
+  end
+  
+  function get_events(self, start: int, end_time: int): [any]
+    let result = []
+    
+    for event in self._events
+      let ts = event["timestamp"]
+      if ts >= start and ts <= end_time
+        result.append(event)
+      end
+    end
+    
+    return result
+  end
+  
+  function remove_event(self, name: string)
+    let new_events = []
+    
+    for event in self._events
+      if event["name"] != name
+        new_events.append(event)
+      end
+    end
+    
+    self._events = new_events
+  end
+end
+
+function is_leap_year(year: int): bool
+  if year % 400 == 0
+    return true
+  end
+  if year % 100 == 0
+    return false
+  end
+  if year % 4 == 0
+    return true
+  end
+  return false
+end
+
+function days_in_month(year: int, month: int): int
+  let days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+  
+  if month == 2 and is_leap_year(year)
+    return 29
+  end
+  
+  if month >= 1 and month <= 12
+    return days[month - 1]
+  end
+  
+  return 0
+end
+
