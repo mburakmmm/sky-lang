@@ -1,0 +1,419 @@
+# SKY Dil Sınırları - İleri Seviye Fonksiyon Testleri
+
+# 1. Nested fonksiyonlar (closure'lar)
+function create_counter
+  let count = 0
+  function increment
+    count = count + 1
+    return count
+  end
+  function decrement
+    count = count - 1
+    return count
+  end
+  function get_count
+    return count
+  end
+  # Fonksiyon döndüremez miyiz?
+  return {"increment": increment, "decrement": decrement, "get": get_count}
+end
+
+# 2. Higher-order fonksiyonlar
+function map_array(arr, fn): any
+  let result = []
+  for item in arr
+    result.append(fn(item))
+  end
+  return result
+end
+
+function filter_array(arr, predicate): any
+  let result = []
+  for item in arr
+    if predicate(item)
+      result.append(item)
+    end
+  end
+  return result
+end
+
+# 3. Currying (partial application)
+function multiply(a): any
+  function multiply_by(b): int
+    return a * b
+  end
+  return multiply_by
+end
+
+# 4. Memoization
+let memo_cache = {}
+
+function memoized_fibonacci(n): int
+  let key = str(n)
+  if memo_cache.has_key(key)
+    return memo_cache.get(key)
+  end
+  
+  let result
+  if n <= 1
+    result = n
+  else
+    result = memoized_fibonacci(n - 1) + memoized_fibonacci(n - 2)
+  end
+  
+  memo_cache.set(key, result)
+  return result
+end
+
+# 5. Function composition
+function compose(f, g): any
+  function composed(x): any
+    return f(g(x))
+  end
+  return composed
+end
+
+# 6. Partial function application
+function partial(fn, ...args): any
+  function partial_fn(...remaining_args): any
+    let all_args = args + remaining_args
+    return fn(...all_args)
+  end
+  return partial_fn
+end
+
+# 7. Decorator pattern
+function with_logging(fn): any
+  function logged_fn(...args): any
+    print("Calling function with args: " + str(args))
+    let result = fn(...args)
+    print("Function returned: " + str(result))
+    return result
+  end
+  return logged_fn
+end
+
+# 8. Callback pattern
+function process_data(data, on_success, on_error)
+  try
+    let result = data * 2
+    on_success(result)
+  catch
+    on_error("Processing failed")
+  end
+end
+
+# 9. Generator pattern (iterator)
+function number_generator(start, end): any
+  let current = start
+  function next
+    if current <= end
+      let value = current
+      current = current + 1
+      return {"value": value, "done": false}
+    else
+      return {"value": nil, "done": true}
+    end
+  end
+  return {"next": next}
+end
+
+# 10. Observer pattern
+let observers = []
+
+function subscribe(callback)
+  observers.append(callback)
+end
+
+function notify(data)
+  for observer in observers
+    observer(data)
+  end
+end
+
+# 11. Factory pattern
+function create_person(name, age): any
+  function get_name
+    return name
+  end
+  
+  function get_age
+    return age
+  end
+  
+  function greet
+    print("Hello, I'm " + name + " and I'm " + str(age) + " years old")
+  end
+  
+  return {"name": get_name, "age": get_age, "greet": greet}
+end
+
+# 12. Builder pattern
+function create_query_builder
+  let query_parts = []
+  
+  function select(fields)
+    query_parts.append("SELECT " + fields)
+    return self
+  end
+  
+  function from(table)
+    query_parts.append("FROM " + table)
+    return self
+  end
+  
+  function where(condition)
+    query_parts.append("WHERE " + condition)
+    return self
+  end
+  
+  function build
+    return join(query_parts, " ")
+  end
+  
+  return {"select": select, "from": from, "where": where, "build": build}
+end
+
+# 13. Strategy pattern
+function create_calculator(strategy): any
+  function calculate(a, b): int
+    return strategy(a, b)
+  end
+  return {"calculate": calculate}
+end
+
+# 14. Command pattern
+function create_command(action, target): any
+  function execute
+    return action(target)
+  end
+  
+  function undo
+    # Undo logic here
+    return "Undone"
+  end
+  
+  return {"execute": execute, "undo": undo}
+end
+
+# 15. Async patterns
+async function fetch_data(url): any
+  print("Fetching from: " + url)
+  await time_sleep(1000)
+  return {"data": "fetched from " + url}
+end
+
+async function process_async_data(urls): any
+  let results = []
+  for url in urls
+    let data = await fetch_data(url)
+    results.append(data)
+  end
+  return results
+end
+
+# 16. Promise-like pattern
+function create_promise(executor): any
+  let state = "pending"
+  let value = nil
+  let handlers = []
+  
+  function resolve(result)
+    if state == "pending"
+      state = "fulfilled"
+      value = result
+      for handler in handlers
+        handler(value)
+      end
+    end
+  end
+  
+  function reject(error)
+    if state == "pending"
+      state = "rejected"
+      value = error
+    end
+  end
+  
+  function then(on_fulfilled): any
+    if state == "fulfilled"
+      return on_fulfilled(value)
+    else
+      handlers.append(on_fulfilled)
+    end
+    return self
+  end
+  
+  executor(resolve, reject)
+  return {"then": then, "resolve": resolve, "reject": reject}
+end
+
+# 17. Event emitter pattern
+function create_event_emitter
+  let events = {}
+  
+  function on(event, callback)
+    if not events.has_key(event)
+      events.set(event, [])
+    end
+    events.get(event).append(callback)
+  end
+  
+  function emit(event, data)
+    if events.has_key(event)
+      for callback in events.get(event)
+        callback(data)
+      end
+    end
+  end
+  
+  function off(event, callback)
+    if events.has_key(event)
+      let callbacks = events.get(event)
+      let index = callbacks.index_of(callback)
+      if index >= 0
+        callbacks.remove(index)
+      end
+    end
+  end
+  
+  return {"on": on, "emit": emit, "off": off}
+end
+
+# 18. Module pattern
+function create_module
+  let private_var = "private"
+  let public_var = "public"
+  
+  function private_function
+    return "This is private"
+  end
+  
+  function public_function
+    return private_function() + " but accessible"
+  end
+  
+  function get_public_var
+    return public_var
+  end
+  
+  function set_public_var(value)
+    public_var = value
+  end
+  
+  return {
+    "public_function": public_function,
+    "get_public_var": get_public_var,
+    "set_public_var": set_public_var
+  }
+end
+
+# 19. Singleton pattern
+let singleton_instance = nil
+
+function get_singleton
+  if singleton_instance == nil
+    singleton_instance = create_module()
+  end
+  return singleton_instance
+end
+
+# 20. Prototype pattern
+function create_animal(name): any
+  function speak
+    print(name + " makes a sound")
+  end
+  
+  function get_name
+    return name
+  end
+  
+  return {"speak": speak, "name": get_name}
+end
+
+function create_dog(name): any
+  let animal = create_animal(name)
+  
+  function bark
+    print(name + " barks!")
+  end
+  
+  function speak
+    bark()
+  end
+  
+  return {"speak": speak, "bark": bark, "name": animal.name}
+end
+
+# Test fonksiyonu
+function main
+  print("=== SKY Dil Sınırları Testi ===")
+  
+  # 1. Nested fonksiyonlar test
+  print("\n1. Nested Functions Test:")
+  let counter = create_counter()
+  print("Counter created")
+  
+  # 2. Higher-order fonksiyonlar test
+  print("\n2. Higher-Order Functions Test:")
+  let numbers = [1, 2, 3, 4, 5]
+  function square(x): int
+    return x * x
+  end
+  let squared = map_array(numbers, square)
+  print("Squared: " + str(squared))
+  
+  # 3. Currying test
+  print("\n3. Currying Test:")
+  let multiply_by_5 = multiply(5)
+  print("5 * 3 = " + str(multiply_by_5(3)))
+  
+  # 4. Memoization test
+  print("\n4. Memoization Test:")
+  print("Fibonacci(10) = " + str(memoized_fibonacci(10)))
+  
+  # 5. Function composition test
+  print("\n5. Function Composition Test:")
+  function add_one(x): int
+    return x + 1
+  end
+  let add_one_then_square = compose(square, add_one)
+  print("(2 + 1)^2 = " + str(add_one_then_square(2)))
+  
+  # 6. Observer pattern test
+  print("\n6. Observer Pattern Test:")
+  function logger(data)
+    print("Observer received: " + str(data))
+  end
+  subscribe(logger)
+  notify("Hello observers!")
+  
+  # 7. Factory pattern test
+  print("\n7. Factory Pattern Test:")
+  let person = create_person("Alice", 30)
+  person.greet()
+  
+  # 8. Event emitter test
+  print("\n8. Event Emitter Test:")
+  let emitter = create_event_emitter()
+  emitter.on("test", logger)
+  emitter.emit("test", "Event emitted!")
+  
+  # 9. Module pattern test
+  print("\n9. Module Pattern Test:")
+  let module = create_module()
+  print(module.public_function())
+  
+  # 10. Singleton test
+  print("\n10. Singleton Pattern Test:")
+  let singleton1 = get_singleton()
+  let singleton2 = get_singleton()
+  print("Same instance: " + str(singleton1 == singleton2))
+  
+  # 11. Prototype pattern test
+  print("\n11. Prototype Pattern Test:")
+  let dog = create_dog("Buddy")
+  dog.speak()
+  
+  print("\n=== Test Tamamlandı ===")
+end

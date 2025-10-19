@@ -1,0 +1,220 @@
+# SKY Dil Sınırları - Basit Test
+
+# 1. Fonksiyon döndürme
+function get_function(): any
+  function inner(): int
+    return 42
+  end
+  return inner
+end
+
+# 2. Closure test
+function create_adder(x): any
+  function add(y): int
+    return x + y
+  end
+  return add
+end
+
+# 3. Recursive fonksiyon
+function factorial(n): int
+  if n <= 1
+    return 1
+  end
+  return n * factorial(n - 1)
+end
+
+# 4. Nested fonksiyon
+function outer
+  function inner
+    print("Inner function called")
+  end
+  inner()
+end
+
+# 5. Fonksiyon parametre olarak geçme
+function apply_func(fn, value): int
+  return fn(value)
+end
+
+function double(x): int
+  return x * 2
+end
+
+# 6. Array içinde fonksiyon
+function test_array_functions
+  let functions = [double, factorial]
+  print("Array of functions created")
+end
+
+# 7. Dict içinde fonksiyon
+function test_dict_functions
+  let funcs = {"double": double, "factorial": factorial}
+  print("Dict of functions created")
+end
+
+# 8. Class metodu
+class Calculator
+  function init
+    self.value = 0
+  end
+  
+  function add(n)
+    self.value = self.value + n
+    return self.value
+  end
+  
+  function get_value
+    return self.value
+  end
+end
+
+# 9. Static class metodu
+class Math
+  function square(x): int
+    return x * x
+  end
+  
+  function cube(x): int
+    return x * x * x
+  end
+end
+
+# 10. Higher-order fonksiyon
+function map_func(arr, fn): any
+  let result = []
+  for item in arr
+    result.append(fn(item))
+  end
+  return result
+end
+
+# 11. Callback fonksiyon
+function process_with_callback(data, callback): any
+  let result = data * 2
+  return callback(result)
+end
+
+function print_result(x): int
+  print("Result: " + str(x))
+  return x
+end
+
+# 12. Memoization
+let cache = {}
+
+function cached_fib(n): int
+  let key = str(n)
+  if cache.has_key(key)
+    return cache.get(key)
+  end
+  
+  let result = 0
+  if n <= 1
+    result = n
+  else
+    result = cached_fib(n - 1) + cached_fib(n - 2)
+  end
+  
+  cache.set(key, result)
+  return result
+end
+
+# 13. Event-like pattern
+let listeners = []
+
+function add_listener(callback)
+  listeners.append(callback)
+end
+
+function notify_all(data)
+  for listener in listeners
+    listener(data)
+  end
+end
+
+# 14. Module-like pattern
+function create_module(): any
+  let private_var = "private"
+  
+  function public_func(): string
+    return "Accessing: " + private_var
+  end
+  
+  return {"public": public_func}
+end
+
+# Test fonksiyonu
+function main
+  print("=== SKY Dil Sınırları Testi ===")
+  
+  # 1. Fonksiyon döndürme
+  print("\n1. Function Return Test:")
+  let fn = get_function()
+  print("Function returned: " + str(fn()))
+  
+  # 2. Closure test
+  print("\n2. Closure Test:")
+  let adder5 = create_adder(5)
+  print("5 + 3 = " + str(adder5(3)))
+  
+  # 3. Recursive test
+  print("\n3. Recursive Test:")
+  print("5! = " + str(factorial(5)))
+  
+  # 4. Nested function test
+  print("\n4. Nested Function Test:")
+  outer()
+  
+  # 5. Function as parameter test
+  print("\n5. Function Parameter Test:")
+  print("apply_func(double, 7) = " + str(apply_func(double, 7)))
+  
+  # 6. Array functions test
+  print("\n6. Array Functions Test:")
+  test_array_functions()
+  
+  # 7. Dict functions test
+  print("\n7. Dict Functions Test:")
+  test_dict_functions()
+  
+  # 8. Class method test
+  print("\n8. Class Method Test:")
+  let calc = Calculator()
+  print("calc.add(5) = " + str(calc.add(5)))
+  print("calc.add(3) = " + str(calc.add(3)))
+  
+  # 9. Static method test
+  print("\n9. Static Method Test:")
+  print("Math.square(4) = " + str(Math.square(4)))
+  print("Math.cube(3) = " + str(Math.cube(3)))
+  
+  # 10. Higher-order function test
+  print("\n10. Higher-Order Function Test:")
+  let numbers = [1, 2, 3, 4, 5]
+  let doubled = map_func(numbers, double)
+  print("Doubled: " + str(doubled))
+  
+  # 11. Callback test
+  print("\n11. Callback Test:")
+  let result = process_with_callback(10, print_result)
+  
+  # 12. Memoization test
+  print("\n12. Memoization Test:")
+  print("Fibonacci(10) = " + str(cached_fib(10)))
+  
+  # 13. Event pattern test
+  print("\n13. Event Pattern Test:")
+  function logger(msg)
+    print("Event: " + str(msg))
+  end
+  add_listener(logger)
+  notify_all("Hello events!")
+  
+  # 14. Module pattern test
+  print("\n14. Module Pattern Test:")
+  let module = create_module()
+  print(module.public())
+  
+  print("\n=== Test Tamamlandı ===")
+end
