@@ -9,6 +9,21 @@ import (
 func (p *Parser) parseFunctionStatement() *ast.FunctionStatement {
 	stmt := &ast.FunctionStatement{Token: p.curToken}
 
+	// Parse decorators (@decorator)
+	decorators := []*ast.Decorator{}
+	for p.curTokenIs(lexer.AT) {
+		decorator := p.parseDecorator()
+		if decorator != nil {
+			decorators = append(decorators, decorator)
+		}
+		// Expect NEWLINE after decorator
+		if p.peekTokenIs(lexer.NEWLINE) {
+			p.nextToken()
+		}
+		p.nextToken() // Move to next token (could be another @ or function)
+	}
+	stmt.Decorators = decorators
+
 	// async kontrol
 	if p.curTokenIs(lexer.ASYNC) {
 		stmt.Async = true
@@ -62,6 +77,41 @@ func (p *Parser) parseFunctionStatement() *ast.FunctionStatement {
 	}
 
 	return stmt
+}
+
+// parseDecorator decorator'ı parse eder
+func (p *Parser) parseDecorator() *ast.Decorator {
+	decorator := &ast.Decorator{Token: p.curToken}
+
+	// Decorator name
+	if !p.expectPeek(lexer.IDENT) {
+		return nil
+	}
+	decorator.Name = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+
+	// Optional arguments
+	if p.peekTokenIs(lexer.LPAREN) {
+		p.nextToken() // (
+		p.nextToken() // first arg or )
+
+		args := []ast.Expression{}
+		if !p.curTokenIs(lexer.RPAREN) {
+			args = append(args, p.parseExpression(LOWEST))
+
+			for p.peekTokenIs(lexer.COMMA) {
+				p.nextToken() // ,
+				p.nextToken() // next arg
+				args = append(args, p.parseExpression(LOWEST))
+			}
+
+			if !p.expectPeek(lexer.RPAREN) {
+				return nil
+			}
+		}
+		decorator.Args = args
+	}
+
+	return decorator
 }
 
 // parseFunctionParameters fonksiyon parametrelerini parse eder

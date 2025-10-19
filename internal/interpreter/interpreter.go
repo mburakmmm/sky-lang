@@ -342,7 +342,113 @@ func (i *Interpreter) evalFunctionStatement(stmt *ast.FunctionStatement) error {
 		},
 	}
 
-	i.env.Set(funcName, fn)
+	// Apply decorators (in reverse order - innermost first)
+	decoratedFn := fn
+	for j := len(stmt.Decorators) - 1; j >= 0; j-- {
+		decorator := stmt.Decorators[j]
+
+		// Get decorator function
+		decoratorVal, ok := i.env.Get(decorator.Name.Value)
+		if !ok {
+			return &RuntimeError{Message: fmt.Sprintf("undefined decorator: %s", decorator.Name.Value)}
+		}
+
+		decoratorFn, ok := decoratorVal.(*Function)
+		if !ok {
+			return &RuntimeError{Message: fmt.Sprintf("%s is not a decorator function", decorator.Name.Value)}
+		}
+
+		// Call decorator with function as argument
+		callEnv := NewEnvironment(decoratorFn.Env)
+		args := []Value{decoratedFn}
+
+		// Add decorator arguments if any
+		for _, argExpr := range decorator.Args {
+			argVal, err := i.evalExpression(argExpr)
+			if err != nil {
+				return err
+			}
+			args = append(args, argVal)
+		}
+
+		callEnv.Set("__args__", &List{Elements: args})
+
+		// Execute decorator
+		result, err := decoratorFn.Body(callEnv)
+		if err != nil {
+			return err
+		}
+
+		// Decorator should return a function
+		if resultFn, ok := result.(*Function); ok {
+			decoratedFn = resultFn
+		} else {
+			return &RuntimeError{Message: fmt.Sprintf("decorator %s did not return a function", decorator.Name.Value)}
+		}
+	}
+
+	// Handle coroutine/generator functions
+	if stmt.Coop {
+		// Wrap in generator factory
+		generatorFactory := &Function{
+			Name:       funcName,
+			Parameters: params,
+			Env:        capturedEnv,
+			Body: func(callEnv *Environment) (Value, error) {
+				// Create generator instance
+				genEnv := NewEnvironment(capturedEnv)
+
+				// Bind parameters
+				args, _ := callEnv.Get("__args__")
+				if argList, ok := args.(*List); ok {
+					for idx, param := range capturedStmt.Parameters {
+						paramName := param.Name.Value
+						if idx < len(argList.Elements) {
+							genEnv.Set(paramName, argList.Elements[idx])
+						} else if param.DefaultValue != nil {
+							defaultVal, err := i.evalExpression(param.DefaultValue)
+							if err != nil {
+								return nil, err
+							}
+							genEnv.Set(paramName, defaultVal)
+						} else {
+							genEnv.Set(paramName, &Nil{})
+						}
+					}
+				}
+
+				// Create generator
+				gen := &Generator{
+					Function: decoratedFn,
+					Env:      genEnv,
+					State:    0,
+					Values:   []Value{},
+					Done:     false,
+					interp:   i,
+					stmt:     capturedStmt.Body,
+				}
+
+				// Add next() method to generator
+				nextMethod := &Function{
+					Name: "next",
+					Body: func(callEnv *Environment) (Value, error) {
+						return gen.Next()
+					},
+				}
+
+				// Return dict with next method
+				result := &Dict{Pairs: map[string]Value{
+					"next": nextMethod,
+				}}
+
+				return result, nil
+			},
+		}
+		i.env.Set(funcName, generatorFactory)
+	} else {
+		i.env.Set(funcName, decoratedFn)
+	}
+
 	return nil
 }
 
@@ -937,11 +1043,16 @@ func (i *Interpreter) evalBinaryOp(left, right Value, op string) (Value, error) 
 		}
 	}
 
-	// String concatenation
+	// String operations
 	if strL, okL := left.(*String); okL {
 		if strR, okR := right.(*String); okR {
-			if op == "+" {
+			switch op {
+			case "+":
 				return &String{Value: strL.Value + strR.Value}, nil
+			case "==":
+				return &Boolean{Value: strL.Value == strR.Value}, nil
+			case "!=":
+				return &Boolean{Value: strL.Value != strR.Value}, nil
 			}
 		}
 	}

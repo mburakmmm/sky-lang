@@ -252,6 +252,9 @@ func (p *Parser) parseStatement() ast.Statement {
 		return p.parseTryStatement()
 	case lexer.THROW:
 		return p.parseThrowStatement()
+	case lexer.AT:
+		// Decorator followed by function
+		return p.parseFunctionStatement()
 	default:
 		return p.parseExpressionStatement()
 	}
@@ -648,20 +651,50 @@ func (p *Parser) parseYieldExpression() ast.Expression {
 
 // parseTypeAnnotation tip anotasyonunu parse eder
 func (p *Parser) parseTypeAnnotation() ast.TypeAnnotation {
+	var baseType ast.TypeAnnotation
+
 	switch p.curToken.Type {
 	case lexer.STAR:
 		// Pointer type: *T
 		p.nextToken()
 		pointeeType := p.parseTypeAnnotation()
-		return &ast.PointerType{
+		baseType = &ast.PointerType{
 			Token:       p.curToken,
 			PointeeType: pointeeType,
 		}
 	case lexer.IDENT:
-		// Basic types: int, float, string, bool, any
-		return &ast.BasicType{
-			Token: p.curToken,
-			Name:  p.curToken.Literal,
+		// Basic types or Generic: int, float, List<T>
+		typeName := p.curToken.Literal
+		token := p.curToken
+
+		// Check for generic type: List<T>
+		if p.peekTokenIs(lexer.LT) {
+			p.nextToken() // <
+			p.nextToken() // first type arg
+
+			typeArgs := []ast.TypeAnnotation{}
+			typeArgs = append(typeArgs, p.parseTypeAnnotation())
+
+			for p.peekTokenIs(lexer.COMMA) {
+				p.nextToken() // ,
+				p.nextToken() // next type arg
+				typeArgs = append(typeArgs, p.parseTypeAnnotation())
+			}
+
+			if !p.expectPeek(lexer.GT) {
+				return nil
+			}
+
+			baseType = &ast.GenericType{
+				Token:    token,
+				BaseName: typeName,
+				TypeArgs: typeArgs,
+			}
+		} else {
+			baseType = &ast.BasicType{
+				Token: token,
+				Name:  typeName,
+			}
 		}
 	case lexer.LBRACK:
 		// List type: [T]
@@ -670,7 +703,7 @@ func (p *Parser) parseTypeAnnotation() ast.TypeAnnotation {
 		if !p.expectPeek(lexer.RBRACK) {
 			return nil
 		}
-		return &ast.ListType{
+		baseType = &ast.ListType{
 			Token:       p.curToken,
 			ElementType: elemType,
 		}
@@ -686,7 +719,7 @@ func (p *Parser) parseTypeAnnotation() ast.TypeAnnotation {
 		if !p.expectPeek(lexer.RBRACE) {
 			return nil
 		}
-		return &ast.DictType{
+		baseType = &ast.DictType{
 			Token:     p.curToken,
 			KeyType:   keyType,
 			ValueType: valueType,
@@ -695,6 +728,34 @@ func (p *Parser) parseTypeAnnotation() ast.TypeAnnotation {
 		p.addError(fmt.Sprintf("unexpected type: %s", p.curToken.Literal))
 		return nil
 	}
+
+	// Check for optional type: T?
+	if p.peekTokenIs(lexer.QUESTION) {
+		p.nextToken()
+		return &ast.OptionalType{
+			Token:    p.curToken,
+			BaseType: baseType,
+		}
+	}
+
+	// Check for union type: T1|T2
+	if p.peekTokenIs(lexer.PIPE) {
+		types := []ast.TypeAnnotation{baseType}
+
+		for p.peekTokenIs(lexer.PIPE) {
+			p.nextToken() // |
+			p.nextToken() // next type
+			nextType := p.parseTypeAnnotation()
+			types = append(types, nextType)
+		}
+
+		return &ast.UnionType{
+			Token: p.curToken,
+			Types: types,
+		}
+	}
+
+	return baseType
 }
 
 // parseEnumStatement parses enum declaration

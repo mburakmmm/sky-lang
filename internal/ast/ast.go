@@ -196,6 +196,14 @@ type FunctionStatement struct {
 	Parameters []*FunctionParameter
 	ReturnType TypeAnnotation
 	Body       *BlockStatement
+	Decorators []*Decorator // @decorator list
+}
+
+// Decorator represents a decorator
+type Decorator struct {
+	Token lexer.Token  // AT token
+	Name  *Identifier  // decorator name
+	Args  []Expression // decorator arguments (optional)
 }
 
 func (fs *FunctionStatement) statementNode()       {}
@@ -730,4 +738,52 @@ func (pt *PointerType) TokenLiteral() string { return pt.Token.Literal }
 func (pt *PointerType) Pos() lexer.Token     { return pt.Token }
 func (pt *PointerType) String() string {
 	return fmt.Sprintf("*%s", pt.PointeeType.String())
+}
+
+// OptionalType optional tip anotasyonu T?
+type OptionalType struct {
+	Token    lexer.Token // QUESTION token
+	BaseType TypeAnnotation
+}
+
+func (ot *OptionalType) typeNode()            {}
+func (ot *OptionalType) TokenLiteral() string { return ot.Token.Literal }
+func (ot *OptionalType) Pos() lexer.Token     { return ot.Token }
+func (ot *OptionalType) String() string {
+	return fmt.Sprintf("%s?", ot.BaseType.String())
+}
+
+// UnionType union tip anotasyonu T1|T2|T3
+type UnionType struct {
+	Token lexer.Token      // PIPE token
+	Types []TypeAnnotation // union members
+}
+
+func (ut *UnionType) typeNode()            {}
+func (ut *UnionType) TokenLiteral() string { return ut.Token.Literal }
+func (ut *UnionType) Pos() lexer.Token     { return ut.Token }
+func (ut *UnionType) String() string {
+	types := []string{}
+	for _, t := range ut.Types {
+		types = append(types, t.String())
+	}
+	return strings.Join(types, "|")
+}
+
+// GenericType generic tip anotasyonu List<T>
+type GenericType struct {
+	Token    lexer.Token      // base type token
+	BaseName string           // base type name (List, Dict, etc.)
+	TypeArgs []TypeAnnotation // type arguments
+}
+
+func (gt *GenericType) typeNode()            {}
+func (gt *GenericType) TokenLiteral() string { return gt.Token.Literal }
+func (gt *GenericType) Pos() lexer.Token     { return gt.Token }
+func (gt *GenericType) String() string {
+	args := []string{}
+	for _, t := range gt.TypeArgs {
+		args = append(args, t.String())
+	}
+	return fmt.Sprintf("%s<%s>", gt.BaseName, strings.Join(args, ", "))
 }

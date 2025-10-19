@@ -17,6 +17,7 @@ const (
 	PromiseValue
 	ClassValue
 	InstanceValue
+	GeneratorValue
 )
 
 // Value runtime değerlerini temsil eder

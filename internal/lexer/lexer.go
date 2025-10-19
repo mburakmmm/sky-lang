@@ -227,16 +227,6 @@ func (l *Lexer) NextToken() Token {
 			l.readChar()
 		}
 
-	case '|':
-		if l.peekChar() == '|' {
-			l.readChar()
-			tok = l.makeToken(LOR, "||")
-			l.readChar()
-		} else {
-			tok = l.makeToken(ILLEGAL, string(l.ch))
-			l.readChar()
-		}
-
 	case '(':
 		tok = l.makeToken(LPAREN, string(l.ch))
 		l.parenDepth++
@@ -286,6 +276,24 @@ func (l *Lexer) NextToken() Token {
 	case ':':
 		tok = l.makeToken(COLON, string(l.ch))
 		l.readChar()
+
+	case '@':
+		tok = l.makeToken(AT, string(l.ch))
+		l.readChar()
+
+	case '?':
+		tok = l.makeToken(QUESTION, string(l.ch))
+		l.readChar()
+
+	case '|':
+		if l.peekChar() == '|' {
+			l.readChar()
+			tok = l.makeToken(LOR, "||")
+			l.readChar()
+		} else {
+			tok = l.makeToken(PIPE, string(l.ch))
+			l.readChar()
+		}
 
 	default:
 		if isLetter(l.ch) {

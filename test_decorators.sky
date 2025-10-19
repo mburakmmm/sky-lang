@@ -1,0 +1,66 @@
+# Test Decorators
+
+# Define decorators
+function log_decorator(fn): any
+  print("Creating logged version of " + fn.name)
+  
+  function wrapper(...args): any
+    print("Calling " + fn.name + " with args: " + str(args))
+    
+    # Call original function
+    let callEnv = {}
+    let result = fn(args[0], args[1])
+    
+    print("Result: " + str(result))
+    return result
+  end
+  
+  return wrapper
+end
+
+function validate_positive(fn): any
+  function wrapper(x): int
+    if x < 0
+      throw "Negative number not allowed!"
+    end
+    return fn(x)
+  end
+  return wrapper
+end
+
+# Use decorators
+@log_decorator
+function add(a, b): int
+  return a + b
+end
+
+@validate_positive
+function square(x): int
+  return x * x
+end
+
+function main
+  print("=== Decorator Test ===")
+  
+  # Test logged function
+  let sum = add(5, 3)
+  print("Sum: " + str(sum))
+  
+  # Test validated function
+  try
+    let sq = square(4)
+    print("Square: " + str(sq))
+  catch e
+    print("Error: " + e)
+  end
+  
+  # Test negative (should fail)
+  try
+    let sq2 = square(-2)
+    print("This should not print")
+  catch e
+    print("Caught expected error: " + e)
+  end
+  
+  print("=== Test Complete ===")
+end

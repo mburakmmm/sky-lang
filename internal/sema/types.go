@@ -2,6 +2,7 @@ package sema
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/mburakmmm/sky-lang/internal/ast"
 )
@@ -44,6 +45,17 @@ func (t *BasicType) IsAssignableTo(target Type) bool {
 	// any her şeyi kabul eder
 	if target == AnyType || t == AnyType {
 		return true
+	}
+
+	// Check if target is a union type
+	if unionTarget, ok := target.(*UnionType); ok {
+		// We can assign to union if we match any of its members
+		for _, memberType := range unionTarget.Types {
+			if t.IsAssignableTo(memberType) {
+				return true
+			}
+		}
+		return false
 	}
 
 	// Aynı tip ise
@@ -286,9 +298,87 @@ func ResolveType(typeAnnot ast.TypeAnnotation) Type {
 		pointeeType := ResolveType(t.PointeeType)
 		return &PointerType{PointeeType: pointeeType}
 
+	case *ast.OptionalType:
+		baseType := ResolveType(t.BaseType)
+		// For now, optional types are treated as union of base type and nil
+		return &UnionType{Types: []Type{baseType, NilType}}
+
+	case *ast.UnionType:
+		types := make([]Type, len(t.Types))
+		for i, tt := range t.Types {
+			types[i] = ResolveType(tt)
+		}
+		return &UnionType{Types: types}
+
+	case *ast.GenericType:
+		// For now, treat generics as the base type with any element
+		// Full generic implementation would require type parameters
+		return AnyType
+
 	default:
 		return AnyType
 	}
+}
+
+// UnionType represents a union of multiple types
+type UnionType struct {
+	Types []Type
+}
+
+func (t *UnionType) String() string {
+	strs := make([]string, len(t.Types))
+	for i, typ := range t.Types {
+		strs[i] = typ.String()
+	}
+	return strings.Join(strs, "|")
+}
+
+func (t *UnionType) Equals(other Type) bool {
+	if o, ok := other.(*UnionType); ok {
+		if len(t.Types) != len(o.Types) {
+			return false
+		}
+		for i := range t.Types {
+			if !t.Types[i].Equals(o.Types[i]) {
+				return false
+			}
+		}
+		return true
+	}
+	return false
+}
+
+func (t *UnionType) IsAssignableTo(target Type) bool {
+	if target == AnyType {
+		return true
+	}
+
+	// Check if target is also a union type
+	if targetUnion, ok := target.(*UnionType); ok {
+		// All our types must be in target union
+		for _, ourType := range t.Types {
+			found := false
+			for _, targetType := range targetUnion.Types {
+				if ourType.IsAssignableTo(targetType) {
+					found = true
+					break
+				}
+			}
+			if !found {
+				return false
+			}
+		}
+		return true
+	}
+
+	// If target is not a union, check if ANY of our types is assignable
+	// This allows string|int to be assigned to any, string, or int
+	for _, typ := range t.Types {
+		if typ.IsAssignableTo(target) {
+			return true
+		}
+	}
+	return false
 }
 
 // InferType ifadenin tipini çıkarır

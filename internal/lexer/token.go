@@ -91,6 +91,9 @@ const (
 	COLON    // :
 	ARROW    // =>
 	ELLIPSIS // ...
+	AT       // @
+	QUESTION // ?
+	PIPE     // |
 
 	// Special indentation tokens
 	NEWLINE // \n (significant newlines)
@@ -251,6 +254,9 @@ func (tt TokenType) String() string {
 		COLON:    "COLON",
 		ARROW:    "ARROW",
 		ELLIPSIS: "ELLIPSIS",
+		AT:       "AT",
+		QUESTION: "QUESTION",
+		PIPE:     "PIPE",
 
 		NEWLINE: "NEWLINE",
 		INDENT:  "INDENT",

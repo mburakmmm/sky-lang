@@ -1,0 +1,49 @@
+# Test Advanced Type System
+
+# Test Optional Types (T?)
+function find_user(id): string?
+  if id > 0
+    return "User_" + str(id)
+  else
+    return null
+  end
+end
+
+# Test Union Types (int|string)
+function parse_value(input): int|string
+  if input == "number"
+    return 42
+  else
+    return "text"
+  end
+end
+
+# Test Generic Types (List<int>)
+function create_numbers: List<int>
+  let nums = [1, 2, 3, 4, 5]
+  return nums
+end
+
+function main
+  print("=== Advanced Type System Test ===")
+  
+  # Test optional type
+  let user1 = find_user(1)
+  print("User 1: " + str(user1))
+  
+  let user2 = find_user(-1)
+  print("User 2: " + str(user2))
+  
+  # Test union type
+  let val1 = parse_value("number")
+  print("Parse number: " + str(val1))
+  
+  let val2 = parse_value("text")
+  print("Parse text: " + val2)
+  
+  # Test generic type
+  let numbers = create_numbers()
+  print("Numbers: " + str(numbers))
+  
+  print("=== Test Complete ===")
+end
