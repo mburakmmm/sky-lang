@@ -1,0 +1,42 @@
+name: Update Package Registry
+
+on:
+  push:
+    branches: [ main ]
+    paths: [ 'packages/*' ]
+  workflow_dispatch:
+
+jobs:
+  update-registry:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
+
+    - name: Setup Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.22'
+
+    - name: Install dependencies
+      run: |
+        go mod download
+        go mod tidy
+
+    - name: Update package index
+      run: |
+        # This would be a custom script that updates packages.json
+        # based on the new packages in the packages/ directory
+        go run scripts/update-registry.go
+
+    - name: Commit and push changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add packages.json
+        git diff --staged --quiet || git commit -m "Update package registry [skip ci]"
+        git push

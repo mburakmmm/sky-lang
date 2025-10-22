@@ -36,6 +36,8 @@ const (
 	COOP     // coop
 	YIELD    // yield
 	UNSAFE   // unsafe
+	VOID     // void
+	ANY      // any
 	SELF     // self
 	SUPER    // super
 	IMPORT   // import
@@ -52,6 +54,9 @@ const (
 	CATCH    // catch
 	FINALLY  // finally
 	THROW    // throw
+	CASE     // case
+	ABSTRACT // abstract
+	STATIC   // static
 
 	// Operators
 	PLUS    // +
@@ -90,6 +95,7 @@ const (
 	COMMA    // ,
 	COLON    // :
 	ARROW    // =>
+	RARROW   // ->
 	ELLIPSIS // ...
 	AT       // @
 	QUESTION // ?
@@ -120,6 +126,8 @@ var keywords = map[string]TokenType{
 	"coop":     COOP,
 	"yield":    YIELD,
 	"unsafe":   UNSAFE,
+	"void":     VOID,
+	"any":      ANY,
 	"self":     SELF,
 	"super":    SUPER,
 	"import":   IMPORT,
@@ -132,10 +140,13 @@ var keywords = map[string]TokenType{
 	"not":      NOT,
 	"enum":     ENUM,
 	"match":    MATCH,
+	"case":     CASE,
 	"try":      TRY,
 	"catch":    CATCH,
 	"finally":  FINALLY,
 	"throw":    THROW,
+	"abstract": ABSTRACT,
+	"static":   STATIC,
 }
 
 // LookupIdent identifier'ın keyword olup olmadığını kontrol eder
@@ -199,6 +210,8 @@ func (tt TokenType) String() string {
 		COOP:     "COOP",
 		YIELD:    "YIELD",
 		UNSAFE:   "UNSAFE",
+		VOID:     "VOID",
+		ANY:      "ANY",
 		SELF:     "SELF",
 		SUPER:    "SUPER",
 		IMPORT:   "IMPORT",
@@ -211,10 +224,13 @@ func (tt TokenType) String() string {
 		NOT:      "NOT",
 		ENUM:     "ENUM",
 		MATCH:    "MATCH",
+		CASE:     "CASE",
 		TRY:      "TRY",
 		CATCH:    "CATCH",
 		FINALLY:  "FINALLY",
 		THROW:    "THROW",
+		ABSTRACT: "ABSTRACT",
+		STATIC:   "STATIC",
 		BREAK:    "BREAK",
 		CONTINUE: "CONTINUE",
 
@@ -253,6 +269,7 @@ func (tt TokenType) String() string {
 		COMMA:    "COMMA",
 		COLON:    "COLON",
 		ARROW:    "ARROW",
+		RARROW:   "RARROW",
 		ELLIPSIS: "ELLIPSIS",
 		AT:       "AT",
 		QUESTION: "QUESTION",
@@ -271,7 +288,7 @@ func (tt TokenType) String() string {
 
 // IsKeyword token'ın keyword olup olmadığını kontrol eder
 func (tt TokenType) IsKeyword() bool {
-	return tt >= FUNCTION && tt <= NOT
+	return tt >= FUNCTION && tt <= STATIC
 }
 
 // IsOperator token'ın operator olup olmadığını kontrol eder

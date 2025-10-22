@@ -36,23 +36,3 @@ func (ec *EnumConstructorExpression) Pos() lexer.Token     { return ec.Token }
 func (ec *EnumConstructorExpression) String() string {
 	return ec.EnumName + "::" + ec.Variant
 }
-
-// MatchExpression represents pattern matching
-type MatchExpression struct {
-	Token lexer.Token // MATCH token
-	Value Expression  // value to match
-	Arms  []*MatchArm // match arms
-}
-
-func (me *MatchExpression) expressionNode()      {}
-func (me *MatchExpression) TokenLiteral() string { return me.Token.Literal }
-func (me *MatchExpression) Pos() lexer.Token     { return me.Token }
-func (me *MatchExpression) String() string {
-	return "match " + me.Value.String()
-}
-
-// MatchArm represents a single match arm
-type MatchArm struct {
-	Pattern Expression      // pattern to match
-	Body    *BlockStatement // body to execute
-}

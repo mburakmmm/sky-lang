@@ -73,8 +73,14 @@ func (d *DocGenerator) addFunctionDoc(stmt *ast.FunctionStatement) {
 
 func (d *DocGenerator) addClassDoc(stmt *ast.ClassStatement) {
 	sig := fmt.Sprintf("class %s", stmt.Name.Value)
-	if stmt.SuperClass != nil {
-		sig += fmt.Sprintf("(%s)", stmt.SuperClass.Value)
+	if len(stmt.SuperClasses) > 0 {
+		sig += " : "
+		for i, superClass := range stmt.SuperClasses {
+			if i > 0 {
+				sig += ", "
+			}
+			sig += superClass.Value
+		}
 	}
 
 	desc := d.extractDescription(stmt.Token.Line)

@@ -49,6 +49,7 @@ var precedences = map[lexer.TokenType]int{
 	lexer.LPAREN:    CALL,
 	lexer.LBRACK:    INDEX,
 	lexer.DOT:       INDEX,
+	lexer.ARROW:     ASSIGN, // => has same precedence as assignment
 }
 
 // Parser sözdizimi analizörü
@@ -93,8 +94,16 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerPrefix(lexer.YIELD, p.parseYieldExpression)
 	p.registerPrefix(lexer.SELF, p.parseIdentifier)
 	p.registerPrefix(lexer.SUPER, p.parseIdentifier)
+	p.registerPrefix(lexer.VOID, p.parseIdentifier)
+	p.registerPrefix(lexer.ANY, p.parseIdentifier)
 	p.registerPrefix(lexer.MATCH, p.parseMatchExpression)
 	p.registerPrefix(lexer.FUNCTION, p.parseLambdaExpression)
+	p.registerPrefix(lexer.NEWLINE, p.parseEmptyExpression)
+	p.registerPrefix(lexer.RBRACE, p.parseEmptyExpression)
+	p.registerPrefix(lexer.COLON, p.parseEmptyExpression)
+	p.registerPrefix(lexer.COMMA, p.parseEmptyExpression)
+	p.registerPrefix(lexer.RPAREN, p.parseEmptyExpression)
+	p.registerPrefix(lexer.INDENT, p.parseEmptyExpression)
 
 	// Infix parse fonksiyonları
 	p.infixParseFns = make(map[lexer.TokenType]infixParseFn)
@@ -121,6 +130,7 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerInfix(lexer.LPAREN, p.parseCallExpression)
 	p.registerInfix(lexer.LBRACK, p.parseIndexExpression)
 	p.registerInfix(lexer.DOT, p.parseMemberExpression)
+	p.registerInfix(lexer.ARROW, p.parseArrowExpression)
 
 	// İlk iki token'ı oku
 	p.nextToken()
@@ -147,16 +157,6 @@ func (p *Parser) addError(msg string) {
 func (p *Parser) nextToken() {
 	p.curToken = p.peekToken
 	p.peekToken = p.l.NextToken()
-
-	// Yorumları atla (hem current hem peek)
-	for p.curToken.Type == lexer.COMMENT {
-		p.curToken = p.peekToken
-		p.peekToken = p.l.NextToken()
-	}
-
-	for p.peekToken.Type == lexer.COMMENT {
-		p.peekToken = p.l.NextToken()
-	}
 }
 
 func (p *Parser) curTokenIs(t lexer.TokenType) bool {
@@ -234,6 +234,16 @@ func (p *Parser) parseStatement() ast.Statement {
 		return p.parseContinueStatement()
 	case lexer.FUNCTION, lexer.ASYNC, lexer.COOP:
 		return p.parseFunctionStatement()
+	case lexer.ABSTRACT:
+		if p.peekTokenIs(lexer.FUNCTION) {
+			return p.parseAbstractMethodStatement()
+		}
+		return p.parseAbstractClassStatement()
+	case lexer.STATIC:
+		if p.peekTokenIs(lexer.FUNCTION) {
+			return p.parseStaticMethodStatement()
+		}
+		return p.parseStaticPropertyStatement()
 	case lexer.IF:
 		return p.parseIfStatement()
 	case lexer.WHILE:
@@ -255,6 +265,9 @@ func (p *Parser) parseStatement() ast.Statement {
 	case lexer.AT:
 		// Decorator followed by function
 		return p.parseFunctionStatement()
+	case lexer.COMMENT:
+		// COMMENT'leri atla
+		return nil
 	default:
 		return p.parseExpressionStatement()
 	}
@@ -662,6 +675,118 @@ func (p *Parser) parseTypeAnnotation() ast.TypeAnnotation {
 			Token:       p.curToken,
 			PointeeType: pointeeType,
 		}
+	case lexer.FUNCTION:
+		// Function type: function(ArgTypes) -> ReturnType
+		token := p.curToken
+		p.nextToken() // function
+
+		if !p.expectPeek(lexer.LPAREN) {
+			return nil
+		}
+		p.nextToken() // (
+
+		// Parse parameter types
+		paramTypes := []ast.TypeAnnotation{}
+		if !p.curTokenIs(lexer.RPAREN) {
+			paramTypes = append(paramTypes, p.parseTypeAnnotation())
+			for p.peekTokenIs(lexer.COMMA) {
+				p.nextToken() // ,
+				p.nextToken() // next type
+				paramTypes = append(paramTypes, p.parseTypeAnnotation())
+			}
+		}
+
+		if !p.expectPeek(lexer.RPAREN) {
+			return nil
+		}
+
+		// Parse return type (optional)
+		var returnType ast.TypeAnnotation
+		if p.peekTokenIs(lexer.RARROW) {
+			p.nextToken() // ->
+			p.nextToken() // return type
+			returnType = p.parseTypeAnnotation()
+		}
+
+		baseType = &ast.FunctionType{
+			Token:      token,
+			ParamTypes: paramTypes,
+			ReturnType: returnType,
+		}
+	case lexer.LPAREN:
+		// Check if this is a function type: (ArgTypes) => ReturnType
+		// or a grouped expression: (expr)
+		token := p.curToken
+		p.nextToken() // (
+
+		// Look ahead to see if this is a function type
+		// Function type: (type1, type2) => returnType
+		// Grouped expr: (expr)
+		if p.curTokenIs(lexer.RPAREN) {
+			// Empty parameter list: () => returnType
+			p.nextToken() // )
+			if p.peekTokenIs(lexer.ARROW) {
+				// This is a function type: () => returnType
+				p.nextToken() // =>
+				p.nextToken() // return type
+				returnType := p.parseTypeAnnotation()
+				return &ast.FunctionType{
+					Token:      token,
+					ParamTypes: []ast.TypeAnnotation{},
+					ReturnType: returnType,
+				}
+			} else {
+				// This is a grouped expression, not a type annotation
+				// We're in the wrong context - this shouldn't happen in parseTypeAnnotation
+				return nil
+			}
+		} else {
+			// Check if first token is a type (IDENT)
+			if p.curTokenIs(lexer.IDENT) {
+				// This could be a function type: (type1, type2) => returnType
+				// Parse parameter types
+				paramTypes := []ast.TypeAnnotation{}
+				paramTypes = append(paramTypes, p.parseTypeAnnotation())
+				for p.peekTokenIs(lexer.COMMA) {
+					p.nextToken() // ,
+					p.nextToken() // next type
+					paramTypes = append(paramTypes, p.parseTypeAnnotation())
+				}
+
+				if !p.expectPeek(lexer.RPAREN) {
+					return nil
+				}
+
+				// Check if this is followed by =>
+				if p.peekTokenIs(lexer.ARROW) {
+					// This is a function type
+					p.nextToken() // =>
+					p.nextToken() // return type
+					returnType := p.parseTypeAnnotation()
+					return &ast.FunctionType{
+						Token:      token,
+						ParamTypes: paramTypes,
+						ReturnType: returnType,
+					}
+				} else {
+					// This is a grouped expression, not a type annotation
+					return nil
+				}
+			} else {
+				// This is a grouped expression, not a type annotation
+				return nil
+			}
+		}
+	case lexer.VOID:
+		baseType = &ast.BasicType{
+			Token: p.curToken,
+			Name:  "void",
+		}
+	case lexer.ANY:
+		baseType = &ast.BasicType{
+			Token: p.curToken,
+			Name:  "any",
+		}
 	case lexer.IDENT:
 		// Basic types or Generic: int, float, List<T>
 		typeName := p.curToken.Literal
@@ -840,12 +965,86 @@ func (p *Parser) parseEnumStatement() *ast.EnumStatement {
 	return stmt
 }
 
+// parseArrowExpression parses arrow expressions (=>)
+func (p *Parser) parseArrowExpression(left ast.Expression) ast.Expression {
+	expr := &ast.ArrowExpression{
+		Token: p.curToken,
+		Left:  left,
+	}
+
+	precedence := p.curPrecedence()
+	p.nextToken()
+
+	expr.Right = p.parseExpression(precedence)
+	return expr
+}
+
+// parseEmptyExpression parses empty expressions (for NEWLINE, RBRACE)
+func (p *Parser) parseEmptyExpression() ast.Expression {
+	return &ast.Identifier{Token: p.curToken, Value: ""}
+}
+
 // parseMatchExpression parses match expression
 func (p *Parser) parseMatchExpression() ast.Expression {
 	expr := &ast.MatchExpression{Token: p.curToken}
 
 	p.nextToken()
 	expr.Value = p.parseExpression(LOWEST)
+
+	// Check for brace syntax: match value { pattern => result }
+	if p.peekTokenIs(lexer.LBRACE) {
+		p.nextToken() // consume {
+
+		expr.Arms = []*ast.MatchArm{}
+
+		for !p.curTokenIs(lexer.RBRACE) && !p.curTokenIs(lexer.EOF) {
+			// Skip NEWLINE and COMMENT tokens
+			if p.curTokenIs(lexer.NEWLINE) || p.curTokenIs(lexer.COMMENT) {
+				p.nextToken()
+				continue
+			}
+
+			arm := &ast.MatchArm{}
+
+			// Parse pattern
+			arm.Pattern = p.parseExpression(LOWEST)
+
+			// Expect ARROW =>
+			if !p.expectPeek(lexer.ARROW) {
+				p.addError("expected => in match arm")
+				return expr
+			}
+
+			// Parse body - single inline expression
+			p.nextToken()
+
+			body := &ast.BlockStatement{
+				Token:      p.curToken,
+				Statements: []ast.Statement{},
+			}
+
+			exprStmt := &ast.ExpressionStatement{
+				Token:      p.curToken,
+				Expression: p.parseExpression(LOWEST),
+			}
+			body.Statements = append(body.Statements, exprStmt)
+			arm.Body = body
+
+			expr.Arms = append(expr.Arms, arm)
+
+			// Skip NEWLINE after arm
+			if p.peekTokenIs(lexer.NEWLINE) {
+				p.nextToken()
+			}
+		}
+
+		if !p.expectPeek(lexer.RBRACE) {
+			p.addError("expected } in match expression")
+			return expr
+		}
+
+		return expr
+	}
 
 	// Skip NEWLINE
 	for p.peekTokenIs(lexer.NEWLINE) {
@@ -899,4 +1098,175 @@ func (p *Parser) parseMatchExpression() ast.Expression {
 	}
 
 	return expr
+}
+
+// parseAbstractClassStatement abstract class tanımlamasını parse eder
+func (p *Parser) parseAbstractClassStatement() *ast.AbstractClassStatement {
+	stmt := &ast.AbstractClassStatement{Token: p.curToken}
+
+	// Abstract class adı
+	if !p.expectPeek(lexer.CLASS) {
+		return nil
+	}
+	if !p.expectPeek(lexer.IDENT) {
+		return nil
+	}
+	stmt.Name = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+
+	// Multiple inheritance (abstract class Duck : Flying, Swimming)
+	if p.peekTokenIs(lexer.COLON) {
+		p.nextToken() // :
+		p.nextToken() // first superclass
+
+		stmt.SuperClasses = []*ast.Identifier{}
+		stmt.SuperClasses = append(stmt.SuperClasses, &ast.Identifier{
+			Token: p.curToken,
+			Value: p.curToken.Literal,
+		})
+
+		// Additional superclasses (comma-separated)
+		for p.peekTokenIs(lexer.COMMA) {
+			p.nextToken() // ,
+			p.nextToken() // next superclass
+			stmt.SuperClasses = append(stmt.SuperClasses, &ast.Identifier{
+				Token: p.curToken,
+				Value: p.curToken.Literal,
+			})
+		}
+	}
+
+	// NEWLINE'a kadar ilerle
+	if !p.expectPeek(lexer.NEWLINE) {
+		return nil
+	}
+
+	// COMMENT'leri atla ve INDENT'ı bul
+	for {
+		if p.peekTokenIs(lexer.COMMENT) {
+			p.nextToken() // COMMENT
+			if p.peekTokenIs(lexer.NEWLINE) {
+				p.nextToken() // NEWLINE
+			}
+		} else if p.peekTokenIs(lexer.INDENT) {
+			p.nextToken() // INDENT
+			break
+		} else {
+			p.peekError(lexer.INDENT)
+			return nil
+		}
+	}
+
+	stmt.Body = p.parseBlockStatement().Statements
+
+	return stmt
+}
+
+// parseAbstractMethodStatement abstract method tanımlamasını parse eder
+func (p *Parser) parseAbstractMethodStatement() *ast.AbstractMethodStatement {
+	stmt := &ast.AbstractMethodStatement{Token: p.curToken}
+
+	// Abstract function adı
+	if !p.expectPeek(lexer.FUNCTION) {
+		return nil
+	}
+	if !p.expectPeek(lexer.IDENT) {
+		return nil
+	}
+	stmt.Name = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+
+	// Parametreler
+	if p.peekTokenIs(lexer.LPAREN) {
+		stmt.Parameters = p.parseFunctionParameters()
+	}
+
+	// Return type
+	if p.peekTokenIs(lexer.COLON) {
+		p.nextToken()
+		p.nextToken()
+		stmt.ReturnType = p.parseTypeAnnotation()
+	}
+
+	return stmt
+}
+
+// parseStaticMethodStatement static method tanımlamasını parse eder
+func (p *Parser) parseStaticMethodStatement() *ast.StaticMethodStatement {
+	stmt := &ast.StaticMethodStatement{Token: p.curToken}
+
+	// Static function adı
+	if !p.expectPeek(lexer.FUNCTION) {
+		return nil
+	}
+	if !p.expectPeek(lexer.IDENT) {
+		return nil
+	}
+	stmt.Name = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+
+	// Parametreler
+	if p.peekTokenIs(lexer.LPAREN) {
+		p.nextToken() // (
+		stmt.Parameters = p.parseFunctionParameters()
+	}
+
+	// Return type
+	if p.peekTokenIs(lexer.COLON) {
+		p.nextToken()
+		p.nextToken()
+		stmt.ReturnType = p.parseTypeAnnotation()
+	}
+
+	// NEWLINE'a kadar ilerle
+	if !p.expectPeek(lexer.NEWLINE) {
+		return nil
+	}
+
+	// COMMENT'leri atla ve INDENT'ı bul
+	for {
+		if p.peekTokenIs(lexer.COMMENT) {
+			p.nextToken() // COMMENT
+			if p.peekTokenIs(lexer.NEWLINE) {
+				p.nextToken() // NEWLINE
+			}
+		} else if p.peekTokenIs(lexer.INDENT) {
+			p.nextToken() // INDENT
+			break
+		} else {
+			p.peekError(lexer.INDENT)
+			return nil
+		}
+	}
+
+	stmt.Body = p.parseBlockStatement()
+
+	return stmt
+}
+
+// parseStaticPropertyStatement static property tanımlamasını parse eder
+func (p *Parser) parseStaticPropertyStatement() *ast.StaticPropertyStatement {
+	stmt := &ast.StaticPropertyStatement{Token: p.curToken}
+
+	// Static let adı
+	if !p.expectPeek(lexer.LET) {
+		return nil
+	}
+	if !p.expectPeek(lexer.IDENT) {
+		return nil
+	}
+	stmt.Name = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+
+	// Tip anotasyonu
+	if p.peekTokenIs(lexer.COLON) {
+		p.nextToken() // :
+		p.nextToken() // tip
+		stmt.Type = p.parseTypeAnnotation()
+	}
+
+	// Değer
+	if p.peekTokenIs(lexer.ASSIGN) {
+		p.nextToken() // =
+		p.nextToken() // değer
+		stmt.Value = p.parseExpression(LOWEST)
+	}
+
+	return stmt
 }

@@ -31,7 +31,7 @@ func (f *Formatter) Format(program *ast.Program) string {
 
 	for i, stmt := range program.Statements {
 		f.formatStatement(stmt)
-		
+
 		// Add blank line between top-level declarations
 		if i < len(program.Statements)-1 {
 			nextStmt := program.Statements[i+1]
@@ -96,12 +96,12 @@ func (f *Formatter) formatLetStatement(stmt *ast.LetStatement) {
 	f.writeIndent()
 	f.output.WriteString("let ")
 	f.output.WriteString(stmt.Name.Value)
-	
+
 	if stmt.Type != nil {
 		f.output.WriteString(": ")
 		f.formatType(stmt.Type)
 	}
-	
+
 	f.output.WriteString(" = ")
 	f.formatExpression(stmt.Value)
 	f.output.WriteString("\n")
@@ -111,12 +111,12 @@ func (f *Formatter) formatConstStatement(stmt *ast.ConstStatement) {
 	f.writeIndent()
 	f.output.WriteString("const ")
 	f.output.WriteString(stmt.Name.Value)
-	
+
 	if stmt.Type != nil {
 		f.output.WriteString(": ")
 		f.formatType(stmt.Type)
 	}
-	
+
 	f.output.WriteString(" = ")
 	f.formatExpression(stmt.Value)
 	f.output.WriteString("\n")
@@ -124,14 +124,14 @@ func (f *Formatter) formatConstStatement(stmt *ast.ConstStatement) {
 
 func (f *Formatter) formatFunctionStatement(stmt *ast.FunctionStatement) {
 	f.writeIndent()
-	
+
 	if stmt.Async {
 		f.output.WriteString("async ")
 	}
-	
+
 	f.output.WriteString("function ")
 	f.output.WriteString(stmt.Name.Value)
-	
+
 	// Parameters
 	if len(stmt.Parameters) > 0 {
 		f.output.WriteString("(")
@@ -147,22 +147,22 @@ func (f *Formatter) formatFunctionStatement(stmt *ast.FunctionStatement) {
 		}
 		f.output.WriteString(")")
 	}
-	
+
 	// Return type
 	if stmt.ReturnType != nil {
 		f.output.WriteString(": ")
 		f.formatType(stmt.ReturnType)
 	}
-	
+
 	f.output.WriteString("\n")
-	
+
 	// Body
 	f.indentLevel++
 	for _, bodyStmt := range stmt.Body.Statements {
 		f.formatStatement(bodyStmt)
 	}
 	f.indentLevel--
-	
+
 	f.writeIndent()
 	f.output.WriteString("end\n")
 }
@@ -171,22 +171,26 @@ func (f *Formatter) formatClassStatement(stmt *ast.ClassStatement) {
 	f.writeIndent()
 	f.output.WriteString("class ")
 	f.output.WriteString(stmt.Name.Value)
-	
-	if stmt.SuperClass != nil {
-		f.output.WriteString("(")
-		f.output.WriteString(stmt.SuperClass.Value)
-		f.output.WriteString(")")
+
+	if len(stmt.SuperClasses) > 0 {
+		f.output.WriteString(" : ")
+		for i, superClass := range stmt.SuperClasses {
+			if i > 0 {
+				f.output.WriteString(", ")
+			}
+			f.output.WriteString(superClass.Value)
+		}
 	}
-	
+
 	f.output.WriteString("\n")
-	
+
 	// Body
 	f.indentLevel++
 	for _, member := range stmt.Body {
 		f.formatStatement(member)
 	}
 	f.indentLevel--
-	
+
 	f.writeIndent()
 	f.output.WriteString("end\n")
 }
@@ -196,39 +200,39 @@ func (f *Formatter) formatIfStatement(stmt *ast.IfStatement) {
 	f.output.WriteString("if ")
 	f.formatExpression(stmt.Condition)
 	f.output.WriteString("\n")
-	
+
 	f.indentLevel++
 	for _, s := range stmt.Consequence.Statements {
 		f.formatStatement(s)
 	}
 	f.indentLevel--
-	
+
 	// Elif clauses
 	for _, elif := range stmt.Elif {
 		f.writeIndent()
 		f.output.WriteString("elif ")
 		f.formatExpression(elif.Condition)
 		f.output.WriteString("\n")
-		
+
 		f.indentLevel++
 		for _, s := range elif.Consequence.Statements {
 			f.formatStatement(s)
 		}
 		f.indentLevel--
 	}
-	
+
 	// Else clause
 	if stmt.Alternative != nil {
 		f.writeIndent()
 		f.output.WriteString("else\n")
-		
+
 		f.indentLevel++
 		for _, s := range stmt.Alternative.Statements {
 			f.formatStatement(s)
 		}
 		f.indentLevel--
 	}
-	
+
 	f.writeIndent()
 	f.output.WriteString("end\n")
 }
@@ -238,13 +242,13 @@ func (f *Formatter) formatWhileStatement(stmt *ast.WhileStatement) {
 	f.output.WriteString("while ")
 	f.formatExpression(stmt.Condition)
 	f.output.WriteString("\n")
-	
+
 	f.indentLevel++
 	for _, s := range stmt.Body.Statements {
 		f.formatStatement(s)
 	}
 	f.indentLevel--
-	
+
 	f.writeIndent()
 	f.output.WriteString("end\n")
 }
@@ -256,13 +260,13 @@ func (f *Formatter) formatForStatement(stmt *ast.ForStatement) {
 	f.output.WriteString(" in ")
 	f.formatExpression(stmt.Iterable)
 	f.output.WriteString("\n")
-	
+
 	f.indentLevel++
 	for _, s := range stmt.Body.Statements {
 		f.formatStatement(s)
 	}
 	f.indentLevel--
-	
+
 	f.writeIndent()
 	f.output.WriteString("end\n")
 }
@@ -270,12 +274,12 @@ func (f *Formatter) formatForStatement(stmt *ast.ForStatement) {
 func (f *Formatter) formatReturnStatement(stmt *ast.ReturnStatement) {
 	f.writeIndent()
 	f.output.WriteString("return")
-	
+
 	if stmt.ReturnValue != nil {
 		f.output.WriteString(" ")
 		f.formatExpression(stmt.ReturnValue)
 	}
-	
+
 	f.output.WriteString("\n")
 }
 
@@ -283,25 +287,25 @@ func (f *Formatter) formatImportStatement(stmt *ast.ImportStatement) {
 	f.writeIndent()
 	f.output.WriteString("import ")
 	f.output.WriteString(strings.Join(stmt.Path, "."))
-	
+
 	if stmt.Alias != nil {
 		f.output.WriteString(" as ")
 		f.output.WriteString(stmt.Alias.Value)
 	}
-	
+
 	f.output.WriteString("\n")
 }
 
 func (f *Formatter) formatUnsafeStatement(stmt *ast.UnsafeStatement) {
 	f.writeIndent()
 	f.output.WriteString("unsafe\n")
-	
+
 	f.indentLevel++
 	for _, s := range stmt.Body.Statements {
 		f.formatStatement(s)
 	}
 	f.indentLevel--
-	
+
 	f.writeIndent()
 	f.output.WriteString("end\n")
 }
@@ -425,12 +429,11 @@ func FormatFile(filename, source string) (string, error) {
 	l := lexer.New(source, filename)
 	p := parser.New(l)
 	program := p.ParseProgram()
-	
+
 	if len(p.Errors()) > 0 {
 		return "", fmt.Errorf("parse errors: %v", p.Errors())
 	}
-	
+
 	formatter := NewFormatter()
 	return formatter.Format(program), nil
 }
-

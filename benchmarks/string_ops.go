@@ -1,4 +1,4 @@
-package main
+package stringops
 
 import (
 	"fmt"
@@ -31,6 +31,6 @@ func stringOperations() {
 	fmt.Printf("Duration: %v\n", duration)
 }
 
-func main() {
+func RunBenchmark() {
 	stringOperations()
 }

@@ -208,6 +208,40 @@ func NewSymbolTable() *SymbolTable {
 		{"join", &FunctionType{Params: []Type{StringType, &ListType{ElementType: AnyType}}, ReturnType: StringType}},
 		{"null", NilType},
 		{"nil", NilType},
+
+		// FS Module Functions
+		{"fs_read_text", &FunctionType{Params: []Type{StringType}, ReturnType: StringType}},
+		{"fs_write_text", &FunctionType{Params: []Type{StringType, StringType}, ReturnType: BoolType}},
+		{"fs_exists", &FunctionType{Params: []Type{StringType}, ReturnType: BoolType}},
+		{"fs_mkdir", &FunctionType{Params: []Type{StringType}, ReturnType: BoolType}},
+		{"fs_list_dir", &FunctionType{Params: []Type{StringType}, ReturnType: &ListType{ElementType: StringType}}},
+
+		// OS Module Functions
+		{"os_platform", &FunctionType{Params: []Type{}, ReturnType: StringType}},
+		{"os_getcwd", &FunctionType{Params: []Type{}, ReturnType: StringType}},
+		{"os_getenv", &FunctionType{Params: []Type{StringType}, ReturnType: StringType}},
+		{"os_setenv", &FunctionType{Params: []Type{StringType, StringType}, ReturnType: BoolType}},
+
+		// Time Module Functions
+		{"time_format", &FunctionType{Params: []Type{IntType, StringType}, ReturnType: StringType}},
+		{"time_parse", &FunctionType{Params: []Type{StringType, StringType}, ReturnType: IntType}},
+		{"time_add", &FunctionType{Params: []Type{IntType, IntType, StringType}, ReturnType: IntType}},
+		{"time_diff", &FunctionType{Params: []Type{IntType, IntType}, ReturnType: IntType}},
+
+		// Promise Functions
+		{"Promise_all", &FunctionType{Params: []Type{&ListType{ElementType: AnyType}}, ReturnType: &ListType{ElementType: AnyType}}},
+		{"Promise_allSettled", &FunctionType{Params: []Type{&ListType{ElementType: AnyType}}, ReturnType: &ListType{ElementType: AnyType}}},
+
+		// HTTP Module Functions
+		{"http_get", &FunctionType{Params: []Type{StringType}, ReturnType: StringType}},
+		{"http_post", &FunctionType{Params: []Type{StringType, StringType}, ReturnType: StringType}},
+		{"http_put", &FunctionType{Params: []Type{StringType, StringType}, ReturnType: StringType}},
+		{"http_delete", &FunctionType{Params: []Type{StringType}, ReturnType: StringType}},
+
+		// Crypto Module Functions
+		{"crypto_md5", &FunctionType{Params: []Type{StringType}, ReturnType: StringType}},
+		{"crypto_sha256", &FunctionType{Params: []Type{StringType}, ReturnType: StringType}},
+		{"crypto_aes_encrypt", &FunctionType{Params: []Type{StringType, StringType}, ReturnType: StringType}},
 	}
 
 	for _, builtin := range builtins {

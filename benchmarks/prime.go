@@ -1,4 +1,4 @@
-package main
+package prime
 
 import (
 	"fmt"
@@ -29,7 +29,7 @@ func countPrimes(limit int) int {
 	return count
 }
 
-func main() {
+func RunBenchmark() {
 	start := time.Now()
 	result := countPrimes(10000)
 	duration := time.Since(start)

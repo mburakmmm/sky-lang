@@ -1,6 +1,10 @@
 package interpreter
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/mburakmmm/sky-lang/internal/ast"
+)
 
 // ValueKind değer tiplerini belirtir
 type ValueKind int
@@ -18,6 +22,8 @@ const (
 	ClassValue
 	InstanceValue
 	GeneratorValue
+	AbstractClassValue
+	AbstractMethodValue
 )
 
 // Value runtime değerlerini temsil eder
@@ -262,10 +268,10 @@ func (p *Promise) Await() (Value, error) {
 
 // Class represents a class definition
 type Class struct {
-	Name       string
-	SuperClass *Class               // parent class
-	Methods    map[string]*Function // method name -> function
-	Env        *Environment         // class environment
+	Name         string
+	SuperClasses []*Class             // parent classes (multiple inheritance)
+	Methods      map[string]*Function // method name -> function
+	Env          *Environment         // class environment
 }
 
 func (c *Class) Kind() ValueKind { return ClassValue }
@@ -302,15 +308,25 @@ func (i *Instance) Get(name string) (Value, bool) {
 			Body: func(callEnv *Environment) (Value, error) {
 				// Set 'self' to this instance
 				callEnv.Set("self", i)
+				// Set 'super' to parent class if exists
+				if len(i.Class.SuperClasses) > 0 {
+					callEnv.Set("super", i.Class.SuperClasses[0])
+				}
 				return method.Body(callEnv)
 			},
 		}
 		return boundMethod, true
 	}
 
-	// Check superclass methods
-	if i.Class.SuperClass != nil {
-		if method, ok := i.Class.SuperClass.Methods[name]; ok {
+	// Check superclass methods (multiple inheritance)
+	for idx, superClass := range i.Class.SuperClasses {
+		if method, ok := superClass.Methods[name]; ok {
+			// Determine the next superclass in chain (if exists)
+			var nextSuperClass *Class
+			if idx+1 < len(i.Class.SuperClasses) {
+				nextSuperClass = i.Class.SuperClasses[idx+1]
+			}
+
 			boundMethod := &Function{
 				Name:       method.Name,
 				Parameters: method.Parameters,
@@ -318,7 +334,12 @@ func (i *Instance) Get(name string) (Value, bool) {
 				Env:        method.Env,
 				Body: func(callEnv *Environment) (Value, error) {
 					callEnv.Set("self", i)
-					callEnv.Set("super", i.Class.SuperClass)
+					// Set super to the next superclass, or the first superclass of current class
+					if nextSuperClass != nil {
+						callEnv.Set("super", nextSuperClass)
+					} else if len(superClass.SuperClasses) > 0 {
+						callEnv.Set("super", superClass.SuperClasses[0])
+					}
 					return method.Body(callEnv)
 				},
 			}
@@ -332,4 +353,31 @@ func (i *Instance) Get(name string) (Value, bool) {
 // Set sets a field on the instance
 func (i *Instance) Set(name string, value Value) {
 	i.Fields[name] = value
+}
+
+// AbstractClass represents an abstract class
+type AbstractClass struct {
+	Name            string
+	SuperClasses    []*Class
+	Methods         map[string]*Function
+	AbstractMethods map[string]*AbstractMethod
+	Env             *Environment
+}
+
+func (ac *AbstractClass) Kind() ValueKind { return AbstractClassValue }
+func (ac *AbstractClass) String() string {
+	return fmt.Sprintf("AbstractClass(%s)", ac.Name)
+}
+func (ac *AbstractClass) IsTruthy() bool { return true }
+
+// AbstractMethod represents an abstract method
+type AbstractMethod struct {
+	Name       string
+	Parameters []*ast.FunctionParameter
+	ReturnType ast.TypeAnnotation
+}
+
+func (am *AbstractMethod) Kind() ValueKind { return AbstractMethodValue }
+func (am *AbstractMethod) String() string {
+	return fmt.Sprintf("AbstractMethod(%s)", am.Name)
 }

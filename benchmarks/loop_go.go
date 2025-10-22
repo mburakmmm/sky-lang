@@ -1,8 +1,8 @@
-package main
+package loopgo
 
 import "fmt"
 
-func main() {
+func RunBenchmark() {
 	sum := 0
 	for i := 0; i < 1000000; i++ {
 		sum += i

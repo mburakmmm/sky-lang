@@ -216,10 +216,10 @@ func (t *PointerType) IsAssignableTo(target Type) bool {
 
 // ClassType sınıf tipini temsil eder
 type ClassType struct {
-	Name       string
-	SuperClass *ClassType
-	Methods    map[string]*FunctionType
-	Fields     map[string]Type
+	Name         string
+	SuperClasses []*ClassType // multiple inheritance
+	Methods      map[string]*FunctionType
+	Fields       map[string]Type
 }
 
 func (t *ClassType) String() string {
@@ -239,13 +239,16 @@ func (t *ClassType) IsAssignableTo(target Type) bool {
 	}
 
 	if o, ok := target.(*ClassType); ok {
-		// Aynı sınıf veya parent sınıf ise atanabilir
-		current := t
-		for current != nil {
-			if current.Name == o.Name {
+		// Aynı sınıf ise atanabilir
+		if t.Name == o.Name {
+			return true
+		}
+
+		// Parent sınıflardan birinde ise atanabilir (multiple inheritance)
+		for _, superClass := range t.SuperClasses {
+			if superClass.IsAssignableTo(target) {
 				return true
 			}
-			current = current.SuperClass
 		}
 	}
 
@@ -481,4 +484,35 @@ func InferType(expr ast.Expression, scope *Scope, symTable *SymbolTable) Type {
 	default:
 		return AnyType
 	}
+}
+
+// AbstractClassType represents an abstract class type
+type AbstractClassType struct {
+	Name           string
+	SuperClasses   []*ClassType
+	Methods        map[string]*FunctionType
+	AbstractMethods map[string]*FunctionType
+}
+
+func (act *AbstractClassType) String() string {
+	return fmt.Sprintf("AbstractClass(%s)", act.Name)
+}
+
+func (act *AbstractClassType) IsAssignableTo(other Type) bool {
+	if other == AnyType {
+		return true
+	}
+	
+	if otherAct, ok := other.(*AbstractClassType); ok {
+		return act.Name == otherAct.Name
+	}
+	
+	return false
+}
+
+func (act *AbstractClassType) Equals(other Type) bool {
+	if otherAct, ok := other.(*AbstractClassType); ok {
+		return act.Name == otherAct.Name
+	}
+	return false
 }

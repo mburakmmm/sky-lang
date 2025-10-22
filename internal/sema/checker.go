@@ -68,6 +68,14 @@ func (c *Checker) checkStatement(stmt ast.Statement) {
 		c.checkForStatement(s)
 	case *ast.ClassStatement:
 		c.checkClassStatement(s)
+	case *ast.AbstractClassStatement:
+		c.checkAbstractClassStatement(s)
+	case *ast.AbstractMethodStatement:
+		c.checkAbstractMethodStatement(s)
+	case *ast.StaticMethodStatement:
+		c.checkStaticMethodStatement(s)
+	case *ast.StaticPropertyStatement:
+		c.checkStaticPropertyStatement(s)
 	case *ast.ImportStatement:
 		// Import statements are handled at a higher level
 	case *ast.UnsafeStatement:
@@ -366,12 +374,22 @@ func (c *Checker) checkClassStatement(stmt *ast.ClassStatement) {
 		Fields:  make(map[string]Type),
 	}
 
-	// SuperClass varsa
-	if stmt.SuperClass != nil {
-		if superSymbol, ok := c.symTable.Resolve(stmt.SuperClass.Value); ok {
+	// Multiple inheritance - check all superclasses
+	for _, superClassIdent := range stmt.SuperClasses {
+		if superSymbol, ok := c.symTable.Resolve(superClassIdent.Value); ok {
 			if superClass, ok := superSymbol.Type.(*ClassType); ok {
-				classType.SuperClass = superClass
+				classType.SuperClasses = append(classType.SuperClasses, superClass)
+			} else {
+				c.addError(&SemanticError{
+					Message: fmt.Sprintf("%s is not a class", superClassIdent.Value),
+					Pos:     superClassIdent.Token,
+				})
 			}
+		} else {
+			c.addError(&SemanticError{
+				Message: fmt.Sprintf("undefined superclass: %s", superClassIdent.Value),
+				Pos:     superClassIdent.Token,
+			})
 		}
 	}
 
@@ -780,4 +798,91 @@ func (c *Checker) checkYieldExpression(expr *ast.YieldExpression) Type {
 	}
 
 	return VoidType
+}
+
+// checkAbstractClassStatement checks abstract class statements
+func (c *Checker) checkAbstractClassStatement(stmt *ast.AbstractClassStatement) {
+	// For now, treat abstract class like a regular class in type checking
+	// Just register the class name as a class type
+	c.checkClassStatement(&ast.ClassStatement{
+		Token:        stmt.Token,
+		Name:         stmt.Name,
+		SuperClasses: stmt.SuperClasses,
+		Body:         stmt.Body,
+	})
+}
+
+// checkAbstractMethodStatement checks abstract method statements
+func (c *Checker) checkAbstractMethodStatement(stmt *ast.AbstractMethodStatement) {
+	// Abstract methods are handled within abstract classes
+	// This is just a placeholder
+}
+
+// checkStaticMethodStatement checks static method statements
+func (c *Checker) checkStaticMethodStatement(stmt *ast.StaticMethodStatement) {
+	// Static methods are treated like regular functions
+	var returnType Type = AnyType
+	if stmt.ReturnType != nil {
+		returnType = ResolveType(stmt.ReturnType)
+	}
+
+	paramTypes := []Type{}
+	for _, param := range stmt.Parameters {
+		if param.Type != nil {
+			paramTypes = append(paramTypes, ResolveType(param.Type))
+		} else {
+			paramTypes = append(paramTypes, AnyType)
+		}
+	}
+
+	funcSymbol := &Symbol{
+		Name: stmt.Name.Value,
+		Type: &FunctionType{
+			Params:     paramTypes,
+			ReturnType: returnType,
+		},
+		Kind: FunctionSymbol,
+	}
+
+	if err := c.symTable.Define(funcSymbol); err != nil {
+		c.addError(err)
+	}
+}
+
+// checkStaticPropertyStatement checks static property statements
+func (c *Checker) checkStaticPropertyStatement(stmt *ast.StaticPropertyStatement) {
+	// Değerin tipini çıkar
+	var valueType Type = AnyType
+	if stmt.Value != nil {
+		valueType = c.checkExpression(stmt.Value)
+	}
+
+	// Tip anotasyonu varsa kontrol et
+	var declaredType Type = AnyType
+	if stmt.Type != nil {
+		declaredType = ResolveType(stmt.Type)
+	} else {
+		declaredType = valueType
+	}
+
+	// Tip uyumluluğu kontrolü
+	if stmt.Type != nil && !valueType.IsAssignableTo(declaredType) {
+		c.addError(&SemanticError{
+			Message: fmt.Sprintf("type mismatch: cannot assign %s to %s",
+				valueType.String(), declaredType.String()),
+			Pos: stmt.Token,
+		})
+	}
+
+	// Symbol table'a ekle
+	symbol := &Symbol{
+		Name:    stmt.Name.Value,
+		Type:    declaredType,
+		Kind:    VariableSymbol,
+		Mutable: true,
+	}
+
+	if err := c.symTable.Define(symbol); err != nil {
+		c.addError(err)
+	}
 }

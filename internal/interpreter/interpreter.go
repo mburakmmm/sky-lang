@@ -2,9 +2,15 @@ package interpreter
 
 import (
 	"bufio"
+	"crypto/aes"
+	"crypto/md5"
+	"crypto/sha256"
 	"fmt"
+	"io"
 	"math"
+	"net/http"
 	"os"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -204,6 +210,14 @@ func (i *Interpreter) evalStatement(stmt ast.Statement) (Value, error) {
 		return i.evalForStatement(s)
 	case *ast.ClassStatement:
 		return nil, i.evalClassStatement(s)
+	case *ast.AbstractClassStatement:
+		return nil, i.evalAbstractClassStatement(s)
+	case *ast.AbstractMethodStatement:
+		return nil, i.evalAbstractMethodStatement(s)
+	case *ast.StaticMethodStatement:
+		return nil, i.evalStaticMethodStatement(s)
+	case *ast.StaticPropertyStatement:
+		return nil, i.evalStaticPropertyStatement(s)
 	case *ast.ImportStatement:
 		return nil, i.evalImportStatement(s)
 	case *ast.UnsafeStatement:
@@ -276,8 +290,14 @@ func (i *Interpreter) evalFunctionStatement(stmt *ast.FunctionStatement) error {
 				}
 			}
 
-			// Yeni environment oluştur (fonksiyon tanımlandığı env'i parent olarak al)
-			fnEnv := NewEnvironment(capturedEnv)
+			// Yeni environment oluştur
+			// callEnv'i parent olarak kullan (parametreler ve self için)
+			fnEnv := NewEnvironment(callEnv)
+
+			// Copy 'self' from callEnv to fnEnv for direct access
+			if self, ok := callEnv.Get("self"); ok {
+				fnEnv.Set("self", self)
+			}
 
 			// Parametreleri bind et
 			if argList, ok := args.(*List); ok {
@@ -719,6 +739,32 @@ func (i *Interpreter) evalExpression(expr ast.Expression) (Value, error) {
 		return &Boolean{Value: e.Value}, nil
 
 	case *ast.Identifier:
+		// Special handling for 'self'
+		if e.Value == "self" {
+			// Search in environment chain for 'self'
+			env := i.env
+			for env != nil {
+				if val, ok := env.Get("self"); ok {
+					return val, nil
+				}
+				env = env.parent
+			}
+			return nil, &RuntimeError{Message: "undefined: self"}
+		}
+
+		// Special handling for 'super'
+		if e.Value == "super" {
+			// Search in environment chain for 'super'
+			env := i.env
+			for env != nil {
+				if val, ok := env.Get("super"); ok {
+					return val, nil
+				}
+				env = env.parent
+			}
+			return nil, &RuntimeError{Message: "undefined: super"}
+		}
+
 		val, ok := i.env.Get(e.Value)
 		if !ok {
 			return nil, &RuntimeError{Message: fmt.Sprintf("undefined: %s", e.Value)}
@@ -772,6 +818,8 @@ func (i *Interpreter) evalExpression(expr ast.Expression) (Value, error) {
 	case *ast.MemberExpression:
 		return i.evalMemberExpression(e)
 
+	case *ast.ArrowExpression:
+		return i.evalArrowExpression(e)
 	case *ast.MatchExpression:
 		return i.evalMatchExpression(e)
 
@@ -860,9 +908,21 @@ func (i *Interpreter) evalInfixExpression(expr *ast.InfixExpression) (Value, err
 
 		// Handle member assignment (obj.field = value)
 		if memberExpr, ok := expr.Left.(*ast.MemberExpression); ok {
-			object, err := i.evalExpression(memberExpr.Object)
-			if err != nil {
-				return nil, err
+			// Special handling for 'self' identifier
+			var object Value
+			var err error
+			if ident, ok := memberExpr.Object.(*ast.Identifier); ok && ident.Value == "self" {
+				// Get 'self' directly from environment
+				if selfVal, found := i.env.Get("self"); found {
+					object = selfVal
+				} else {
+					return nil, &RuntimeError{Message: "undefined: self"}
+				}
+			} else {
+				object, err = i.evalExpression(memberExpr.Object)
+				if err != nil {
+					return nil, err
+				}
 			}
 
 			if instance, ok := object.(*Instance); ok {
@@ -1123,6 +1183,82 @@ func (i *Interpreter) evalCallExpression(expr *ast.CallExpression) (Value, error
 		return nil, err
 	}
 
+	// Check if it's an instance method call (obj.method())
+	if memberExpr, ok := expr.Function.(*ast.MemberExpression); ok {
+		instance, err := i.evalExpression(memberExpr.Object)
+		if err != nil {
+			return nil, err
+		}
+
+		if inst, ok := instance.(*Instance); ok {
+			methodName := memberExpr.Member.Value
+
+			// Get method from instance (checks class and superclasses)
+			if methodVal, found := inst.Get(methodName); found {
+				// Check if it's a function
+				if method, ok := methodVal.(*Function); ok {
+					// Evaluate arguments
+					args := make([]Value, len(expr.Arguments))
+					for idx, arg := range expr.Arguments {
+						val, err := i.evalExpression(arg)
+						if err != nil {
+							return nil, err
+						}
+						args[idx] = val
+					}
+
+					// Create call environment
+					callEnv := NewEnvironment(method.Env)
+					callEnv.Set("__args__", &List{Elements: args})
+
+					// Call method (self is already bound in Instance.Get())
+					return method.Body(callEnv)
+				}
+			}
+
+			return nil, &RuntimeError{Message: fmt.Sprintf("undefined method: %s", methodName)}
+		}
+
+		// Handle super.method() calls
+		if superClass, ok := instance.(*Class); ok {
+			methodName := memberExpr.Member.Value
+
+			// Get method from superclass
+			if method, found := superClass.Methods[methodName]; found {
+				// Evaluate arguments
+				args := make([]Value, len(expr.Arguments))
+				for idx, arg := range expr.Arguments {
+					val, err := i.evalExpression(arg)
+					if err != nil {
+						return nil, err
+					}
+					args[idx] = val
+				}
+
+				// Get current self from environment
+				selfVal, found := i.env.Get("self")
+				if !found {
+					return nil, &RuntimeError{Message: "undefined: self"}
+				}
+
+				// Create call environment with self bound
+				callEnv := NewEnvironment(method.Env)
+				callEnv.Set("__args__", &List{Elements: args})
+				callEnv.Set("self", selfVal)
+
+				// Set super to parent class if exists
+				if len(superClass.SuperClasses) > 0 {
+					callEnv.Set("super", superClass.SuperClasses[0])
+				}
+
+				// Call method
+				return method.Body(callEnv)
+			}
+
+			return nil, &RuntimeError{Message: fmt.Sprintf("undefined method: %s", methodName)}
+		}
+	}
+
 	// Check if it's a class (instantiation)
 	if class, ok := function.(*Class); ok {
 		// Create new instance
@@ -1141,21 +1277,31 @@ func (i *Interpreter) evalCallExpression(expr *ast.CallExpression) (Value, error
 			args[idx] = val
 		}
 
-		// Call constructor hierarchy (superclass first, then subclass)
+		// Call constructor hierarchy (multiple inheritance)
 		constructorChain := []*Function{}
-		currentClass := class
-		for currentClass != nil {
-			if constructor, hasConstructor := currentClass.Methods["init"]; hasConstructor {
-				constructorChain = append([]*Function{constructor}, constructorChain...)
+
+		// Collect constructors from all superclasses
+		for _, superClass := range class.SuperClasses {
+			if constructor, hasConstructor := superClass.Methods["init"]; hasConstructor {
+				constructorChain = append(constructorChain, constructor)
 			}
-			currentClass = currentClass.SuperClass
 		}
 
-		// Call constructors in order (base class first)
+		// Add current class constructor if exists
+		if constructor, hasConstructor := class.Methods["init"]; hasConstructor {
+			constructorChain = append(constructorChain, constructor)
+		}
+
+		// Call constructors in order (superclasses first, then current class)
 		for _, constructor := range constructorChain {
 			callEnv := NewEnvironment(constructor.Env)
 			callEnv.Set("__args__", &List{Elements: args})
 			callEnv.Set("self", instance)
+
+			// Set super to parent class if exists
+			if len(class.SuperClasses) > 0 {
+				callEnv.Set("super", class.SuperClasses[0]) // Use first superclass
+			}
 
 			_, err := constructor.Body(callEnv)
 			if err != nil {
@@ -1264,29 +1410,39 @@ func (i *Interpreter) evalYieldExpression(expr *ast.YieldExpression) (Value, err
 func (i *Interpreter) evalClassStatement(stmt *ast.ClassStatement) error {
 	className := stmt.Name.Value
 
-	// Handle superclass
-	var superClass *Class
-	if stmt.SuperClass != nil {
-		superVal, ok := i.env.Get(stmt.SuperClass.Value)
+	// Handle multiple inheritance
+	var superClasses []*Class
+	for _, superClassIdent := range stmt.SuperClasses {
+		superVal, ok := i.env.Get(superClassIdent.Value)
 		if !ok {
-			return &RuntimeError{Message: fmt.Sprintf("undefined superclass: %s", stmt.SuperClass.Value)}
+			return &RuntimeError{Message: fmt.Sprintf("undefined superclass: %s", superClassIdent.Value)}
 		}
-		var okClass bool
-		superClass, okClass = superVal.(*Class)
-		if !okClass {
-			return &RuntimeError{Message: fmt.Sprintf("%s is not a class", stmt.SuperClass.Value)}
+		// Check if it's a regular class or abstract class
+		if superClass, okClass := superVal.(*Class); okClass {
+			superClasses = append(superClasses, superClass)
+		} else if abstractClass, okAbstract := superVal.(*AbstractClass); okAbstract {
+			// Convert abstract class to regular class for inheritance
+			convertedClass := &Class{
+				Name:         abstractClass.Name,
+				SuperClasses: abstractClass.SuperClasses,
+				Methods:      abstractClass.Methods,
+				Env:          abstractClass.Env,
+			}
+			superClasses = append(superClasses, convertedClass)
+		} else {
+			return &RuntimeError{Message: fmt.Sprintf("%s is not a class", superClassIdent.Value)}
 		}
 	}
 
 	// Create class environment
 	classEnv := NewEnvironment(i.env)
 
-	// Create class
+	// Create class with multiple inheritance
 	class := &Class{
-		Name:       className,
-		SuperClass: superClass,
-		Methods:    make(map[string]*Function),
-		Env:        classEnv,
+		Name:         className,
+		SuperClasses: superClasses, // Multiple inheritance
+		Methods:      make(map[string]*Function),
+		Env:          classEnv,
 	}
 
 	// Process class body (methods)
@@ -1367,11 +1523,43 @@ func (i *Interpreter) evalClassStatement(stmt *ast.ClassStatement) error {
 	return nil
 }
 
+// evalArrowExpression evaluates arrow expressions (pattern => result)
+func (i *Interpreter) evalArrowExpression(expr *ast.ArrowExpression) (Value, error) {
+	// For now, just return the right side (simple implementation)
+	return i.evalExpression(expr.Right)
+}
+
 // evalMemberExpression evaluates member access (obj.member)
 func (i *Interpreter) evalMemberExpression(expr *ast.MemberExpression) (Value, error) {
-	object, err := i.evalExpression(expr.Object)
-	if err != nil {
-		return nil, err
+	// Special handling for 'self' and 'super' identifiers
+	var object Value
+	var err error
+	if ident, ok := expr.Object.(*ast.Identifier); ok {
+		if ident.Value == "self" {
+			// Get 'self' directly from environment
+			if selfVal, found := i.env.Get("self"); found {
+				object = selfVal
+			} else {
+				return nil, &RuntimeError{Message: "undefined: self"}
+			}
+		} else if ident.Value == "super" {
+			// Get 'super' directly from environment
+			if superVal, found := i.env.Get("super"); found {
+				object = superVal
+			} else {
+				return nil, &RuntimeError{Message: "undefined: super"}
+			}
+		} else {
+			object, err = i.evalExpression(expr.Object)
+			if err != nil {
+				return nil, err
+			}
+		}
+	} else {
+		object, err = i.evalExpression(expr.Object)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	memberName := expr.Member.Value
@@ -1382,6 +1570,14 @@ func (i *Interpreter) evalMemberExpression(expr *ast.MemberExpression) (Value, e
 			return value, nil
 		}
 		return nil, &RuntimeError{Message: fmt.Sprintf("undefined property: %s", memberName)}
+	}
+
+	// Handle class member access (for super.method())
+	if class, ok := object.(*Class); ok {
+		if method, found := class.Methods[memberName]; found {
+			return method, nil
+		}
+		return nil, &RuntimeError{Message: fmt.Sprintf("undefined method: %s", memberName)}
 	}
 
 	// Handle dict member access (for backwards compatibility)
@@ -1493,6 +1689,30 @@ func (i *Interpreter) evalMemberExpression(expr *ast.MemberExpression) (Value, e
 				}, nil
 			}
 		}
+	}
+
+	// Handle Class method access (e.g., TestClass.new)
+	if class, ok := object.(*Class); ok {
+		if method, found := class.Methods[memberName]; found {
+			return method, nil
+		}
+		// Check in class environment
+		if value, found := class.Env.Get(memberName); found {
+			return value, nil
+		}
+		return nil, &RuntimeError{Message: fmt.Sprintf("undefined method: %s", memberName)}
+	}
+
+	// Handle AbstractClass method access
+	if abstractClass, ok := object.(*AbstractClass); ok {
+		if method, found := abstractClass.Methods[memberName]; found {
+			return method, nil
+		}
+		// Check in abstract class environment
+		if value, found := abstractClass.Env.Get(memberName); found {
+			return value, nil
+		}
+		return nil, &RuntimeError{Message: fmt.Sprintf("undefined method: %s", memberName)}
 	}
 
 	return nil, &RuntimeError{Message: fmt.Sprintf("cannot access member of %T", object)}
@@ -2359,6 +2579,506 @@ func addGlobalFunctions(env *Environment) {
 			return &Integer{Value: int64(time.Now().UnixNano() / 1000000)}, nil
 		},
 	})
+
+	// FS Module Functions
+	env.Set("fs_read_text", &Function{
+		Name: "fs_read_text",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 1 {
+				if filename, ok := list.Elements[0].(*String); ok {
+					content, err := os.ReadFile(filename.Value)
+					if err != nil {
+						return &Nil{}, &RuntimeError{Message: fmt.Sprintf("fs_read_text error: %v", err)}
+					}
+					return &String{Value: string(content)}, nil
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "fs_read_text() requires filename string"}
+		},
+	})
+
+	env.Set("fs_write_text", &Function{
+		Name: "fs_write_text",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 2 {
+				if filename, ok := list.Elements[0].(*String); ok {
+					if content, ok := list.Elements[1].(*String); ok {
+						err := os.WriteFile(filename.Value, []byte(content.Value), 0644)
+						if err != nil {
+							return &Nil{}, &RuntimeError{Message: fmt.Sprintf("fs_write_text error: %v", err)}
+						}
+						return &Boolean{Value: true}, nil
+					}
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "fs_write_text() requires filename and content strings"}
+		},
+	})
+
+	env.Set("fs_exists", &Function{
+		Name: "fs_exists",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 1 {
+				if filename, ok := list.Elements[0].(*String); ok {
+					_, err := os.Stat(filename.Value)
+					return &Boolean{Value: err == nil}, nil
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "fs_exists() requires filename string"}
+		},
+	})
+
+	env.Set("fs_mkdir", &Function{
+		Name: "fs_mkdir",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 1 {
+				if dirname, ok := list.Elements[0].(*String); ok {
+					err := os.MkdirAll(dirname.Value, 0755)
+					if err != nil {
+						return &Nil{}, &RuntimeError{Message: fmt.Sprintf("fs_mkdir error: %v", err)}
+					}
+					return &Boolean{Value: true}, nil
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "fs_mkdir() requires directory name string"}
+		},
+	})
+
+	env.Set("fs_list_dir", &Function{
+		Name: "fs_list_dir",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 1 {
+				if dirname, ok := list.Elements[0].(*String); ok {
+					entries, err := os.ReadDir(dirname.Value)
+					if err != nil {
+						return &Nil{}, &RuntimeError{Message: fmt.Sprintf("fs_list_dir error: %v", err)}
+					}
+
+					files := make([]Value, len(entries))
+					for i, entry := range entries {
+						files[i] = &String{Value: entry.Name()}
+					}
+					return &List{Elements: files}, nil
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "fs_list_dir() requires directory name string"}
+		},
+	})
+
+	// OS Module Functions
+	env.Set("os_platform", &Function{
+		Name: "os_platform",
+		Body: func(callEnv *Environment) (Value, error) {
+			return &String{Value: runtime.GOOS}, nil
+		},
+	})
+
+	env.Set("os_getcwd", &Function{
+		Name: "os_getcwd",
+		Body: func(callEnv *Environment) (Value, error) {
+			dir, err := os.Getwd()
+			if err != nil {
+				return &Nil{}, &RuntimeError{Message: fmt.Sprintf("os_getcwd error: %v", err)}
+			}
+			return &String{Value: dir}, nil
+		},
+	})
+
+	env.Set("os_getenv", &Function{
+		Name: "os_getenv",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 1 {
+				if key, ok := list.Elements[0].(*String); ok {
+					value := os.Getenv(key.Value)
+					return &String{Value: value}, nil
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "os_getenv() requires environment variable name string"}
+		},
+	})
+
+	env.Set("os_setenv", &Function{
+		Name: "os_setenv",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 2 {
+				if key, ok := list.Elements[0].(*String); ok {
+					if value, ok := list.Elements[1].(*String); ok {
+						err := os.Setenv(key.Value, value.Value)
+						if err != nil {
+							return &Nil{}, &RuntimeError{Message: fmt.Sprintf("os_setenv error: %v", err)}
+						}
+						return &Boolean{Value: true}, nil
+					}
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "os_setenv() requires key and value strings"}
+		},
+	})
+
+	// Time Module Functions
+	env.Set("time_format", &Function{
+		Name: "time_format",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 2 {
+				if timestamp, ok := list.Elements[0].(*Integer); ok {
+					if format, ok := list.Elements[1].(*String); ok {
+						t := time.Unix(0, timestamp.Value*1000000) // Convert milliseconds to nanoseconds
+						formatted := t.Format(format.Value)
+						return &String{Value: formatted}, nil
+					}
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "time_format() requires timestamp (int) and format string"}
+		},
+	})
+
+	env.Set("time_parse", &Function{
+		Name: "time_parse",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 2 {
+				if timeStr, ok := list.Elements[0].(*String); ok {
+					if format, ok := list.Elements[1].(*String); ok {
+						t, err := time.Parse(format.Value, timeStr.Value)
+						if err != nil {
+							return &Nil{}, &RuntimeError{Message: fmt.Sprintf("time_parse error: %v", err)}
+						}
+						return &Integer{Value: t.UnixNano() / 1000000}, nil // Convert to milliseconds
+					}
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "time_parse() requires time string and format string"}
+		},
+	})
+
+	env.Set("time_add", &Function{
+		Name: "time_add",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 3 {
+				if timestamp, ok := list.Elements[0].(*Integer); ok {
+					if duration, ok := list.Elements[1].(*Integer); ok {
+						if unit, ok := list.Elements[2].(*String); ok {
+							t := time.Unix(0, timestamp.Value*1000000)
+							var d time.Duration
+							switch unit.Value {
+							case "ms":
+								d = time.Duration(duration.Value) * time.Millisecond
+							case "s":
+								d = time.Duration(duration.Value) * time.Second
+							case "m":
+								d = time.Duration(duration.Value) * time.Minute
+							case "h":
+								d = time.Duration(duration.Value) * time.Hour
+							case "d":
+								d = time.Duration(duration.Value) * 24 * time.Hour
+							default:
+								return &Nil{}, &RuntimeError{Message: "time_add() unit must be ms, s, m, h, or d"}
+							}
+							newTime := t.Add(d)
+							return &Integer{Value: newTime.UnixNano() / 1000000}, nil
+						}
+					}
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "time_add() requires timestamp, duration, and unit (ms/s/m/h/d)"}
+		},
+	})
+
+	env.Set("time_diff", &Function{
+		Name: "time_diff",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 2 {
+				if timestamp1, ok := list.Elements[0].(*Integer); ok {
+					if timestamp2, ok := list.Elements[1].(*Integer); ok {
+						t1 := time.Unix(0, timestamp1.Value*1000000)
+						t2 := time.Unix(0, timestamp2.Value*1000000)
+						diff := t2.Sub(t1)
+						return &Integer{Value: diff.Milliseconds()}, nil
+					}
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "time_diff() requires two timestamps"}
+		},
+	})
+
+	// Promise.all() - Paralel async operations
+	env.Set("Promise_all", &Function{
+		Name: "Promise_all",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 1 {
+				if promises, ok := list.Elements[0].(*List); ok {
+					// Tüm promise'ları paralel olarak çalıştır
+					results := make([]Value, len(promises.Elements))
+					errors := make([]error, len(promises.Elements))
+
+					// Her promise'ı çalıştır
+					for i, promise := range promises.Elements {
+						if fn, ok := promise.(*Function); ok {
+							// Promise fonksiyonunu çalıştır
+							result, err := fn.Body(callEnv)
+							results[i] = result
+							errors[i] = err
+						} else {
+							// Promise değilse direkt kullan
+							results[i] = promise
+							errors[i] = nil
+						}
+					}
+
+					// Herhangi bir hata var mı kontrol et
+					for _, err := range errors {
+						if err != nil {
+							return &Nil{}, err
+						}
+					}
+
+					return &List{Elements: results}, nil
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "Promise_all() requires a list of promises"}
+		},
+	})
+
+	// Promise.allSettled() - Tüm promise'ları bekler, hata olsa bile
+	env.Set("Promise_allSettled", &Function{
+		Name: "Promise_allSettled",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 1 {
+				if promises, ok := list.Elements[0].(*List); ok {
+					// Tüm promise'ları paralel olarak çalıştır
+					results := make([]Value, len(promises.Elements))
+
+					// Her promise'ı çalıştır
+					for i, promise := range promises.Elements {
+						if fn, ok := promise.(*Function); ok {
+							// Promise fonksiyonunu çalıştır
+							result, err := fn.Body(callEnv)
+							if err != nil {
+								// Hata durumunda error objesi oluştur
+								errorObj := &Dict{Pairs: map[string]Value{
+									"status": &String{Value: "rejected"},
+									"reason": &String{Value: err.Error()},
+								}}
+								results[i] = errorObj
+							} else {
+								// Başarı durumunda result objesi oluştur
+								successObj := &Dict{Pairs: map[string]Value{
+									"status": &String{Value: "fulfilled"},
+									"value":  result,
+								}}
+								results[i] = successObj
+							}
+						} else {
+							// Promise değilse direkt kullan
+							successObj := &Dict{Pairs: map[string]Value{
+								"status": &String{Value: "fulfilled"},
+								"value":  promise,
+							}}
+							results[i] = successObj
+						}
+					}
+
+					return &List{Elements: results}, nil
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "Promise_allSettled() requires a list of promises"}
+		},
+	})
+
+	// HTTP Module Functions
+	env.Set("http_get", &Function{
+		Name: "http_get",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 1 {
+				if url, ok := list.Elements[0].(*String); ok {
+					// Simple HTTP GET implementation
+					resp, err := http.Get(url.Value)
+					if err != nil {
+						return &Nil{}, &RuntimeError{Message: fmt.Sprintf("http_get error: %v", err)}
+					}
+					defer resp.Body.Close()
+
+					body, err := io.ReadAll(resp.Body)
+					if err != nil {
+						return &Nil{}, &RuntimeError{Message: fmt.Sprintf("http_get read error: %v", err)}
+					}
+
+					return &String{Value: string(body)}, nil
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "http_get() requires URL string"}
+		},
+	})
+
+	env.Set("http_post", &Function{
+		Name: "http_post",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 2 {
+				if url, ok := list.Elements[0].(*String); ok {
+					if data, ok := list.Elements[1].(*String); ok {
+						// Simple HTTP POST implementation
+						resp, err := http.Post(url.Value, "application/json", strings.NewReader(data.Value))
+						if err != nil {
+							return &Nil{}, &RuntimeError{Message: fmt.Sprintf("http_post error: %v", err)}
+						}
+						defer resp.Body.Close()
+
+						body, err := io.ReadAll(resp.Body)
+						if err != nil {
+							return &Nil{}, &RuntimeError{Message: fmt.Sprintf("http_post read error: %v", err)}
+						}
+
+						return &String{Value: string(body)}, nil
+					}
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "http_post() requires URL and data strings"}
+		},
+	})
+
+	env.Set("http_put", &Function{
+		Name: "http_put",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 2 {
+				if url, ok := list.Elements[0].(*String); ok {
+					if data, ok := list.Elements[1].(*String); ok {
+						// Simple HTTP PUT implementation
+						req, err := http.NewRequest("PUT", url.Value, strings.NewReader(data.Value))
+						if err != nil {
+							return &Nil{}, &RuntimeError{Message: fmt.Sprintf("http_put error: %v", err)}
+						}
+						req.Header.Set("Content-Type", "application/json")
+
+						client := &http.Client{}
+						resp, err := client.Do(req)
+						if err != nil {
+							return &Nil{}, &RuntimeError{Message: fmt.Sprintf("http_put error: %v", err)}
+						}
+						defer resp.Body.Close()
+
+						body, err := io.ReadAll(resp.Body)
+						if err != nil {
+							return &Nil{}, &RuntimeError{Message: fmt.Sprintf("http_put read error: %v", err)}
+						}
+
+						return &String{Value: string(body)}, nil
+					}
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "http_put() requires URL and data strings"}
+		},
+	})
+
+	env.Set("http_delete", &Function{
+		Name: "http_delete",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 1 {
+				if url, ok := list.Elements[0].(*String); ok {
+					// Simple HTTP DELETE implementation
+					req, err := http.NewRequest("DELETE", url.Value, nil)
+					if err != nil {
+						return &Nil{}, &RuntimeError{Message: fmt.Sprintf("http_delete error: %v", err)}
+					}
+
+					client := &http.Client{}
+					resp, err := client.Do(req)
+					if err != nil {
+						return &Nil{}, &RuntimeError{Message: fmt.Sprintf("http_delete error: %v", err)}
+					}
+					defer resp.Body.Close()
+
+					body, err := io.ReadAll(resp.Body)
+					if err != nil {
+						return &Nil{}, &RuntimeError{Message: fmt.Sprintf("http_delete read error: %v", err)}
+					}
+
+					return &String{Value: string(body)}, nil
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "http_delete() requires URL string"}
+		},
+	})
+
+	// Crypto Module Functions
+	env.Set("crypto_md5", &Function{
+		Name: "crypto_md5",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 1 {
+				if data, ok := list.Elements[0].(*String); ok {
+					hash := md5.Sum([]byte(data.Value))
+					return &String{Value: fmt.Sprintf("%x", hash)}, nil
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "crypto_md5() requires data string"}
+		},
+	})
+
+	env.Set("crypto_sha256", &Function{
+		Name: "crypto_sha256",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 1 {
+				if data, ok := list.Elements[0].(*String); ok {
+					hash := sha256.Sum256([]byte(data.Value))
+					return &String{Value: fmt.Sprintf("%x", hash)}, nil
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "crypto_sha256() requires data string"}
+		},
+	})
+
+	env.Set("crypto_aes_encrypt", &Function{
+		Name: "crypto_aes_encrypt",
+		Body: func(callEnv *Environment) (Value, error) {
+			args, _ := callEnv.Get("__args__")
+			if list, ok := args.(*List); ok && len(list.Elements) >= 2 {
+				if data, ok := list.Elements[0].(*String); ok {
+					if key, ok := list.Elements[1].(*String); ok {
+						// Simple AES encryption (for demo purposes)
+						block, err := aes.NewCipher([]byte(key.Value))
+						if err != nil {
+							return &Nil{}, &RuntimeError{Message: fmt.Sprintf("crypto_aes_encrypt error: %v", err)}
+						}
+
+						// Pad data to block size
+						paddedData := []byte(data.Value)
+						blockSize := block.BlockSize()
+						remainder := len(paddedData) % blockSize
+						if remainder != 0 {
+							padding := make([]byte, blockSize-remainder)
+							paddedData = append(paddedData, padding...)
+						}
+
+						// Encrypt
+						encrypted := make([]byte, len(paddedData))
+						for i := 0; i < len(paddedData); i += blockSize {
+							block.Encrypt(encrypted[i:i+blockSize], paddedData[i:i+blockSize])
+						}
+
+						return &String{Value: fmt.Sprintf("%x", encrypted)}, nil
+					}
+				}
+			}
+			return &Nil{}, &RuntimeError{Message: "crypto_aes_encrypt() requires data and key strings"}
+		},
+	})
 }
 
 // addListMethods adds all Python-style list methods
@@ -2703,7 +3423,7 @@ func (i *Interpreter) evalImportStatement(stmt *ast.ImportStatement) error {
 	// Check if already loaded
 	if moduleEnv, cached := i.moduleCache[modulePath]; cached {
 		// Module already loaded, import symbols
-		return i.importSymbolsFromModule(moduleEnv, stmt.Alias)
+		return i.importSymbolsFromModule(moduleEnv, stmt.Alias, modulePath)
 	}
 
 	// Load module file
@@ -2744,14 +3464,26 @@ func (i *Interpreter) evalImportStatement(stmt *ast.ImportStatement) error {
 	i.moduleCache[modulePath] = moduleEnv
 
 	// Import symbols (now i.env is the original environment)
-	return i.importSymbolsFromModule(moduleEnv, stmt.Alias)
+	return i.importSymbolsFromModule(moduleEnv, stmt.Alias, modulePath)
 }
 
 // resolveModulePath resolves module path to file path
 func (i *Interpreter) resolveModulePath(modulePath string) string {
 	moduleFile := modulePath + ".sky"
 
-	// Try relative to source file directory first
+	// Try Wing dependencies first
+	dependencyPath := i.currentDir + "/dependencies/" + modulePath + "/src/" + moduleFile
+	if _, err := os.Stat(dependencyPath); err == nil {
+		return dependencyPath
+	}
+
+	// Try Wing dependencies with main.sky
+	dependencyMainPath := i.currentDir + "/dependencies/" + modulePath + "/src/main.sky"
+	if _, err := os.Stat(dependencyMainPath); err == nil {
+		return dependencyMainPath
+	}
+
+	// Try relative to source file directory
 	if i.sourceFile != "" {
 		sourceDir := ""
 		lastSlash := -1
@@ -2788,7 +3520,7 @@ func (i *Interpreter) resolveModulePath(modulePath string) string {
 }
 
 // importSymbolsFromModule imports exported symbols from module
-func (i *Interpreter) importSymbolsFromModule(moduleEnv *Environment, alias *ast.Identifier) error {
+func (i *Interpreter) importSymbolsFromModule(moduleEnv *Environment, alias *ast.Identifier, modulePath string) error {
 	symbols := moduleEnv.GetAll()
 
 	if alias != nil {
@@ -2803,13 +3535,24 @@ func (i *Interpreter) importSymbolsFromModule(moduleEnv *Environment, alias *ast
 		}
 		i.env.Set(alias.Value, namespace)
 	} else {
-		// Direct import (import foo)
+		// Direct import (import foo) - create namespace with module name
+		// Get module name from the last segment of the import path
+		moduleName := modulePath
+		if lastSlash := strings.LastIndex(modulePath, "/"); lastSlash >= 0 {
+			moduleName = modulePath[lastSlash+1:]
+		}
+
+		// Create namespace object
+		namespace := &Dict{Pairs: make(map[string]Value)}
 		for name, value := range symbols {
-			// Only import public symbols
+			// Only import public symbols (not starting with _)
 			if len(name) > 0 && name[0] != '_' {
-				i.env.Set(name, value)
+				namespace.Pairs[name] = value
 			}
 		}
+
+		// Set namespace with module name
+		i.env.Set(moduleName, namespace)
 	}
 	return nil
 }
@@ -2870,4 +3613,141 @@ func (i *Interpreter) evalUnsafeStatement(stmt *ast.UnsafeStatement) (Value, err
 	// - Allow direct memory access
 
 	return i.evalBlockStatement(stmt.Body, i.env)
+}
+
+// evalAbstractClassStatement evaluates abstract class statements
+func (i *Interpreter) evalAbstractClassStatement(stmt *ast.AbstractClassStatement) error {
+	className := stmt.Name.Value
+
+	// Create abstract class environment
+	classEnv := NewEnvironment(i.env)
+
+	// Create abstract class
+	abstractClass := &AbstractClass{
+		Name:            className,
+		SuperClasses:    []*Class{}, // Will be populated if needed
+		Methods:         make(map[string]*Function),
+		AbstractMethods: make(map[string]*AbstractMethod),
+		Env:             classEnv,
+	}
+
+	// Process class body
+	for _, stmt := range stmt.Body {
+		switch s := stmt.(type) {
+		case *ast.FunctionStatement:
+			// Regular method
+			fn := &Function{
+				Name: s.Name.Value,
+				Body: func(env *Environment) (Value, error) {
+					return i.evalBlockStatement(s.Body, env)
+				},
+			}
+			abstractClass.Methods[s.Name.Value] = fn
+		case *ast.AbstractMethodStatement:
+			// Abstract method
+			abstractMethod := &AbstractMethod{
+				Name:       s.Name.Value,
+				Parameters: s.Parameters,
+				ReturnType: s.ReturnType,
+			}
+			abstractClass.AbstractMethods[s.Name.Value] = abstractMethod
+		}
+	}
+
+	// Define abstract class in environment
+	i.env.Set(className, abstractClass)
+
+	return nil
+}
+
+// evalAbstractMethodStatement evaluates abstract method statements
+func (i *Interpreter) evalAbstractMethodStatement(stmt *ast.AbstractMethodStatement) error {
+	// Abstract methods are handled within abstract classes
+	// This is just a placeholder
+	return nil
+}
+
+// evalStaticMethodStatement evaluates static method statements
+func (i *Interpreter) evalStaticMethodStatement(stmt *ast.StaticMethodStatement) error {
+	// Parametrelerin isimlerini al
+	params := make([]string, len(stmt.Parameters))
+	for idx, param := range stmt.Parameters {
+		params[idx] = param.Name.Value
+	}
+
+	funcName := stmt.Name.Value
+	capturedStmt := stmt // Capture for closure
+	capturedEnv := i.env
+
+	// Static methods are stored in the global environment
+	fn := &Function{
+		Name:       funcName,
+		Parameters: params,
+		Env:        capturedEnv,
+		Body: func(callEnv *Environment) (Value, error) {
+			// Yeni environment oluştur
+			fnEnv := NewEnvironment(capturedEnv)
+
+			// Parametreleri bind et
+			args, _ := callEnv.Get("__args__")
+			if argList, ok := args.(*List); ok {
+				for idx, param := range capturedStmt.Parameters {
+					paramName := param.Name.Value
+					if idx < len(argList.Elements) {
+						fnEnv.Set(paramName, argList.Elements[idx])
+					} else if param.DefaultValue != nil {
+						// Use default value
+						defaultVal, err := i.evalExpression(param.DefaultValue)
+						if err != nil {
+							return nil, err
+						}
+						fnEnv.Set(paramName, defaultVal)
+					} else {
+						fnEnv.Set(paramName, &Nil{})
+					}
+				}
+			}
+
+			// Fonksiyon body'sini çalıştır
+			oldEnv := i.env
+			i.env = fnEnv
+			defer func() { i.env = oldEnv }()
+
+			result, err := i.evalBlockStatement(capturedStmt.Body, fnEnv)
+
+			// Handle ReturnSignal - extract value and return normally
+			if retSignal, isReturn := err.(*ReturnSignal); isReturn {
+				result = retSignal.Value
+				err = nil
+			}
+
+			return result, err
+		},
+	}
+
+	// Store in global environment
+	i.env.Set(funcName, fn)
+
+	return nil
+}
+
+// evalStaticPropertyStatement evaluates static property statements
+func (i *Interpreter) evalStaticPropertyStatement(stmt *ast.StaticPropertyStatement) error {
+	// Static properties are stored in the global environment
+	// They can be accessed as ClassName.propertyName
+
+	var value Value = &Nil{}
+
+	if stmt.Value != nil {
+		var err error
+		value, err = i.evalExpression(stmt.Value)
+		if err != nil {
+			return err
+		}
+	}
+
+	// Store in global environment
+	i.env.Set(stmt.Name.Value, value)
+
+	return nil
 }

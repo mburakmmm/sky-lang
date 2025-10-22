@@ -345,10 +345,10 @@ func (fs *ForStatement) String() string {
 
 // ClassStatement sınıf tanımlama
 type ClassStatement struct {
-	Token      lexer.Token // CLASS token
-	Name       *Identifier
-	SuperClass *Identifier // parent class (opsiyonel)
-	Body       []Statement // class members
+	Token        lexer.Token // CLASS token
+	Name         *Identifier
+	SuperClasses []*Identifier // parent classes (multiple inheritance)
+	Body         []Statement   // class members
 }
 
 func (cs *ClassStatement) statementNode()       {}
@@ -358,10 +358,14 @@ func (cs *ClassStatement) String() string {
 	var out strings.Builder
 	out.WriteString("class ")
 	out.WriteString(cs.Name.String())
-	if cs.SuperClass != nil {
-		out.WriteString("(")
-		out.WriteString(cs.SuperClass.String())
-		out.WriteString(")")
+	if len(cs.SuperClasses) > 0 {
+		out.WriteString(" : ")
+		for i, superClass := range cs.SuperClasses {
+			if i > 0 {
+				out.WriteString(", ")
+			}
+			out.WriteString(superClass.String())
+		}
 	}
 	out.WriteString("\n")
 	for _, stmt := range cs.Body {
@@ -616,6 +620,224 @@ type TryStatement struct {
 	Finally     *BlockStatement // finally block (optional)
 }
 
+// AbstractClassStatement abstract class tanımlaması
+type AbstractClassStatement struct {
+	Token        lexer.Token
+	Name         *Identifier
+	SuperClasses []*Identifier // parent classes (multiple inheritance)
+	Body         []Statement   // abstract methods and concrete methods
+}
+
+func (acs *AbstractClassStatement) statementNode()       {}
+func (acs *AbstractClassStatement) TokenLiteral() string { return acs.Token.Literal }
+func (acs *AbstractClassStatement) Pos() lexer.Token     { return acs.Token }
+func (acs *AbstractClassStatement) String() string {
+	var out strings.Builder
+	out.WriteString("abstract class ")
+	out.WriteString(acs.Name.String())
+	if len(acs.SuperClasses) > 0 {
+		out.WriteString(" : ")
+		for i, superClass := range acs.SuperClasses {
+			if i > 0 {
+				out.WriteString(", ")
+			}
+			out.WriteString(superClass.String())
+		}
+	}
+	out.WriteString("\n")
+	for _, stmt := range acs.Body {
+		out.WriteString("  ")
+		out.WriteString(stmt.String())
+		out.WriteString("\n")
+	}
+	out.WriteString("end")
+	return out.String()
+}
+
+// AbstractMethodStatement abstract method tanımlaması
+type AbstractMethodStatement struct {
+	Token      lexer.Token
+	Name       *Identifier
+	Parameters []*FunctionParameter
+	ReturnType TypeAnnotation
+}
+
+func (ams *AbstractMethodStatement) statementNode()       {}
+func (ams *AbstractMethodStatement) TokenLiteral() string { return ams.Token.Literal }
+func (ams *AbstractMethodStatement) Pos() lexer.Token     { return ams.Token }
+func (ams *AbstractMethodStatement) String() string {
+	var out strings.Builder
+	out.WriteString("abstract function ")
+	out.WriteString(ams.Name.String())
+	out.WriteString("(")
+	params := []string{}
+	for _, p := range ams.Parameters {
+		params = append(params, p.String())
+	}
+	out.WriteString(strings.Join(params, ", "))
+	out.WriteString(")")
+	if ams.ReturnType != nil {
+		out.WriteString(": ")
+		out.WriteString(ams.ReturnType.String())
+	}
+	return out.String()
+}
+
+// StaticMethodStatement static method tanımlaması
+type StaticMethodStatement struct {
+	Token      lexer.Token
+	Name       *Identifier
+	Parameters []*FunctionParameter
+	ReturnType TypeAnnotation
+	Body       *BlockStatement
+}
+
+func (sms *StaticMethodStatement) statementNode()       {}
+func (sms *StaticMethodStatement) TokenLiteral() string { return sms.Token.Literal }
+func (sms *StaticMethodStatement) Pos() lexer.Token     { return sms.Token }
+func (sms *StaticMethodStatement) String() string {
+	var out strings.Builder
+	out.WriteString("static function ")
+	out.WriteString(sms.Name.String())
+	out.WriteString("(")
+	params := []string{}
+	for _, p := range sms.Parameters {
+		params = append(params, p.String())
+	}
+	out.WriteString(strings.Join(params, ", "))
+	out.WriteString(")")
+	if sms.ReturnType != nil {
+		out.WriteString(": ")
+		out.WriteString(sms.ReturnType.String())
+	}
+	out.WriteString("\n")
+	out.WriteString(sms.Body.String())
+	out.WriteString("end")
+	return out.String()
+}
+
+// StaticPropertyStatement static property tanımlaması
+type StaticPropertyStatement struct {
+	Token lexer.Token
+	Name  *Identifier
+	Type  TypeAnnotation
+	Value Expression
+}
+
+func (sps *StaticPropertyStatement) statementNode()       {}
+func (sps *StaticPropertyStatement) TokenLiteral() string { return sps.Token.Literal }
+func (sps *StaticPropertyStatement) Pos() lexer.Token     { return sps.Token }
+func (sps *StaticPropertyStatement) String() string {
+	var out strings.Builder
+	out.WriteString("static let ")
+	out.WriteString(sps.Name.String())
+	if sps.Type != nil {
+		out.WriteString(": ")
+		out.WriteString(sps.Type.String())
+	}
+	if sps.Value != nil {
+		out.WriteString(" = ")
+		out.WriteString(sps.Value.String())
+	}
+	return out.String()
+}
+
+// Pattern Matching (Statement style)
+type MatchStatement struct {
+	Token      lexer.Token
+	Expression Expression
+	Cases      []*MatchCase
+}
+
+func (ms *MatchStatement) statementNode()       {}
+func (ms *MatchStatement) TokenLiteral() string { return ms.Token.Literal }
+func (ms *MatchStatement) Pos() lexer.Token     { return ms.Token }
+func (ms *MatchStatement) String() string {
+	var out strings.Builder
+	out.WriteString("match ")
+	out.WriteString(ms.Expression.String())
+	out.WriteString("\n")
+	for _, case_ := range ms.Cases {
+		out.WriteString("  ")
+		out.WriteString(case_.String())
+		out.WriteString("\n")
+	}
+	out.WriteString("end")
+	return out.String()
+}
+
+type MatchCase struct {
+	Pattern Expression
+	Guard   Expression // if condition
+	Body    *BlockStatement
+}
+
+// Match Expression (functional style)
+type MatchExpression struct {
+	Token lexer.Token
+	Value Expression
+	Arms  []*MatchArm
+}
+
+type MatchArm struct {
+	Pattern Expression
+	Body    *BlockStatement
+}
+
+// Arrow Expression (=>)
+type ArrowExpression struct {
+	Token lexer.Token
+	Left  Expression
+	Right Expression
+}
+
+func (ae *ArrowExpression) expressionNode()      {}
+func (ae *ArrowExpression) TokenLiteral() string { return ae.Token.Literal }
+func (ae *ArrowExpression) Pos() lexer.Token     { return ae.Token }
+func (ae *ArrowExpression) String() string {
+	return ae.Left.String() + " => " + ae.Right.String()
+}
+
+func (me *MatchExpression) expressionNode()      {}
+func (me *MatchExpression) TokenLiteral() string { return me.Token.Literal }
+func (me *MatchExpression) Pos() lexer.Token     { return me.Token }
+func (me *MatchExpression) String() string {
+	var out strings.Builder
+	out.WriteString("match ")
+	out.WriteString(me.Value.String())
+	out.WriteString(" {\n")
+	for _, arm := range me.Arms {
+		out.WriteString("  ")
+		out.WriteString(arm.Pattern.String())
+		out.WriteString(" => ")
+		out.WriteString(arm.Body.String())
+		out.WriteString("\n")
+	}
+	out.WriteString("}")
+	return out.String()
+}
+
+func (ma *MatchArm) String() string {
+	var out strings.Builder
+	out.WriteString(ma.Pattern.String())
+	out.WriteString(" => ")
+	out.WriteString(ma.Body.String())
+	return out.String()
+}
+
+func (mc *MatchCase) String() string {
+	var out strings.Builder
+	out.WriteString("case ")
+	out.WriteString(mc.Pattern.String())
+	if mc.Guard != nil {
+		out.WriteString(" if ")
+		out.WriteString(mc.Guard.String())
+	}
+	out.WriteString(":\n")
+	out.WriteString(mc.Body.String())
+	return out.String()
+}
+
 func (ts *TryStatement) statementNode()       {}
 func (ts *TryStatement) TokenLiteral() string { return ts.Token.Literal }
 func (ts *TryStatement) Pos() lexer.Token     { return ts.Token }
@@ -709,9 +931,9 @@ func (dt *DictType) String() string {
 	return fmt.Sprintf("{%s: %s}", dt.KeyType.String(), dt.ValueType.String())
 }
 
-// FunctionType fonksiyon tip anotasyonu (T1, T2) => T3
+// FunctionType fonksiyon tip anotasyonu function(T1, T2) -> T3
 type FunctionType struct {
-	Token      lexer.Token // LPAREN token
+	Token      lexer.Token // FUNCTION token
 	ParamTypes []TypeAnnotation
 	ReturnType TypeAnnotation
 }
@@ -724,7 +946,10 @@ func (ft *FunctionType) String() string {
 	for _, p := range ft.ParamTypes {
 		params = append(params, p.String())
 	}
-	return fmt.Sprintf("(%s) => %s", strings.Join(params, ", "), ft.ReturnType.String())
+	if ft.ReturnType != nil {
+		return fmt.Sprintf("function(%s) -> %s", strings.Join(params, ", "), ft.ReturnType.String())
+	}
+	return fmt.Sprintf("function(%s)", strings.Join(params, ", "))
 }
 
 // PointerType pointer tip anotasyonu *T

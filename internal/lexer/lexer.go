@@ -131,6 +131,10 @@ func (l *Lexer) NextToken() Token {
 			l.readChar()
 			tok = l.makeToken(MINUSEQ, string(ch)+string(l.ch))
 			l.readChar()
+		} else if l.peekChar() == '>' {
+			l.readChar()
+			tok = l.makeToken(RARROW, "->")
+			l.readChar()
 		} else {
 			tok = l.makeToken(MINUS, string(l.ch))
 			l.readChar()

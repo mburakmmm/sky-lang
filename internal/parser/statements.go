@@ -64,9 +64,20 @@ func (p *Parser) parseFunctionStatement() *ast.FunctionStatement {
 		return nil
 	}
 
-	// Fonksiyon body (INDENT ... DEDENT)
-	if !p.expectPeek(lexer.INDENT) {
-		return nil
+	// COMMENT'leri atla ve INDENT'ı bul
+	for {
+		if p.peekTokenIs(lexer.COMMENT) {
+			p.nextToken() // COMMENT
+			if p.peekTokenIs(lexer.NEWLINE) {
+				p.nextToken() // NEWLINE
+			}
+		} else if p.peekTokenIs(lexer.INDENT) {
+			p.nextToken() // INDENT
+			break
+		} else {
+			p.peekError(lexer.INDENT)
+			return nil
+		}
 	}
 
 	stmt.Body = p.parseBlockStatement()
@@ -322,6 +333,16 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 			continue
 		}
 
+		// COMMENT'leri atla
+		if p.curTokenIs(lexer.COMMENT) {
+			p.nextToken()
+			// COMMENT sonrası NEWLINE'ı da atla
+			if p.curTokenIs(lexer.NEWLINE) {
+				p.nextToken()
+			}
+			continue
+		}
+
 		stmt := p.parseStatement()
 		if stmt != nil {
 			block.Statements = append(block.Statements, stmt)
@@ -469,15 +490,25 @@ func (p *Parser) parseClassStatement() *ast.ClassStatement {
 	}
 	stmt.Name = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
 
-	// SuperClass (opsiyonel)
-	if p.peekTokenIs(lexer.LPAREN) {
-		p.nextToken() // (
-		if !p.expectPeek(lexer.IDENT) {
-			return nil
-		}
-		stmt.SuperClass = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
-		if !p.expectPeek(lexer.RPAREN) {
-			return nil
+	// Multiple inheritance (class Duck : Flying, Swimming)
+	if p.peekTokenIs(lexer.COLON) {
+		p.nextToken() // :
+		p.nextToken() // first superclass
+
+		stmt.SuperClasses = []*ast.Identifier{}
+		stmt.SuperClasses = append(stmt.SuperClasses, &ast.Identifier{
+			Token: p.curToken,
+			Value: p.curToken.Literal,
+		})
+
+		// Additional superclasses (comma-separated)
+		for p.peekTokenIs(lexer.COMMA) {
+			p.nextToken() // ,
+			p.nextToken() // next superclass
+			stmt.SuperClasses = append(stmt.SuperClasses, &ast.Identifier{
+				Token: p.curToken,
+				Value: p.curToken.Literal,
+			})
 		}
 	}
 
@@ -508,6 +539,35 @@ func (p *Parser) parseClassStatement() *ast.ClassStatement {
 
 	// END token
 	if p.peekTokenIs(lexer.END) {
+		p.nextToken()
+	}
+
+	return stmt
+}
+
+// parseClassFieldStatement class field tanımlamasını parse eder (let field: type)
+func (p *Parser) parseClassFieldStatement() *ast.LetStatement {
+	stmt := &ast.LetStatement{Token: p.curToken}
+
+	// Field adı
+	if !p.expectPeek(lexer.IDENT) {
+		return nil
+	}
+	stmt.Name = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+
+	// Tip anotasyonu (zorunlu)
+	if !p.expectPeek(lexer.COLON) {
+		return nil
+	}
+	p.nextToken() // :
+	if !p.expectPeek(lexer.IDENT) {
+		return nil
+	}
+	p.nextToken() // tip
+	stmt.Type = p.parseTypeAnnotation()
+
+	// NEWLINE'a kadar ilerle
+	for !p.curTokenIs(lexer.NEWLINE) && !p.curTokenIs(lexer.EOF) {
 		p.nextToken()
 	}
 
