@@ -1,0 +1,11 @@
+function fibonacci(n: int): int
+  if n <= 1
+    return n
+  end
+  return fibonacci(n - 1) + fibonacci(n - 2)
+end
+
+function main: void
+  let result = fibonacci(25)
+  print("SKY Fibonacci(25) = " + result)
+end

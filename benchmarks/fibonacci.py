@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
-# Fibonacci benchmark for Python
+import time
 
-def fib(n):
+def fibonacci(n):
     if n <= 1:
         return n
-    return fib(n - 1) + fib(n - 2)
+    return fibonacci(n - 1) + fibonacci(n - 2)
 
 def main():
-    n = 35
-    print("Computing fib(35)...")
-    result = fib(n)
-    print(f"Result: {result}")
+    start = time.time()
+    result = fibonacci(35)
+    end = time.time()
+    duration = (end - start) * 1000  # Convert to milliseconds
+    
+    print(f"Python Fibonacci(35) = {result}")
+    print(f"Duration: {duration:.2f} ms")
 
 if __name__ == "__main__":
     main()
-

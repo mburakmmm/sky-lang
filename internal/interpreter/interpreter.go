@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/mburakmmm/sky-lang/internal/ast"
 	"github.com/mburakmmm/sky-lang/internal/lexer"
@@ -2350,6 +2351,14 @@ func addGlobalFunctions(env *Environment) {
 
 	// nil constant (alias for null)
 	env.Set("nil", &Nil{})
+
+	// time_now() - returns current time in milliseconds
+	env.Set("time_now", &Function{
+		Name: "time_now",
+		Body: func(callEnv *Environment) (Value, error) {
+			return &Integer{Value: int64(time.Now().UnixNano() / 1000000)}, nil
+		},
+	})
 }
 
 // addListMethods adds all Python-style list methods

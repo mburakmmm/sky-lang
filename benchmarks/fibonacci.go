@@ -1,18 +1,22 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
-func fib(n int) int {
+func fibonacci(n int) int {
 	if n <= 1 {
 		return n
 	}
-	return fib(n-1) + fib(n-2)
+	return fibonacci(n-1) + fibonacci(n-2)
 }
 
 func main() {
-	n := 35
-	fmt.Println("Computing fib(35)...")
-	result := fib(n)
-	fmt.Printf("Result: %d\n", result)
-}
+	start := time.Now()
+	result := fibonacci(35)
+	duration := time.Since(start)
 
+	fmt.Printf("Go Fibonacci(35) = %d\n", result)
+	fmt.Printf("Duration: %v\n", duration)
+}

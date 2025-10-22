@@ -1,0 +1,38 @@
+# Prime number benchmark - SKY
+function is_prime(n: int): bool
+  if n < 2
+    return false
+  end
+  
+  let i = 2
+  while i * i <= n
+    if n % i == 0
+      return false
+    end
+    i = i + 1
+  end
+  
+  return true
+end
+
+function count_primes(limit: int): int
+  let count = 0
+  let i = 2
+  while i < limit
+    if is_prime(i)
+      count = count + 1
+    end
+    i = i + 1
+  end
+  return count
+end
+
+function main: void
+  let start = time_now()
+  let result = count_primes(10000)
+  let finish = time_now()
+  let duration = finish - start
+  
+  print("SKY Primes up to 10000: " + result)
+  print("Duration: " + duration + " ms")
+end

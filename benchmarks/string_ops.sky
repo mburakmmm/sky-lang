@@ -1,0 +1,27 @@
+# String operations benchmark - SKY
+function string_operations: void
+  let text = "Hello World from SKY Programming Language"
+  let iterations = 100000
+  
+  let start = time_now()
+  
+  let i = 0
+  while i < iterations
+    let upper = text.upper()
+    let lower = text.lower()
+    let replaced = text.replace("SKY", "GO")
+    let joined = join("-", ["a", "b", "c"])
+    let split_result = text.split(" ")
+    i = i + 1
+  end
+  
+  let finish = time_now()
+  let duration = finish - start
+  
+  print("SKY String operations (" + iterations + " iterations)")
+  print("Duration: " + duration + " ms")
+end
+
+function main: void
+  string_operations()
+end
